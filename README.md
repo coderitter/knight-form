@@ -33,6 +33,19 @@ Do something with it!
 
 # Form
 
+## Elements
+
+There are four different types of elements.
+
+- `Form`
+- Fields: `Field`, `ObjectReferenceField`
+- Visuals elements: `FieldSet`, `Row`
+- Behavioural elements: `Mapping`
+
+Fields are used to indicate an affiliation to the object that is created out of the form. Use fields to shape the object your form should create.
+
+Bevavioural elements are for dynamic behaviour. For example the `Mapping` element can exchange parts of your form considering the value of a field.
+
 ## Configure the platform specific widget
 
 The elements of a form a rendered differently depending on the platform and renderer. There are different renderes for different platforms. Like for the browser there are renderes for Angular, React and Vue.
@@ -53,6 +66,13 @@ If you are using the built in validators then these will be taken into considera
 The object will contain every field that was defined in the form.
 
 ```typescript
+var form = new Form().add(
+  new FieldSet('general').add(
+    new Field('string', 'name', 'Name', 'Arne Steppat'),
+    new Field('number', 'level', 'Level', 9001)
+  )
+)
+
 var object = form.toObject()
 ```
 
@@ -62,6 +82,8 @@ var object = form.toObject()
   "level": 9001
 }
 ```
+
+When the object is created it ignores every element apart from fields.
 
 You can also give it an already existing object.
 
@@ -304,8 +326,6 @@ var nameField2 = form.findField('name')
 ```
 
 Note that fields are a special case here. To retreive a field you only need to consider all the parent fields but not any other parent element apart from fields.
-
-Also when the object is created it ignores every element apart from fields.
 
 ```json
 {
