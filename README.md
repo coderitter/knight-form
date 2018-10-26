@@ -338,10 +338,10 @@ Your element can but does not need to have a name.
 
 ```typescript
 var form1 = new Form()
-var form2 = new Form('Character') // the name will be used when creating the qualified name of an element. this affects the translation messages ids.
+var form2 = new Form('Character') // the name will be used in the path of an element. this affects translation message ids.
 ```
 
-## Qualified names
+## Paths
 
 ```typescript
 var field = new Field('string', 'name')
@@ -354,35 +354,31 @@ var form = new Form('Character').add( // 'Character'
   )
 )
 
-field.name // == 'name'
-field.qualifiedName // == 'Character.general.name'
-field.qualifiedFieldName // == 'Character.name'
+form.path // == ''
+fieldSet.path // == 'general'
+field.path // == 'general.name'
+```
 
-fieldSet.name // == 'general'
-fieldSet.qualifiedName // == 'Character.general'
-fieldSet.qualifiedFieldName // error: 'qualifiedFieldName' does only exist on fields
+The field path only takes fields and forms into consideration. This is good for translation because the ids are stable that way. Imagine adding a `FieldSet` and suddenly all translation ids are changing.
 
-form.name // == 'Character'
-form.qualifiedName // == 'Character'
-form.qualifiedFieldName // error: 'qualifiedFieldName' does only exist on fields
+```typescript
+field.path // == 'Character.general.name'
+field.fieldPath // == 'Character.name'
 ```
 
 ## Find elements
 
-Retreive elements when a visual element is involved.
+You can find elements by their path.
 
 ```typescript
 var fieldSet = form.find('general')
-var nameField1 = form.find('general.name')
-var nameField2 = form.findField('name')
+var nameField = form.find('general.name')
 ```
 
-Note that fields are a special case here. To retreive a field you only need to consider all the parent fields but not any other parent element apart from fields.
+To find a field you only need to consider all fields.
 
-```json
-{
-  "name": "Arne Steppat"
-}
+```typescript
+var nameField = form.findField('name')
 ```
 
 # ObjectReferenceField
@@ -431,7 +427,7 @@ For more information on the look of the generated error message translation ids 
 
 ## Use your own validator
 
-To use your own validation framework you can register a function which will receive your custom app specific context should be able to translate the error message.
+To use your own validation framework you can register a function which will receive your custom app specific context. That way you can access resources from your framework which you can use to translate the error messages for example.
 
 ```typescript
 var field = new Field('string', 'name')
