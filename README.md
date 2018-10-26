@@ -292,7 +292,7 @@ Your element can but does not need to have a name.
 
 ```typescript
 var form1 = new Form()
-var form2 = new Form('Character') // the name will be used when creating the qualified name of an element. this affects the chosen 
+var form2 = new Form('Character') // the name will be used when creating the qualified name of an element. this affects the translation messages ids.
 ```
 
 ## Qualified names
@@ -331,7 +331,7 @@ var nameField1 = form.find('general.name')
 var nameField2 = form.findField('name')
 ```
 
-Note that fields are a special case here. To retreive a field you only need to consider all the parent fields but not any other parent element apart from fields. It is `qualifiedFieldName` that is used here.
+Note that fields are a special case here. To retreive a field you only need to consider all the parent fields but not any other parent element apart from fields.
 
 Also when the object is created it ignores every element apart from fields.
 
@@ -375,13 +375,13 @@ nameField.isValid(context) // you can call validate on any form element
 
 When using the built in validators then your context needs to have a `translate` method to be able to translate the error message ids. Attach you translation framework there.
 
-For more information on the look of the generated error translation ids refer to the validator documentation.
-
 ```typescript
 class Context {
   translate(id)
 }
 ```
+
+For more information on the look of the generated error message translation ids refer to the validator documentation.
 
 ## Use your own validator
 
