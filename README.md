@@ -1,31 +1,13 @@
 # jsonui - form
 
-Define your form in JSON.
-
-```json
-// CharacterForm.json
-{
-  "@type": "Form",
-  "name": "Character",
-  "elements": [
-    {
-      "@type": "Field",
-      "valueType": "String",
-      "name": "name"
-    },
-    {
-      "@type": "Field",
-      "valueType": "Number",
-      "name": "level"
-    }
-  ]
-}
-```
-
 Create a form in your app. There is support for multiple languages like JavaScript, TypeScript, Java, C# and so on. A complete list can be found here.
 
 ```typescript
-var form = new Form("path/to/CharacterForm.json")
+var form = new Form()
+form.add(
+  new Field('string', 'name', 'Name', 'Arne Steppat'),
+  new Field('number', 'level', 'Level', 9001)
+)
 ```
 
 Render it with on of the many renderers for different platforms like the ones for the browser which support Angular, React or Vue. A complete list of all renderes can be found here.
@@ -51,16 +33,6 @@ Do something with it!
 
 # Form
 
-Define a form a form programmatically.
-
-```typescript
-var form = new Form()
-form.add(
-  new Field('string', 'name', 'Name', 'Arne Steppat'),
-  new Field('number', 'level', 'Level', 9001)
-)
-```
-
 ## Configure the platform specific widget
 
 The elements of a form a rendered differently depending on the platform and renderer. There are different renderes for different platforms. Like for the browser there are renderes for Angular, React and Vue.
@@ -72,9 +44,9 @@ var max = 9000
 field.widget = new HtmlInput.number(min, max)
 ```
 
-If you do not need to configure you can leave it out. The appropriate widget will chosen automatically.
+If you do not need to configure you can leave it out. The appropriate widget will be chosen automatically.
 
-If you are using the built in validators than these will be taken into consideration when your widgets are configured.
+If you are using the built in validators then these will be taken into consideration when your widgets are configured.
 
 ## Create an object with all form values
 
