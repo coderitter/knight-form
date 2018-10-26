@@ -6,11 +6,15 @@ Create a form in your app. There is support for multiple languages like JavaScri
 var form = new Form()
 form.add(
   new Field('string', 'name', 'Name', 'Arne Steppat'),
-  new Field('number', 'level', 'Level', 9001)
+  new Field('number', 'level', 'Level', 9001),
+  new MainButtons().add(
+    new Button('reset', 'Reset'),
+    new Button('submit', 'Submit')
+  )
 )
 ```
 
-Render it with on of the many renderers for different platforms like the ones for the browser which support Angular, React or Vue. A complete list of all renderes can be found here.
+Render it with one of the many renderers for different platforms like the ones for the browser which support Angular, React or Vue. A complete list of all renderes can be found here.
 
 ```typescript
 // example in React
@@ -38,6 +42,7 @@ Do something with it!
 There are four different types of elements.
 
 - `Form`
+- `Button`
 - Fields: `Field`, `ObjectReferenceField`
 - Visuals elements: `FieldSet`, `Row`
 - Behavioural elements: `Mapping`
@@ -90,6 +95,14 @@ You can also give it an already existing object.
 ```typescript
 var object = { ... }
 form.toObject(object)
+```
+
+## Reset form
+
+If you want to restore all the initial values use the `reset` method.
+
+```typescript
+form.reset()
 ```
 
 ## Combine forms
@@ -245,18 +258,48 @@ The resulting object after a call to `toObject` will look like this.
 }
 ```
 
-## Form submission
+## Actions and form submission
 
-On form submission use method `toObject` and send the created object to the server. Before you do that you could also make sure that everything is valid.
+You can set an action on a form.
 
 ```typescript
-if (form.isValid()) {
-  var object = form.toObject()
-  http.send('POST', 'dbz.com/form', object)
-}
+form.action = new Action('POST', 'dbz.com/form')
 ```
 
-On the server you can use it to set the values on the form object there. Create the form from a JSON file that you share across both of them.
+Then you need to give the form an object that has a `send` method.
+
+```typescript
+var http = {
+  send(method, url, data, callback) {
+    // wire your http framework here
+  }
+}
+
+form.http = http
+```
+
+Now you can submit the form.
+
+```typescript
+form.submit()
+```
+
+It will check if everything is valid, then create the resulting object and send it via your given http object to its target.
+
+If there is another form in your form which is not affiliated to a field and if this form also has an action it will be sent too.
+
+```typescript
+var form = new Form().add(
+  new Form('inner')
+)
+
+form.action = new Action('POST', 'dbz.com/form')
+form.find('inner').action = new Action('POST', 'dbz.com/inner')
+
+form.submit() // two HTTP requests are sent
+```
+
+Create the same form on the server for example from a given JSON file and set its values from the received object.
 
 ```typescript
 var form = Form.from('path/to/form.json')
@@ -277,6 +320,15 @@ else {
 }
 ```
 
+## Register for button events
+
+You can also register for button events.
+
+```typescript
+form.listen('submit', button => {
+  // do something
+})
+```
 
 # Element
 
@@ -365,11 +417,13 @@ form.isValid() // you can leave the context out if you do not need it
 nameField.isValid(context) // you can call validate on any form element
 ```
 
-When using the built in validators then your context needs to have a `translate` method to be able to translate the error message ids. Attach you translation framework there.
+When using the built in validators then your context needs to have a `translate` method to be able to translate the error message ids.
 
 ```typescript
 class Context {
-  translate(id)
+  translate(id) {
+    // attach you translation framework there
+  }
 }
 ```
 
