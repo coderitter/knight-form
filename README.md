@@ -235,9 +235,9 @@ You can also input any arbitrary JSON or object. Important is that the field str
 var object = {
   name: 'Arne Steppat',
   skills: {
-    agility: "78", // string will be converted to number if possible
-    strength: "NaN", // cannot be converted thus will just be assigned as is
-    unknownField: "unknown" // will be ignored because the form does not have a corresponding field in the form
+    agility: '78', // string will be converted to number if possible
+    strength: 'NaN', // cannot be converted thus will just be assigned as is
+    unknownField: 'unknown' // will be ignored because the form does not have a corresponding field in the form
   }
 }
 
@@ -427,13 +427,56 @@ skillsForm.findField('agility') // works
 form.find('Skills.agility') // works
 ```
 
+# Elements
+
+Its a semantic-less container for elements. It is the base clas for all elements containing further elements.
+
+```typescript
+var elements = new Elements('elements').add(
+  new Field('string', 'race'),
+  new Field('string', 'hairColor')
+)
+```
+
 # ObjectReferenceField
 
 # Row
 
 # FieldSet
 
-# Mapped
+# Mapping
+
+The mapping element maps a key to a form element.
+
+```typescript
+var mapping = new Mapping().add(
+  new KeyToElement('key', new Elements().add(
+    /// ...
+  ))
+)
+```
+
+This class serves as a base class. You can attach any logic that you like. Most likely you want to interpret the key as a condition. Look at `FieldValueMapping` for a concrete use case.
+
+# FieldValueMapping
+
+This element maps the value of a field to a form element. If the field has the specified value the corresponding element will be inlined into the form.
+
+```typescript
+var form = new Form().add(
+  new Field('boolean', 'hasTail'),
+  new FieldValueMapping('elementName', 'hasTail').add(
+    new KeyToElement(true, new Elements().add(
+      new Field('number', 'levelWithTail'),
+      new Field('number', 'tailLength')
+    )
+  )
+)
+```
+
+If the field with name `hasTail` has the value `true` the `Elements` element will be inlined into the parent element.
+
+That way you can show further form elements if a field has a certain value.
 
 # Translation
 
