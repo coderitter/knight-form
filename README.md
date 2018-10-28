@@ -7,7 +7,7 @@ var form = new Form()
 form.add(
   new Field('string', 'name', 'Name', 'Arne Steppat'),
   new Field('number', 'level', 'Level', 9001),
-  new MainButtons().add(
+  new Row().add(
     new Button('reset', 'Reset'),
     new Button('submit', 'Submit')
   )
@@ -33,7 +33,11 @@ var object = form.toObject()
 }
 ```
 
-Do something with it!
+Put the objects values back into the form.
+
+```typescript
+form.setValues(object)
+```
 
 # Form
 
@@ -49,7 +53,7 @@ There are four different types of elements.
 
 Fields are used to indicate an affiliation to the object that is created out of the form. Use fields to shape the object your form should create.
 
-Bevavioural elements are for dynamic behaviour. For example the `Mapping` element can exchange parts of your form considering the value of a field.
+Bevavioural elements are for dynamic behaviour. For example the `Mapping` element can exchange parts of your form considering the value of another field.
 
 ## Configure the platform specific widget
 
