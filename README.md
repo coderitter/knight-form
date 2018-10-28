@@ -1,4 +1,4 @@
-# jsonui - form
+# Introduction
 
 Create a form in your app. There is support for multiple languages like JavaScript, TypeScript, Java, C# and so on. A complete list can be found here.
 
@@ -21,7 +21,7 @@ Render it with one of the many renderers for different platforms like the ones f
 ReactForm.render(form)
 ```
 
-After the user hits the submit button, create an object out of your form.
+Create an object out of your form.
 
 ```typescript
 var object = form.toObject()
@@ -33,7 +33,13 @@ var object = form.toObject()
 }
 ```
 
-Put the objects values back into the form.
+Or fill an existing object with the data of your form.
+
+```typescript
+form.toObject(object)
+```
+
+Init a form with an object.
 
 ```typescript
 form.setValues(object)
@@ -48,7 +54,7 @@ There are four different types of elements.
 - `Form`
 - `Button`
 - Fields: `Field`, `ObjectReferenceField`
-- Visuals elements: `FieldSet`, `Row`
+- Visuals elements: `Row`, `FieldSet`
 - Behavioural elements: `Mapping`
 
 Fields are used to indicate an affiliation to the object that is created out of the form. Use fields to shape the object your form should create.
@@ -270,27 +276,26 @@ You can set an action on a form.
 form.action = new Action('POST', 'dbz.com/form')
 ```
 
-Then you need to give the form an object that has a `send` method.
+Then you need to give the form a function with the following signature.
 
 ```typescript
-var http = {
-  send(method, url, data, callback) {
-    // wire your http framework here
-  }
+form.http = (method, url, data, callback) => {
+  // wire your HTTP client here
 }
-
-form.http = http
 ```
 
 Now you can submit the form.
 
 ```typescript
 form.submit()
+
+// or give the function as a parameter
+form.submit((method, url, data, callback) => { ... })
 ```
 
-It will check if everything is valid, then create the resulting object and send it via your given http object to its target.
+It will check if everything is valid, then create the resulting object and send it via your given function to its target.
 
-If there is another form in your form which is not affiliated to a field and if this form also has an action it will be sent too.
+If there is another form in your form which is not associated to a field and if this form also has an action it will be sent too.
 
 ```typescript
 var form = new Form().add(
@@ -298,19 +303,23 @@ var form = new Form().add(
 )
 
 form.action = new Action('POST', 'dbz.com/form')
-form.find('inner').action = new Action('POST', 'dbz.com/inner')
+form.find('inner').action = new Action('PUT', 'dbz.com/inner')
 
 form.submit() // two HTTP requests are sent
 ```
 
-Create the same form on the server for example from a given JSON file and set its values from the received object.
+On the server side you receive the object and put it into the same form as on the client. This is important for sanitizing the data coming from the client. You could also send the whole form but that way the client could send you any form which opens the door for abuse.
+
+If you are using a REST Api or similar than you need to have the definition on both the client and the server. You can achieve this by defining your form in a JSON file.
 
 ```typescript
 var form = Form.from('path/to/form.json')
 form.setValues(receivedObject)
 ```
 
-In a second step you could fill the target domain object which will be persisted into the database. Also here you should validate again.
+But there are different possibilities to approach this. We for example prefer to have all form definitions on the server and send them ready to use to the client which remaining task is to display them. This way the client does not need to fetch the raw data and execute business logic on it. Business logic that already was implemented on the server. More on this read the article here.
+
+In a second step you can fill the target domain object which will be persisted into the database. Also here you should validate again.
 
 ```typescript
 var domainObject = db.load(id)
@@ -324,12 +333,18 @@ else {
 }
 ```
 
+If the form was not valid, send it with the error messages back to the client. If the form was sent with the `submit()` method it will receive the form and put all its error messages in the currently displayed form.
+
 ## Register for button events
 
 You can also register for button events.
 
 ```typescript
 form.listen('submit', button => {
+  // do something
+})
+
+submitButton.listen(button => {
   // do something
 })
 ```
@@ -347,27 +362,36 @@ var form2 = new Form('Character') // the name will be used in the path of an ele
 
 ## Paths
 
+Every element has a path.
+
 ```typescript
-var field = new Field('string', 'name')
-
-var fieldSet = new FieldSet('general')
-
 var form = new Form('Character').add( // 'Character'
-  fieldSet.add( // 'general'
-    field // 'name'
+  new FieldSet('general').add( // 'general'
+    new Field('string', 'name') // 'name'
   )
 )
 
-form.path // == ''
-fieldSet.path // == 'general'
-field.path // == 'general.name'
+form.path // == 'Character'
+fieldSet.path // == 'Character.general'
+field.path // == 'Character.general.name'
 ```
 
-The field path only takes fields and forms into consideration. This is good for translation because the ids are stable that way. Imagine adding a `FieldSet` and suddenly all translation ids are changing.
+Fields also have a special path `fieldPath` which only takes fields up until the the first parent form into consideration. This is good for translation because that way the ids are stable. Imagine adding or removing a `FieldSet` and suddenly all translation ids are changing.
 
 ```typescript
-field.path // == 'Character.general.name'
 field.fieldPath // == 'Character.name'
+```
+
+Form inside a form which is not associated to a field.
+
+```typescript
+var form = new Form('Character').add(
+  new Form('Skills').add(
+    new Field('number', 'agility')
+  )
+)
+
+agilityField.fieldPath // == 'Skills.agility'
 ```
 
 ## Find elements
@@ -379,17 +403,47 @@ var fieldSet = form.find('general')
 var nameField = form.find('general.name')
 ```
 
-To find a field you only need to consider all fields.
+You can find fields by their field path.
 
 ```typescript
 var nameField = form.findField('name')
 ```
 
+If you want to find a field inside a form which is not associated to a field you need to start your find request from this form.
+
+```typescript
+var skillsForm = new Form('Skills').add(
+    new Field('number', 'agility')
+  )
+
+var form = new Form('Character').add(
+  skillsForm
+)
+
+form.findField('agility') // nothing
+skillsForm.findField('agility') // works
+
+// using find method
+form.find('Skills.agility') // works
+```
+
 # ObjectReferenceField
+
+# Row
 
 # FieldSet
 
 # Mapped
+
+# Translation
+
+The labels for the elements are translated using the `path` of an element as the translation message id. In case of a field the path will be the `fieldPath`. That way ids stay stable regardless of changes in visual elements or not. Add a `Row` for example and the fields inside the new row still have the same translation message id.
+
+```typescript
+form.translate(path => {
+  // wire your translation framework here
+})
+```
 
 # Validation
 
@@ -417,12 +471,14 @@ form.isValid() // you can leave the context out if you do not need it
 nameField.isValid(context) // you can call validate on any form element
 ```
 
+*** This is work in progress ***
+
 When using the built in validators then your context needs to have a `translate` method to be able to translate the error message ids.
 
 ```typescript
 class Context {
-  translate(id) {
-    // attach you translation framework there
+  translate(path) {
+    // wire your translation framework there
   }
 }
 ```
@@ -445,13 +501,4 @@ field.setValidator(context => {
   
   return true
 })
-```
-
-# Translation
-
-```typescript
-form.translate(qualifiedName => translate(qualifiedName)) // in case of a field 'qualifiedName' will be the 'qualifiedFieldName'
-
-field.label // == 'Name'
-fieldSet.label // == 'General'
 ```
