@@ -440,9 +440,27 @@ var elements = new Elements('elements').add(
 
 # ObjectReferenceField
 
+
+
 # Row
 
+A visual element to define that the contained elements should be in a row.
+
+```typescript
+var row = new Row('rowName').add(
+  // any element
+)
+```
+
 # FieldSet
+
+A visual element to define that the contained elements should be framed.
+
+```typescript
+var fieldSet = new FieldSet('fieldSetName').add(
+  // any element
+)
+```
 
 # Mapping
 
