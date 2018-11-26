@@ -51,10 +51,10 @@ form.setValues(arne)
 
 # Element
 
-The element is the base class for every form element. There are four different types.
+The element is the base class for every form element. There are five different types.
 
 - Container: `Form`, `Elements`
-- `Button`
+- Buttons: `Button`
 - Fields: `Field`, `ObjectReferenceField`
 - Visuals elements: `Row`, `FieldSet`
 - Behavioural elements: `Mapping`
@@ -71,7 +71,7 @@ Every element has the following attributes.
 - `disabled`: Is it disabled?
 - `path`: The path composed of the name of every element up to the root element
 
-You will never have to set the `parent`. This will done automatically for you when an element is added.
+You will never have to set the `parent`. This will be done automatically for you when an element is added.
 
 The `name` will be used to be able to retreive an element from the form. In case of fields the name additionally reflects an attribute name on one of your objects.
 
@@ -118,7 +118,7 @@ var form = form.add(
   )
 )
 
-var resetButton = form.find('general.reset') // ignores the row and still finds the element
+form.find('general.reset') // ignores the row and still finds the element
 ```
 
 At first the form tries to resolve the path gapless not considering container elements without a name. If this fails the form starts to search the whole tree matching the path allowing gaps. If it finds only one element it will return it. Otherwise it will return null leaving a error message in the log.
