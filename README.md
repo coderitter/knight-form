@@ -28,7 +28,7 @@ ReactForm.render(form)
 Create an object out of your form.
 
 ```typescript
-var object = form.toObject()
+var arne = form.toObject()
 ```
 ```json
 {
@@ -40,13 +40,13 @@ var object = form.toObject()
 Or fill an existing object with the data of your form.
 
 ```typescript
-form.toObject(object)
+form.toObject(arne)
 ```
 
 Use it again to fill the form with values.
 
 ```typescript
-form.setValues(object)
+form.setValues(arne)
 ```
 
 # Element
