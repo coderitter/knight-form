@@ -1,6 +1,8 @@
 # Introduction
 
-Create a form in your app. There is support for multiple languages like JavaScript, TypeScript, Java, C# and so on. A complete list can be found here.
+A multi platform form library. Create once. Use everywhere.
+
+Create a form in your app.
 
 ```typescript
 var form = new Form()
@@ -13,6 +15,8 @@ form.add(
   )
 )
 ```
+
+There is support for multiple languages like JavaScript, TypeScript, Java, C# and so on. A complete list can be found here.
 
 Render it with one of the many renderers for different platforms like the ones for the browser which support Angular, React or Vue. A complete list of all renderes can be found here.
 
@@ -39,44 +43,109 @@ Or fill an existing object with the data of your form.
 form.toObject(object)
 ```
 
-Init a form with an object.
+Use it to fill the form with values.
 
 ```typescript
 form.setValues(object)
 ```
 
-# Form
+# Element
 
-## Elements
+The element is the base class for every form element. There are four different types.
 
-There are four different types of elements.
-
-- `Form`
+- Container: `Form`, `Elements`
 - `Button`
 - Fields: `Field`, `ObjectReferenceField`
 - Visuals elements: `Row`, `FieldSet`
 - Behavioural elements: `Mapping`
 
-Fields are used to indicate an affiliation to the object that is created out of the form. Use fields to shape the object your form should create.
+Basically the form contains fields that describe the structure on an object. You can add visual elements to it like a field set. You will need buttons and for complicated cases there are behavioural elements.
 
-Bevavioural elements are for dynamic behaviour. For example the `Mapping` element can exchange parts of your form considering the value of another field.
+## Attributes
 
-## Configure the platform specific widget
+Every element has the following attributes.
 
-The elements of a form a rendered differently depending on the platform and renderer. There are different renderes for different platforms. Like for the browser there are renderes for Angular, React and Vue.
+- `parent`: Every element knows its parent.
+- `name`: Every element has a name which it can be refered to.
+- `invisible`: Is it visible?
+- `disabled`: Is it disabled?
+
+You will never have to set the `parent`. This will done automatically for you when an element is added. The `name` will be used to be able to retreive an element from the form. In case of fields the name additionally reflects an attribute name on one of your objects.
+
+## Retreiving elements
+
+The `find()` method lets you retreive any element from any element. A dot notation is used to access fields down the chain.
 
 ```typescript
-var field = new Field('number')
-var min = 0
-var max = 9000
-field.widget = new HtmlInput.number(min, max)
+var form = form.add(
+  new FieldSet('general').add(
+    new Field('string', 'name'),
+    new Field('number', 'level')
+  )
+)
+
+var generalFieldSet = form.find('general')
+var nameField = form.find('general.name')
 ```
 
-If you do not need to configure you can leave it out. The appropriate widget will be chosen automatically.
+If an element which contains sub elements does not have a name it will still be taken into consideration.
 
-If you are using the built in validators then these will be taken into consideration when your widgets are configured.
+```typescript
+var form = form.add(
+  new FieldSet('general').add(
+    new Field('string', 'name'),
+    new Row().add(
+      new Button('reset'),
+      new Button('submit')
+    )
+  )
+)
 
-## Create an object with all form values
+var resetButton = form.find('general.reset') // ignores the row and still finds the element
+```
+
+At first the form tries to resolve the path gapless not considering container elements without a name. If this fails the form starts to search the whole tree matching the path allowing gaps. If it finds only one element it will return it. Otherwise it will return null leaving a error message in the log.
+
+We use a very tolerant approach here in order to meet you. Even if you are being more loose in your specifications the form will still try to make the best out of it.
+
+## Parent
+
+Because every element knows its parent there is some functionality available.
+
+```typescript
+element.parent
+element.root // the root element which can be the form but has not to be
+element.form // the next parent form up in the chain
+element.path // the complete path of the element up the the root
+```
+
+## Paths
+
+Every element has a path.
+
+```typescript
+new Form('character').add( // character
+  new FieldSet('general').add( // character.general
+    new Field('string', 'name') // character.general.name
+  )
+)
+```
+
+## Element properties act as features
+
+Setting values on the elements is always optional. Think of it like activating a feature if you set a certain property. If you do not need a certain feature the library will not mind. This is a different approach then to create sub classes for every variant.
+
+For example if you leave out the name and you want to retreive that element by its name you will not find it. It will find nothing. If you want to create an object and a field does not have a name it will simply be left out.
+
+# Form
+
+The form always represents the realm of an object. It is able to create a specific object that you can configure.
+
+```typescript
+new Form('name')
+```
+
+## Object creation
 
 The object will contain every field that was defined in the form.
 
@@ -164,39 +233,42 @@ But it will not be considered when creating the object.
 
 Only fields will be considered. So use it wisely.
 
-## Create a form from
+## Form creation from different sources
 
-### JSON
+You can create forms from a form definition in JSON and in general from objects that have the same properties as the form elements including form elements itself.
 
-Create a form from JSON.
+### JSON string
 
 ```typescript
-var jsonString = '...'
-var form = Form.from(jsonString)
+Form.from(jsonString)
 ```
 
 ### JSON file
 
-Create a form from a file containing a JSON string.
-
 ```typescript
-var form = Form.from('path/to/file.json')
+Form.from('path/to/file.json')
 ```
 
-### Form data object
-
-Especially after you parsed a JSON string you will get nacked data objects which do not have any methods. Therefor you want to have the real thing.
+### Form element objects
 
 ```typescript
-var dataObject = {
-  '@type': 'Form',
-  ...
-}
-
-var form = Form.from(dataObject)
+Form.from(new Form().add(...))
 ```
 
-## Set values on a form from
+### Form alike objects
+
+You can create a form from any object that looks alike valid form elements. Just deliver the expected properties.
+
+```typescript
+Form.from({
+  '@type': 'form',
+  name: 'character'
+})
+```
+
+The `type` property is mandatory here. Without it the correct form element class cannot be chosen.
+
+## Set values on a form
 
 ### Form
 
@@ -232,38 +304,36 @@ Results in the object.
 You can also input any arbitrary JSON or object. Important is that the field structure and the object structure match somewhere.
 
 ```typescript
-var object = {
+var form = new Form().add(
+  new Field('string', 'name'),
+  new Field('object', 'skills', new Form().add(
+    new Field('number', 'agility'),
+    new Field('number', 'strength'))
+  )
+)
+
+var arne = {
   name: 'Arne Steppat',
   skills: {
-    agility: '78', // string will be converted to number if possible
-    strength: 'NaN', // cannot be converted thus will just be assigned as is
+    agility: 78,
+    strength: 'NaN', // will be assigned as string
     unknownField: 'unknown' // will be ignored because the form does not have a corresponding field in the form
   }
 }
 
-var skillForm = new Form().add(
-  new Field('number', 'agility'),
-  new Field('number', 'strength')
-)
-
-var characterForm = new Form().add(
-  new Field('string', 'name'),
-  new Field('object', 'skills', skillForm)
-)
-
-characterForm.setValues(object)
-skillForm.setValues(object) // will do nothing because structure does not match
-skillForm.setValues(object.skills) // works!
+form.setValues(arne)
+form.find('skills').setValues(arne) // will do nothing because structure does not match
+form.find('skills').setValues(arne.skills) // works!
 ```
 
-The resulting object after a call to `toObject` will look like this.
+The resulting object after a call to `toObject()` will look like this in JSON.
 
 ```json
 {
   "name": "Arne Steppat",
   "skills": {
-    "agility": 78, // corrected to number!
-    "strength": "NaN" // could not be corrected
+    "agility": 78,
+    "strength": "NaN"
   }
 }
 ```
@@ -310,7 +380,7 @@ form.submit() // two HTTP requests are sent
 
 On the server side you receive the object and put it into the same form as on the client. This is important for sanitizing the data coming from the client. You could also send the whole form but that way the client could send you any form which opens the door for abuse.
 
-If you are using a REST Api or similar than you need to have the definition on both the client and the server. You can achieve this by defining your form in a JSON file.
+This you will want to have the definition on both the client and the server. On the client for displaying and on the server for sanitizing. For sanitizing just put the received object into the form. Load the form from a JSON file for example.
 
 ```typescript
 var form = Form.from('path/to/form.json')
@@ -333,103 +403,27 @@ else {
 }
 ```
 
-If the form was not valid, send it with the error messages back to the client. If the form was sent with the `submit()` method it will receive the form and put all its error messages in the currently displayed form.
+If the form was not valid, send it with the error messages back to the client. If the form was sent with its `submit()` method it will receive the form and put all its error messages in the currently displayed one.
 
 ## Register for button events
 
 You can also register for button events.
 
 ```typescript
+// let the form find the elemnt and set a listener on it
 form.listen('submit', button => {
-  // do something
+  
 })
 
-submitButton.listen(button => {
-  // do something
+// set listener directly on the element
+form.find('submit').listen(button => {
+  
 })
-```
-
-# Element
-
-This is the base class of all form elements. Basically there are forms, fields, visual components and behavioural components.
-
-Your element can but does not need to have a name.
-
-```typescript
-var form1 = new Form()
-var form2 = new Form('Character') // the name will be used in the path of an element. this affects translation message ids.
-```
-
-## Paths
-
-Every element has a path.
-
-```typescript
-var form = new Form('Character').add( // 'Character'
-  new FieldSet('general').add( // 'general'
-    new Field('string', 'name') // 'name'
-  )
-)
-
-form.path // == 'Character'
-fieldSet.path // == 'Character.general'
-field.path // == 'Character.general.name'
-```
-
-Fields also have a special path `fieldPath` which only takes fields up until the the first parent form into consideration. This is good for translation because that way the ids are stable. Imagine adding or removing a `FieldSet` and suddenly all translation ids are changing.
-
-```typescript
-field.fieldPath // == 'Character.name'
-```
-
-Form inside a form which is not associated to a field.
-
-```typescript
-var form = new Form('Character').add(
-  new Form('Skills').add(
-    new Field('number', 'agility')
-  )
-)
-
-agilityField.fieldPath // == 'Skills.agility'
-```
-
-## Find elements
-
-You can find elements by their path.
-
-```typescript
-var fieldSet = form.find('general')
-var nameField = form.find('general.name')
-```
-
-You can find fields by their field path.
-
-```typescript
-var nameField = form.findField('name')
-```
-
-If you want to find a field inside a form which is not associated to a field you need to start your find request from this form.
-
-```typescript
-var skillsForm = new Form('Skills').add(
-    new Field('number', 'agility')
-  )
-
-var form = new Form('Character').add(
-  skillsForm
-)
-
-form.findField('agility') // nothing
-skillsForm.findField('agility') // works
-
-// using find method
-form.find('Skills.agility') // works
 ```
 
 # Elements
 
-Its a semantic-less container for elements. It is the base clas for all elements containing further elements.
+Its a semantic-less container for elements. It is the base class for all elements containing further elements.
 
 ```typescript
 var elements = new Elements('elements').add(
@@ -438,11 +432,98 @@ var elements = new Elements('elements').add(
 )
 ```
 
-# ObjectReferenceField
+# Field
+
+The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents an attribute on your object. So you can design the form in a way it works together with the objects of your application flawlessly.
+
+## The field path
+
+Fields additionally have a special path `fieldPath` which only takes fields into consideration. This is good for translation because that way the ids are stable. Imagine adding or removing a `FieldSet` and suddenly all translation ids are changing.
+
+```typescript
+new Form('character').add(
+  new FieldSet('general').add(
+    new Field('string', 'name') // character.name
+  )
+)
+```
+
+Here is an example for a form inside a form. The `fieldName` will only consider fields up to the next form element up the chain.
+
+```typescript
+var form = new Form('character').add(
+  new Form('skills').add(
+    new Field('number', 'agility') // skills.agility
+  )
+)
+```
+
+You can find more on forms inside forms here.
+
+## Primitive type fields
+
+Primitive types that have the simplest configuration.
+
+- boolean
+- date
+- float32, float64
+- int8, int16, int32, int64
+- string
+
+The constructor for all of these look the same.
+
+```typescript
+var booleanField = new Field('boolean', 'name', 'label', value)
+```
+
+Just exchange the value type `boolean` with anything from the above list.
+
+In the field the name additionally represents the name of an attribute on an object. It is key for mapping your form fields to actual object attributes.
+
+## Fields with options
+
+An option is basically a value and a label. 
+
+```typescript
+var option = new Option(value, 'label', disabled)
+```
+
+It can be rendered to a drop down for example. But a widget could chose to render something completely different. The field itself does not describe a specific apperance. It only provides the data needed to render something meaningful.
+
+Activate the feature on a field by presenting an array of options.
+
+```typescript
+var options = [
+  new Option(150, "Satan"),
+  new Option(9001, "Son Goku"),
+  new Option(100000000, "Omni-King", true)
+]
+
+var field = new Field("int64", "level", "Level", null, options)
+```
+
+Now it will be rendered as something the user can choose from.
+
+## Object fields
+
+An object field has an object as its value.
+
+```typescript
+var skills = new Skills()
+```
+
+## Array fields
+
+## ObjectReferenceField
 
 
 
-# Row
+```typescript
+
+```
+
+# Visual elements
+## Row
 
 A visual element to define that the contained elements should be in a row.
 
@@ -452,7 +533,7 @@ var row = new Row('rowName').add(
 )
 ```
 
-# FieldSet
+## FieldSet
 
 A visual element to define that the contained elements should be framed.
 
@@ -462,9 +543,11 @@ var fieldSet = new FieldSet('fieldSetName').add(
 )
 ```
 
-# Mapping
+# Behavioural elements
 
-The mapping element maps a key to a form element.
+## Mapping
+
+The mapping element maps a key to a form element. Use it to your liking to create new behavioural elements tailored to your needs. It is just a data structure which can be used for any behaviour.
 
 ```typescript
 var mapping = new Mapping().add(
@@ -476,7 +559,7 @@ var mapping = new Mapping().add(
 
 This class serves as a base class. You can attach any logic that you like. Most likely you want to interpret the key as a condition. Look at `FieldValueMapping` for a concrete use case.
 
-# FieldValueMapping
+## FieldValueMapping
 
 This element maps the value of a field to a form element. If the field has the specified value the corresponding element will be inlined into the form.
 
@@ -505,6 +588,25 @@ form.translate(path => {
   // wire your translation framework here
 })
 ```
+
+# Widgets
+
+The elements of a form a rendered differently depending on the platform and renderer. There are different renderes for different platforms. Like for the browser there are renderes for Angular, React and Vue.
+
+```typescript
+var field = new Field('number')
+var min = 0
+var max = 9000
+field.widget = new HtmlInput.number(min, max)
+```
+
+If you do not need to configure you can leave it out. The appropriate widget will be chosen automatically.
+
+If you are using the built in validators then these will be taken into consideration when your widgets are configured.
+
+## ???
+
+In the end depends on the rendering algorithm what it does need to produce a proper widget. Though it most likely will want to use every parameter. Still the rendering libs are programmed with a policy of forgiveness in mind. If a value is missing it will chose a meaningful default.
 
 # Validation
 
@@ -563,3 +665,7 @@ field.setValidator(context => {
   return true
 })
 ```
+
+# Extend
+
+## Global instantiator
