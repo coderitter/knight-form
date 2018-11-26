@@ -43,7 +43,7 @@ Or fill an existing object with the data of your form.
 form.toObject(object)
 ```
 
-Use it to fill the form with values.
+Use it again to fill the form with values.
 
 ```typescript
 form.setValues(object)
@@ -70,7 +70,9 @@ Every element has the following attributes.
 - `invisible`: Is it visible?
 - `disabled`: Is it disabled?
 
-You will never have to set the `parent`. This will done automatically for you when an element is added. The `name` will be used to be able to retreive an element from the form. In case of fields the name additionally reflects an attribute name on one of your objects.
+You will never have to set the `parent`. This will done automatically for you when an element is added.
+
+The `name` will be used to be able to retreive an element from the form. In case of fields the name additionally reflects an attribute name on one of your objects.
 
 ## Retreiving elements
 
