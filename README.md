@@ -61,7 +61,7 @@ The element is the base class for every form element. There are four different t
 
 Basically the form contains fields that describe the structure on an object. You can add visual elements to it like a field set. You will need buttons and for complicated cases there are behavioural elements.
 
-## Attributes
+## Element attributes
 
 Every element has the following attributes.
 
@@ -84,8 +84,8 @@ var form = form.add(
   )
 )
 
-var generalFieldSet = form.find('general')
-var nameField = form.find('general.name')
+form.find('general')
+form.find('general.name')
 ```
 
 If an element which contains sub elements does not have a name it will still be taken into consideration.
@@ -176,6 +176,26 @@ var object = { ... }
 form.toObject(object)
 ```
 
+If you have a form inside a form the inner form will not be considered when creating the object.
+
+```typescript
+new Form().add(
+  new Field('string', 'name', 'Name', 'Arne Steppat'),
+  new Form().add(
+    new Field('number', 'agility', 'Agility', 99),
+    new Field('number', 'strength', 'Strength', 45)
+  )
+)
+```
+
+```json
+{
+  "name": "Arne Steppat"
+}
+```
+
+Only fields will be considered because they declare an affiliation to the object. So use it wisely.
+
 ## Reset form
 
 If you want to restore all the initial values use the `reset` method.
@@ -189,14 +209,12 @@ form.reset()
 You can combine forms by using a field of type `object`.
 
 ```typescript
-var skillForm = new Form().add(
-  new Field('number', 'agility', 'Agility', 99),
-  new Field('number', 'strength', 'Strength', 45)
-)
-
 var characterForm = new Form().add(
   new Field('string', 'name', 'Name', 'Arne Steppat'),
-  new Field('object', 'skills', 'Skills', skillForm)
+  new Field('object', 'skills', 'Skills', new Form().add(
+    new Field('number', 'agility', 'Agility', 99),
+    new Field('number', 'strength', 'Strength', 45))
+  )
 )
 ```
 
@@ -211,66 +229,25 @@ The result object would look like this.
 }
 ```
 
-You can also put a form inside a form.
-
-```typescript
-var characterForm = new Form().add(
-  new Field('string', 'name', 'Name', 'Arne Steppat'),
-  new Form().add(
-    new Field('number', 'agility', 'Agility', 99),
-    new Field('number', 'strength', 'Strength', 45)
-  )
-)
-```
-
-But it will not be considered when creating the object.
-
-```json
-{
-  "name": "Arne Steppat"
-}
-```
-
-Only fields will be considered. So use it wisely.
-
 ## Form creation from different sources
 
-You can create forms from a form definition in JSON and in general from objects that have the same properties as the form elements including form elements itself.
-
-### JSON string
+You can create forms from a form definitions in JSON and in general from objects that have the same properties as the form elements including form elements itself.
 
 ```typescript
-Form.from(jsonString)
-```
+Form.from(jsonString) // from a JSON string
+Form.from('path/to/file.json') // from a JSON inside a file
+Form.from(new Form().add(...)) // from another form
 
-### JSON file
-
-```typescript
-Form.from('path/to/file.json')
-```
-
-### Form element objects
-
-```typescript
-Form.from(new Form().add(...))
-```
-
-### Form alike objects
-
-You can create a form from any object that looks alike valid form elements. Just deliver the expected properties.
-
-```typescript
-Form.from({
+Form.from({ // from a form alike object
   '@type': 'form',
   name: 'character'
 })
+
 ```
 
-The `type` property is mandatory here. Without it the correct form element class cannot be chosen.
+In the latter case the `type` property is important. Without it the correct form element class cannot be chosen.
 
 ## Set values on a form
-
-### Form
 
 You can give a JSON string or a form object, wether as a plain data object or as an instantiated form object does not matter.
 
@@ -298,8 +275,6 @@ Results in the object.
   "name": "Arne Steppat"
 }
 ```
-
-### Arbitrary object
 
 You can also input any arbitrary JSON or object. Important is that the field structure and the object structure match somewhere.
 
@@ -423,7 +398,7 @@ form.find('submit').listen(button => {
 
 # Elements
 
-Its a semantic-less container for elements. It is the base class for all elements containing further elements.
+Its a semantic-less container for elements. It is also the base class for all elements containing further elements.
 
 ```typescript
 var elements = new Elements('elements').add(
@@ -496,7 +471,7 @@ Activate the feature on a field by presenting an array of options.
 var options = [
   new Option(150, "Satan"),
   new Option(9001, "Son Goku"),
-  new Option(100000000, "Omni-King", true)
+  new Option(100000000, "Omni-King", true) // it is disabled
 ]
 
 var field = new Field("int64", "level", "Level", null, options)
@@ -666,6 +641,10 @@ field.setValidator(context => {
 })
 ```
 
-# Extend
+# Extending
 
-## Global instantiator
+## Inheriting fields
+
+## Register your fields in the engine
+
+## Add widgets
