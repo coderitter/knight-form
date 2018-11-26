@@ -61,7 +61,7 @@ The element is the base class for every form element. There are four different t
 
 Basically the form contains fields that describe the structure on an object. You can add visual elements to it like a field set. You will need buttons and for complicated cases there are behavioural elements.
 
-## Element attributes
+## Element properties
 
 Every element has the following attributes.
 
@@ -69,10 +69,25 @@ Every element has the following attributes.
 - `name`: Every element has a name which it can be refered to.
 - `invisible`: Is it visible?
 - `disabled`: Is it disabled?
+- `path`: The path composed of the name of every element up to the root element
 
 You will never have to set the `parent`. This will done automatically for you when an element is added.
 
 The `name` will be used to be able to retreive an element from the form. In case of fields the name additionally reflects an attribute name on one of your objects.
+
+## Paths
+
+Every element has a path. It is composed of every element's name up to the root element.
+
+```typescript
+new Form('character').add( // character
+  new FieldSet('general').add( // character.general
+    new Field('string', 'name') // character.general.name
+  )
+)
+```
+
+If an element does not have a name it is ignorned.
 
 ## Retreiving elements
 
@@ -96,7 +111,7 @@ If an element which contains sub elements does not have a name it will still be 
 var form = form.add(
   new FieldSet('general').add(
     new Field('string', 'name'),
-    new Row().add(
+    new Row().add( // does not have a name
       new Button('reset'),
       new Button('submit')
     )
@@ -119,18 +134,6 @@ element.parent
 element.root // the root element which can be the form but has not to be
 element.form // the next parent form up in the chain
 element.path // the complete path of the element up the the root
-```
-
-## Paths
-
-Every element has a path.
-
-```typescript
-new Form('character').add( // character
-  new FieldSet('general').add( // character.general
-    new Field('string', 'name') // character.general.name
-  )
-)
 ```
 
 ## Element properties act as features
@@ -204,31 +207,6 @@ If you want to restore all the initial values use the `reset` method.
 
 ```typescript
 form.reset()
-```
-
-## Combine forms
-
-You can combine forms by using a field of type `object`.
-
-```typescript
-var characterForm = new Form().add(
-  new Field('string', 'name', 'Name', 'Arne Steppat'),
-  new Field('object', 'skills', 'Skills', new Form().add(
-    new Field('number', 'agility', 'Agility', 99),
-    new Field('number', 'strength', 'Strength', 45))
-  )
-)
-```
-
-The result object would look like this.
-```json
-{
-  "name": "Arne Steppat",
-  "skills": {
-    "agility": 99,
-    "strength": 45
-  }
-}
 ```
 
 ## Form creation from different sources
