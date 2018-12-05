@@ -1,3 +1,8 @@
+Lean and highly understandably concepts
+Superb extensibility, white box
+Platform independent
+Minimalistic features
+
 # Quick start
 
 A multi platform form library. Create once. Use everywhere.
@@ -199,11 +204,11 @@ form.reset()
 You can create forms from a form definitions in JSON and in general from objects that have the same properties as the form elements including form elements itself.
 
 ```typescript
-Form.from(jsonString) // from a JSON string
-Form.from('path/to/file.json') // from a JSON inside a file
-Form.from(new Form().add(...)) // from another form
+Form.load(jsonString) // from a JSON string
+Form.load('path/to/file.json') // from a JSON inside a file
+Form.load(new Form().add(...)) // from another form
 
-Form.from({ // from a form alike object
+Form.load({ // from a form alike object
   '@type': 'form',
   name: 'character'
 })
@@ -304,7 +309,7 @@ On the server side you receive the object and put it into the same form as on th
 Thus you will want to have the definition on both the client and the server. On the client for displaying and on the server for sanitizing. For sanitizing just put the received object into the form. Load the form from a JSON file for example.
 
 ```typescript
-var form = Form.from('path/to/form.json')
+var form = Form.load('path/to/form.json')
 form.setValue(receivedObject)
 ```
 
@@ -357,7 +362,23 @@ var elements = new Elements('elements').add(
 
 # Field
 
-The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents an attribute on your object. So you can design the form in a way it works together with the objects of your application flawlessly.
+The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents an attribute on your object.
+
+## Field properties
+
+Look at the field as a building block to describe everything there is to a property needed to display a widget. The field itself does not determine a specific widget. That makes this form library platform independent.
+
+- `value`
+- `label`
+- `required`
+- `errorMessage`
+
+You should not be afraid to inherit the field. It is more like a data container than it yields certain semantics. Thats why there is only one class. Inherit it and then define a widget for it. It is up to you how you like to use the available properties of the field. Here are the four powerful properties.
+
+- `valueType`: The type of the value
+- `options`: An array of options to choose from
+- `element`: An element which opens up the world for more complex fields especially when dealing with objects
+- `elements`: An array of elements
 
 ## The field path
 
@@ -385,13 +406,13 @@ You can find more on forms inside forms here.
 
 ## Primitive type fields
 
-Primitive types that have the simplest configuration.
+You determine the type of a field by setting its value type property. Here are the primitive ones.
 
-- boolean
-- date
-- float32, float64
-- int8, int16, int32, int64
-- string
+- `boolean`
+- `date`
+- `float32`, `float64`
+- `int8`, `int16`, `int32`, `int64`
+- `string`
 
 The constructor for all of these look the same.
 
@@ -411,7 +432,7 @@ An option is basically a value and a label.
 var option = new Option(value, 'label', disabled)
 ```
 
-It can be rendered to a drop down for example. But a widget could chose to render something completely different. The field itself does not describe a specific apperance. It only provides the data needed to render something meaningful.
+Set options on the field if you want to have the user to choose from a give set of possibilities. It can be rendered to a drop down for example but also a auto completion field is thinkable.
 
 Activate the feature on a field by presenting an array of options.
 
@@ -425,25 +446,15 @@ var options = [
 var field = new Field("int64", "level", "Level", null, options)
 ```
 
-Now it will be rendered as something the user can choose from.
-
 ## Object fields
 
-An object field has an object as its value.
+An object field has an object as its value. If it does not have options you can give it an element that is rendered for the field.
 
 ```typescript
 var skills = new Skills()
 ```
 
 ## Array fields
-
-## ObjectReferenceField
-
-
-
-```typescript
-
-```
 
 # Visual elements
 
