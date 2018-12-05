@@ -1,4 +1,4 @@
-# Introduction
+# Quick start
 
 A multi platform form library. Create once. Use everywhere.
 
@@ -8,27 +8,14 @@ Create a form in your app.
 var form = new Form()
 form.add(
   new Field('string', 'name', 'Name', 'Arne Steppat'),
-  new Field('number', 'level', 'Level', 9001),
-  new Row().add(
-    new Button('reset', 'Reset'),
-    new Button('submit', 'Submit')
-  )
+  new Field('number', 'level', 'Level', 9001)
 )
 ```
 
-There is support for multiple languages like JavaScript, TypeScript, Java, C# and so on. A complete list can be found here.
-
-Render it with one of the many renderers for different platforms like the ones for the browser which support Angular, React or Vue. A complete list of all renderes can be found here.
+While you add fields to it you simultaneously describe the structure of the object your form should be able to work with. Just call `getValue()` and the form will create an object for you which will have exactly those properties that you have added as a field.
 
 ```typescript
-// example in React
-ReactForm.render(form)
-```
-
-Create an object out of your form.
-
-```typescript
-var arne = form.toObject()
+var arne = form.getValue()
 ```
 ```json
 {
@@ -37,17 +24,22 @@ var arne = form.toObject()
 }
 ```
 
-Or fill an existing object with the data of your form.
+You also can use an existing object to fill the form with its values. Again it just somehow has to resemble the structure of the object that you described with your fields. That means that it does not have to be complete.
+
+There is support for multiple languages like JavaScript, TypeScript, Java, C# and so on. A complete list can be found here.
 
 ```typescript
-form.toObject(arne)
+form.setValue(arne)
 ```
 
-Use it again to fill the form with values.
+Once created and initialized you can render the form. There are numerous renderers for example for Angular, React or Vue. But even desktop GUIs are supported like Swing and so on. A exhaustive list can be found here.
 
 ```typescript
-form.setValues(arne)
+// example in React
+ReactForm.render(form)
 ```
+
+That is what is basically is. Describe a form, put data in, render it, get data out.
 
 # Element
 
@@ -66,7 +58,7 @@ Basically the form contains fields that describe the structure on an object. You
 Every element has the following attributes.
 
 - `parent`: Every element knows its parent.
-- `name`: Every element has a name which it can be refered to.
+- `name`: Every element has a name which it can be referred to.
 - `invisible`: Is it visible?
 - `disabled`: Is it disabled?
 - `path`: The path composed of the name of every element up to the root element
@@ -150,9 +142,9 @@ The form always represents the realm of an object. It is able to create a specif
 new Form('name')
 ```
 
-## Object creation
+## Object retrieval
 
-The object will contain every field that was defined in the form.
+If you did not set any object on the form it will create one for you. If you did set one the form will just give the one you have set back to you. Having all the values that where edited through form.
 
 ```typescript
 var form = new Form().add(
@@ -162,7 +154,7 @@ var form = new Form().add(
   )
 )
 
-var object = form.toObject()
+var object = form.getValue()
 ```
 
 ```json
@@ -173,13 +165,6 @@ var object = form.toObject()
 ```
 
 When the object is created it ignores every element apart from fields.
-
-You can also give it an already existing object.
-
-```typescript
-var object = { ... }
-form.toObject(object)
-```
 
 If you have a form inside a form the inner form will not be considered when creating the object.
 
@@ -232,31 +217,11 @@ In the latter case the `type` property is important. Without it the correct form
 You can give a JSON string or a form object, wether as a plain data object or as an instantiated form object does not matter.
 
 ```typescript
-form.setValues(formJson)
-form.setValues(formAsObject)
+form.setValue(formJson)
+form.setValue(formAsObject)
 ```
 
-You can also give it only a sub part of the form. Important is that the names and the types of the elements match.
-
-```typescript
-var form = new Form().add(
-  new Field('string', 'name')
-)
-
-var nameField = new Field('string' 'name', 'Name', 'Arne Steppat')
-
-form.setValues(nameField)
-```
-
-Results in the object.
-
-```json
-{
-  "name": "Arne Steppat"
-}
-```
-
-You can also input any arbitrary JSON or object. Important is that the field structure and the object structure match somewhere.
+You can also input only partially complete objects. It is only important that the field structure and the object structure match somewhere. If you want the form to transfer values.
 
 ```typescript
 var form = new Form().add(
@@ -270,9 +235,9 @@ var form = new Form().add(
 var arne = {
   name: 'Arne Steppat',
   skills: {
-    agility: 78,
+    agility: "78", // it is a string instead of a number! will be converted when set
     strength: 'NaN', // will be assigned as string
-    unknownField: 'unknown' // will be ignored because the form does not have a corresponding field in the form
+    unknownField: 'unknown' // will be ignored because the form does not have a corresponding field
   }
 }
 
@@ -281,14 +246,15 @@ form.find('skills').setValues(arne) // will do nothing because structure does no
 form.find('skills').setValues(arne.skills) // works!
 ```
 
-The resulting object after a call to `toObject()` will look like this in JSON.
+The resulting object after a call to `getValue()` will look like this in JSON.
 
 ```json
 {
   "name": "Arne Steppat",
   "skills": {
-    "agility": 78,
-    "strength": "NaN"
+    "agility": 78, // the string got converted to its target type
+    "strength": "NaN" // was assigned as it was because it could not be converted
+    // unknownField is left out because the form did not define any field for it
   }
 }
 ```
@@ -335,20 +301,22 @@ form.submit() // two HTTP requests are sent
 
 On the server side you receive the object and put it into the same form as on the client. This is important for sanitizing the data coming from the client. You could also send the whole form but that way the client could send you any form which opens the door for abuse.
 
-This you will want to have the definition on both the client and the server. On the client for displaying and on the server for sanitizing. For sanitizing just put the received object into the form. Load the form from a JSON file for example.
+Thus you will want to have the definition on both the client and the server. On the client for displaying and on the server for sanitizing. For sanitizing just put the received object into the form. Load the form from a JSON file for example.
 
 ```typescript
 var form = Form.from('path/to/form.json')
-form.setValues(receivedObject)
+form.setValue(receivedObject)
 ```
 
-But there are different possibilities to approach this. We for example prefer to have all form definitions on the server and send them ready to use to the client which remaining task is to display them. This way the client does not need to fetch the raw data and execute business logic on it. Business logic that already was implemented on the server. More on this read the article here.
+At some point you need to get the JSON data coming from the client and set in on the corresponding object on the server. You could either convert it on your own or you use our properties lib which already has a solution to this and also plays nicely together with the form.
 
 In a second step you can fill the target domain object which will be persisted into the database. Also here you should validate again.
 
 ```typescript
 var domainObject = db.load(id)
-form.toObject(domainObject)
+// fill the data from the recieved object into the domain object
+filler.fill(domainOjbect, receivedObject)
+form.setObject(domainObject)
 
 if (form.isValid(context)) {
   db.save(domainObject)
@@ -478,6 +446,7 @@ var skills = new Skills()
 ```
 
 # Visual elements
+
 ## Row
 
 A visual element to define that the contained elements should be in a row.
@@ -502,7 +471,7 @@ var fieldSet = new FieldSet('fieldSetName').add(
 
 ## Mapping
 
-The mapping element maps a key to a form element. Use it to your liking to create new behavioural elements tailored to your needs. It is just a data structure which can be used for any behaviour.
+The mapping element maps a key to a form element. The key can be really anything. Use it to your liking to create new behavioural elements tailored to your needs. It is just a data structure which can be used for any behaviour.
 
 ```typescript
 var mapping = new Mapping().add(
@@ -512,17 +481,15 @@ var mapping = new Mapping().add(
 )
 ```
 
-This class serves as a base class. You can attach any logic that you like. Most likely you want to interpret the key as a condition. Look at `FieldValueMapping` for a concrete use case.
-
 ## FieldValueMapping
 
-This element maps the value of a field to a form element. If the field has the specified value the corresponding element will be inlined into the form.
+This element maps the value of a field to a form element. If the field has the specified value the corresponding element will shown as if they were part of the parent element.
 
 ```typescript
 var form = new Form().add(
   new Field('boolean', 'hasTail'),
-  new FieldValueMapping('elementName', 'hasTail').add(
-    new KeyToElement(true, new Elements().add(
+  new FieldValueMapping('tailMapping', 'hasTail').add( // a mapping that reacts to the value of field 'hasTail'
+    new KeyToElement(true, new Elements().add( // if the value of 'hasValue' is true show the following elements
       new Field('number', 'levelWithTail'),
       new Field('number', 'tailLength')
     )
@@ -530,13 +497,9 @@ var form = new Form().add(
 )
 ```
 
-If the field with name `hasTail` has the value `true` the `Elements` element will be inlined into the parent element.
-
-That way you can show further form elements if a field has a certain value.
-
 # Translation
 
-The labels for the elements are translated using the `path` of an element as the translation message id. In case of a field the path will be the `fieldPath`. That way ids stay stable regardless of changes in visual elements or not. Add a `Row` for example and the fields inside the new row still have the same translation message id.
+The labels for the elements are translated using the `path` of an element as the translation message id. In case of a field the `fieldPath` will be used instead. That way ids stay stable for fields regardless of being part of a visual elements or not. Add a `Row` for example and the fields inside the new row still have the same translation message id.
 
 ```typescript
 form.translate(path => {
@@ -544,20 +507,66 @@ form.translate(path => {
 })
 ```
 
-# Widgets
+# Rendering
 
-The elements of a form a rendered differently depending on the platform and renderer. There are different renderes for different platforms. Like for the browser there are renderes for Angular, React and Vue.
+## Widgets
+
+All of the renderers that we provide will look for a widget on the field.
 
 ```typescript
 var field = new Field('number')
-var min = 0
-var max = 9000
-field.widget = new HtmlInput.number(min, max)
+field.widget = new HtmlInput.number(0, 9001) // min and max values
 ```
 
-If you do not need to configure you can leave it out. The appropriate widget will be chosen automatically.
+If they find one than then good, they will use it. If not then they are able to choose one that will work for the given field. This is the entrypoint for customizing the configuration of a widget and for attaching new widgets that you created.
 
-If you are using the built in validators then these will be taken into consideration when your widgets are configured.
+# Rendering templates
+
+The way you render your form is dependent on which platform you use. Similar on every platform is the way we want you to work with renderes. In our universe renderers are not some black box components that you choose and that you have to extend mystically. In our universe you download the source of a renderer and include it into your project. The renderer serves as a starting point and if you want to extend it you can do so programmatically.
+
+A renderer is really simple. Basically it is just a mapping from a widget to visual component depending on your plattform. In case of a browser app it will be an HTML template.
+
+Here you can see an example for Angular.
+
+```typescript
+@ViewChild('stringInput') private stringInputWidget: TemplateRef<any>;
+@ViewChild('numberInput') private numberInputWidget: TemplateRef<any>;
+@ViewChild('select') private selectWidget: TemplateRef<any>;
+@ViewChild('list') private listWidget: TemplateRef<any>;
+@ViewChild('object') private objectWidget: TemplateRef<any>;
+@ViewChild('form') private formWidget: TemplateRef<any>;
+@ViewChild('fieldSet') private fieldSetWidget: TemplateRef<any>;
+@ViewChild('checkbox') private checkboxWidget: TemplateRef<any>;
+@ViewChild('mapping') private mappingWidget: TemplateRef<any>;
+@ViewChild('dateInput') private dateInputWidget: TemplateRef<any>;
+@ViewChild('elements') private elementsWidget: TemplateRef<any>;
+```
+
+If you know Angular a little you can see that there are just different templates in an HTML file belonging to an Angular component.
+
+Now all you need to do is to choose the right template.
+
+```typescript
+// in case the widget was specified explicitely
+if (element.widget != null) {
+  return getWidget(element.widget);
+}
+
+// in all other cases where the widget is auto detected
+if (element instanceof Form) {
+  return this.formWidget;
+}
+
+if (element instanceof FieldSet) {
+  return this.fieldSetWidget;
+}
+
+...
+```
+
+As you can see, this is really simple. You can alter existing widgets, you can add new ones and you can also add new types of form elements. Once you have the chosen renderer in front of your eyes it should be pretty obvious what to do. Just programm. No black box configuration.
+
+The form library itself really just acts as a boilerplate. It has some characteristics which will help you to describe your problem and it gives you means to work with it really comfortabely but apart from that it serves your needs.
 
 ## ???
 
@@ -569,12 +578,11 @@ In the end depends on the rendering algorithm what it does need to produce a pro
 
 The form comes bundled with a json validation framework ready to use. To get more information on json validators please refer to this documentation.
 
-
 You can set validation rules on any form element.
 
 ```typescript
 var field = new Field('number', 'level')
-field.setValidators(new Required(), new Min(0), new Max(9000))
+field.setValidators(new Required(), new Min(0), new Max(9001))
 ```
 
 When using the built in validators the widgets will be configured automatically. In this example the HTML input widget will have set its `min` and `max` attributes to `0` and `9000` respectively.
