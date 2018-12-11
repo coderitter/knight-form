@@ -77,7 +77,7 @@ Fields are elements that can handle values. Plain elements can be anything that 
 
 We already ship some simple elements for your convenience.
 
-- Fields: `Form`
+- Fields: `Field`, `Form`
 - Buttons: `Button`
 - Visuals elements: `Row`, `FieldSet`, `FormFrame`
 - Behavioural elements: `Mapping`
@@ -94,7 +94,7 @@ Every element has the following attributes.
 - `name`: Every element has a name which it can be referred to. On fields it additionally refers to a property on one of your objects.
 - `elements`: Every element can have arbitrary many sub elements.
 - `prototype`: Another element which can be used as a blueprint or whatever you would come up with. It is used in the `Field` but not here.
-- `widget`: Here you can set view specific attributes. We ship a basic widget with very basic attributes. Use it as a starting point four your own widgets.
+- `widget`: Here you can set view specific attributes. We ship a basic widget with very basic attributes. Use it as a starting point for your own widgets.
 
 Also you can add any further property that you need! Use it to extend the elements data wise.
 
@@ -229,7 +229,7 @@ When the object is created it ignores every element apart from fields.
 
 ## Set values on a form
 
-You can also input only partially complete objects. It is only important that the field structure and the object structure match somewhere. If you want the form to transfer values.
+You can also input only partially complete objects. It is only important that the field structure and the object structure match somewhere.
 
 ```typescript
 var form = new Form().add(
@@ -284,7 +284,7 @@ work in progress...
 You can also register for button events.
 
 ```typescript
-// let the form find the elemnt and set a listener on it
+// let the form find the element and set a listener on it
 form.listen('submit', button => {
   
 })
