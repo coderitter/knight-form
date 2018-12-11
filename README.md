@@ -494,10 +494,9 @@ public determineWidget(element: Element): TemplateRef<any> {
 
   ...
 }
-
 ```
 
-You can go nuts here. It all depends on your imagination. No deterministic configuration logic which prevents you from exrepssing what you really need. It is just good old programming. This is very accesible for everyone without the need to learn black box behaviour.
+You can go nuts here. It all depends on your imagination. No deterministic configuration logic which prevents you from exrepssing what you really need. It is just good old programming. This is very accessible for anyone without the need to learn black box behaviour.
 
 The next thing that you want to do is to react to a form submission. Exactly the way you need it to be. There is the `onSubmit()` method which is already implemented but if you do not like it then replace it. Or just extend it. It is up to you.
 
