@@ -167,10 +167,22 @@ For example if you leave out the name and you want to retreive that element by i
 
 # Form
 
-The form represents the realm of an object. If you put a form inside a form the object represented by the inner form will not be considered a part of the object represented by the outer form. If you want to achieve affilation you would use a field.
+The form is just a field. Thus it can have different values types.
 
 ```typescript
-new Form('name')
+var objectForm = new Form('object') // a form representing an object
+var arrayForm = new Form('array') // a form representing an array
+var numberForm = new Form('number') // a form representing a number
+
+objectForm.value // an object
+arrayForm.value // an array
+numberForm.value // a number
+```
+
+Also they are easily combinable.
+
+```typescript
+objectForm.add(arrayForm, numberForm)
 ```
 
 ## Form creation from different sources
@@ -222,7 +234,7 @@ You can also input only partially complete objects. It is only important that th
 ```typescript
 var form = new Form().add(
   new Field('string', 'name'),
-  new Field('object', 'skills', new Form().add(
+  new Field('object', 'skills').add(
     new Field('number', 'agility'),
     new Field('number', 'strength')
   )
@@ -304,22 +316,10 @@ Fields additionally have a special path `fieldPath` which only takes fields into
 ```typescript
 new Form('character').add(
   new FieldSet('general').add(
-    new Field('string', 'name') // character.name
+    new Field('string', 'name') // character.name <- general is ignored
   )
 )
 ```
-
-Here is an example for a form inside a form. The `fieldName` will only consider fields up to the next form element up the chain.
-
-```typescript
-var form = new Form('character').add(
-  new Form('skills').add(
-    new Field('number', 'agility') // skills.agility
-  )
-)
-```
-
-You can find more on forms inside forms here.
 
 ## Primitive type fields
 
@@ -337,7 +337,7 @@ The constructor for all of these look the same.
 var booleanField = new Field('boolean', 'name', 'label', value)
 ```
 
-Just exchange the value type `boolean` with anything from the above list.
+Just exchange the value type `boolean` with anything from the list above.
 
 In the field the name additionally represents the name of an attribute on an object. It is key for mapping your form fields to actual object attributes.
 
@@ -374,6 +374,10 @@ var skills = new Skills()
 ## Array fields
 
 # Visual elements
+
+## Form frame
+
+... work in progress ...
 
 ## Row
 
@@ -476,10 +480,10 @@ The next step is to determine the appropriate wiget for the field. Either the fi
 public determineWidget(element: Element): TemplateRef<any> {
   // in case the widget was specified explicitely
   if (element.widget != null) {
-    return getTemplate(element.widget);
+    return element.widget;
   }
 
-  // in all other cases where the widget is auto detected
+  // in all other cases the widget is auto detected
   if (element instanceof Form) {
     return this.formWidget;
   }
