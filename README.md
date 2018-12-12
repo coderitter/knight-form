@@ -77,7 +77,7 @@ Fields are elements that can handle values. Plain elements can be anything that 
 
 We already ship some simple elements for your convenience.
 
-- Fields: `Field`, `Form`
+- Fields: `Form`
 - Buttons: `Button`
 - Visuals elements: `Row`, `FieldSet`, `FormFrame`
 - Behavioural elements: `Mapping`
@@ -142,13 +142,12 @@ var form = form.add(
   new FieldSet('general').add(
     new Field('string', 'name'),
     new Row().add( // does not have a name
-      new Button('reset'),
-      new Button('submit')
+      new Button('clear')
     )
   )
 )
 
-form.find('general.reset') // ignores the row and still finds the element
+form.find('general.clear') // ignores the row and still finds the element
 ```
 
 At first the form tries to resolve the path gapless not considering container elements without a name. If this fails the form starts to search the whole tree matching the path allowing gaps. If it finds only one element it will return it. Otherwise it will return null leaving a error message in the log.
@@ -211,7 +210,7 @@ You determine the type of a field by setting its value type property. Here are t
 The constructor for all of these look the same.
 
 ```typescript
-var booleanField = new Field('boolean', 'name', 'label', value)
+var booleanField = new Field('boolean', 'name')
 ```
 
 Just exchange the value type `boolean` with anything from the list above.
@@ -237,18 +236,48 @@ var options = [
   new Option(100000000, "Omni-King", true) // it is disabled
 ]
 
-var field = new Field("int64", "level", "Level", options)
+var field = new Field("int64", "level", options)
 ```
 
 ## Object fields
 
-An object field has an object as its value. If it does not have options you can give it an element that is rendered for the field.
+An object field has an object as its value. Add sub elements which will determine the properties of your sub object.
 
 ```typescript
-var skills = new Skills()
+new Form().add(
+  new Field('object', 'skills').add(
+    new Field('number', 'agility'),
+    new Field('number', 'strength')
+  )
+)
 ```
 
+Or add options for example if you just want to reference an object.
+
+```typescript
+var friendsField = new Field('object', 'friend')
+friendsField.addOptions(
+  new Option('Son Goku', { id: 1 }), // the value here is an object
+  new Option('Son Gohan', { id: 2 })
+)
+```
+
+This scenario of referencing ids could also be solved differently through a field of type `number`. It all depends on what you need.
+
 ## Array fields
+
+If you initialize a field as an array you will need to give it a prototypical element. Is is used to create elements for the existing array items and when adding new ones. The prototype can be any form element.
+
+```typescript
+new Field('array', 'favouriteFood', new Field('object').add(
+  new Field('string', 'name'),
+  new Field('string', 'place')
+))
+```
+
+The prototypical element does not need to have a name otherwise every form element in the array field will have the same name. Also it can be any form element of course.
+
+Or how about adding options?
 
 # Form
 
@@ -568,12 +597,12 @@ class TranslationVisitor extends FormVisitor {
   
   constructor(private translator: YourTranslator)
 
-  button(button: Button) {
-    translator.translate(button.path)
+  element(element: Element) {
+    translator.translate(element.path) // use the path to create a nice translation id
   }
 
   field(field: Field) {
-    translator.translate(field.fieldPath) // use the field path here to be independent of tree changes
+    translator.translate(field.fieldPath) // use the field path for fields to be independent of tree changes
   }
 }
 ```
