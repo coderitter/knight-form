@@ -37,7 +37,7 @@ arne = {
   level: 9001
 }
 
-form.setValue(arne)
+form.value = arne
 ```
 
 While the user plays around with the form the object will reflect the changes immediately.
@@ -345,9 +345,9 @@ var arne = {
   }
 }
 
-form.setValue(arne)
-form.find('skills').setValue(arne) // will do nothing because structure does not match
-form.find('skills').setValue(arne.skills) // works!
+form.value = arne
+form.find('skills').value = arne // will do nothing because structure does not match
+form.find('skills').value = arne.skills // works!
 ```
 
 The resulting object after a call to `getValue()` will look like this in JSON.
