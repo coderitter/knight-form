@@ -98,6 +98,13 @@ Every element has the following attributes.
 
 Also you can add any further property that you need! Use it to extend the elements data wise.
 
+```typescript
+var field = new Field('string', 'name');
+field.validators = [ new Required() ]
+```
+
+Here we add an array of validators to the field. You do not need to subclass the field to do it.
+
 ## Paths
 
 Every element has a path. It is composed of every element's name up to the root element.
