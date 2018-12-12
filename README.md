@@ -172,6 +172,84 @@ Setting values on the elements is always optional. Think of it like activating a
 
 For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing. If you give it an object to set the field's values the nameless will be left out in the cold.
 
+# Field
+
+The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents an attribute on your object.
+
+## Field properties
+
+Look at the field as a building block to describe everything there is to a property needed to display a widget. The field itself does not determine a specific widget. That makes this form library platform independent.
+
+- `valueType`: The type of the value
+- `value`: The actual value
+- `options`: An array of options to choose from
+
+You should not be afraid to inherit the field. It is more like a data container than it yields certain semantic. Thats why there is only one class. Inherit it and then define a widget for it. It is up to you how you like to use the available properties of the field.
+
+## The field path
+
+Fields additionally have a special path `fieldPath` which only takes fields into consideration. This is good for translation because that way the ids are stable. Imagine adding or removing a `FieldSet` and suddenly all translation ids are changing.
+
+```typescript
+new Form('character').add(
+  new FieldSet('general').add(
+    new Field('string', 'name') // character.name <- general is ignored
+  )
+)
+```
+
+## Primitive type fields
+
+You determine the type of a field by setting its value type property. Here are the primitive ones.
+
+- `boolean`
+- `date`
+- `float32`, `float64`
+- `int8`, `int16`, `int32`, `int64`
+- `string`
+
+The constructor for all of these look the same.
+
+```typescript
+var booleanField = new Field('boolean', 'name', 'label', value)
+```
+
+Just exchange the value type `boolean` with anything from the list above.
+
+In the field the name additionally represents the name of an attribute on an object. It is key for mapping your form fields to actual object attributes.
+
+## Fields with options
+
+An option is basically a value and a label. 
+
+```typescript
+var option = new Option(value, 'label', disabled)
+```
+
+Set options on the field if you want to have the user to choose from a give set of possibilities. It can be rendered to a drop down for example but also a auto completion field is thinkable.
+
+Activate the feature on a field by presenting an array of options.
+
+```typescript
+var options = [
+  new Option(150, "Satan"),
+  new Option(9001, "Son Goku"),
+  new Option(100000000, "Omni-King", true) // it is disabled
+]
+
+var field = new Field("int64", "level", "Level", options)
+```
+
+## Object fields
+
+An object field has an object as its value. If it does not have options you can give it an element that is rendered for the field.
+
+```typescript
+var skills = new Skills()
+```
+
+## Array fields
+
 # Form
 
 The form is just a field. Thus it can have different values types.
@@ -302,84 +380,6 @@ form.find('submit').listen(button => {
 })
 ```
 
-# Field
-
-The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents an attribute on your object.
-
-## Field properties
-
-Look at the field as a building block to describe everything there is to a property needed to display a widget. The field itself does not determine a specific widget. That makes this form library platform independent.
-
-- `valueType`: The type of the value
-- `value`: The actual value
-- `options`: An array of options to choose from
-
-You should not be afraid to inherit the field. It is more like a data container than it yields certain semantic. Thats why there is only one class. Inherit it and then define a widget for it. It is up to you how you like to use the available properties of the field.
-
-## The field path
-
-Fields additionally have a special path `fieldPath` which only takes fields into consideration. This is good for translation because that way the ids are stable. Imagine adding or removing a `FieldSet` and suddenly all translation ids are changing.
-
-```typescript
-new Form('character').add(
-  new FieldSet('general').add(
-    new Field('string', 'name') // character.name <- general is ignored
-  )
-)
-```
-
-## Primitive type fields
-
-You determine the type of a field by setting its value type property. Here are the primitive ones.
-
-- `boolean`
-- `date`
-- `float32`, `float64`
-- `int8`, `int16`, `int32`, `int64`
-- `string`
-
-The constructor for all of these look the same.
-
-```typescript
-var booleanField = new Field('boolean', 'name', 'label', value)
-```
-
-Just exchange the value type `boolean` with anything from the list above.
-
-In the field the name additionally represents the name of an attribute on an object. It is key for mapping your form fields to actual object attributes.
-
-## Fields with options
-
-An option is basically a value and a label. 
-
-```typescript
-var option = new Option(value, 'label', disabled)
-```
-
-Set options on the field if you want to have the user to choose from a give set of possibilities. It can be rendered to a drop down for example but also a auto completion field is thinkable.
-
-Activate the feature on a field by presenting an array of options.
-
-```typescript
-var options = [
-  new Option(150, "Satan"),
-  new Option(9001, "Son Goku"),
-  new Option(100000000, "Omni-King", true) // it is disabled
-]
-
-var field = new Field("int64", "level", "Level", options)
-```
-
-## Object fields
-
-An object field has an object as its value. If it does not have options you can give it an element that is rendered for the field.
-
-```typescript
-var skills = new Skills()
-```
-
-## Array fields
-
 # Visual elements
 
 ## Form frame
@@ -404,6 +404,15 @@ A visual element to define that the contained elements should be framed.
 var fieldSet = new FieldSet('fieldSetName').add(
   // any element
 )
+```
+
+## Create your own
+
+Just extend `Element` and do whatever you need to do.
+
+```typescript
+class Separator extends Element {
+}
 ```
 
 # Behavioural elements
