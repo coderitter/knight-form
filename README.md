@@ -502,11 +502,11 @@ Here you can see an example for Angular. The following code snippet is the TypeS
 @ViewChild('element') private elementTemplate: TemplateRef<any>;
 ```
 
-This is the complete list of template references which are defined in the HTML part of the Angular component `form.component.html`. Here for example is the definition of an Angular template for a checkbox widget.
+This is the complete list of template references which are defined in the HTML part of the Angular component `form.component.html`. Here for example is the definition of an Angular template for the number input widget.
 
 ```html
 <ng-template #checkbox let-field="element">
-  <mat-checkbox [(ngModel)]="field.value" [disabled]="field.disabled">{{ field.label }}</mat-checkbox>
+  <input matInput [(ngModel)]="field.value" [type]="number" [disabled]="field.widget.disabled" [placeholder]="label" [min]="field.widget.min" [max]="field.widget.max" />
 </ng-template>
 ```
 
