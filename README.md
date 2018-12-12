@@ -23,8 +23,8 @@ form.addButtons(new Button('submit'))
 Or define it platform independent in JSON and load it into your application.
 
 ```typescript
-form.load('path/to/form.json') // load from file
-form.load('{"@type":"form","name":"character"') // load from string
+Form.load('path/to/form.json') // load from file
+Form.load('{"@type":"form","name":"character"') // load from string
 ```
 
 ## Set values
@@ -84,7 +84,7 @@ We already ship some simple elements for your convenience.
 
 Yes the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms.
 
-So really, this library is meant as a toolkit which does not stand in your way but does what you want. Use it as a starting point and do not be afraid to extend it.
+So really, this library is meant as a toolkit which tries to not stand in your way. Use it as a starting point and do not be afraid to extend it.
 
 ## Element properties
 
@@ -93,7 +93,7 @@ Every element has the following attributes.
 - `parent`: Every element knows its parent. You do not have to set it by yourself.
 - `name`: Every element has a name which it can be referred to. On fields it additionally refers to a property on one of your objects.
 - `elements`: Every element can have arbitrary many sub elements.
-- `prototype`: Another element which can be used as a blueprint or whatever you would come up with. It is used in the `Field` but not here.
+- `prototype`: Another element which can be used as a blueprint or whatever you would come up with. It is used in the `Field` for example.
 - `widget`: Here you can set view specific attributes. We ship a basic widget with very basic attributes. Use it as a starting point for your own widgets.
 
 Also you can add any further property that you need! Use it to extend the elements data wise.
@@ -255,7 +255,7 @@ var skills = new Skills()
 The form is just a field. Thus it can have different values types.
 
 ```typescript
-var objectForm = new Form('object') // a form representing an object
+var objectForm = new Form() // a form representing an object (the value type does not have to be set explicitly)
 var arrayForm = new Form('array') // a form representing an array
 var numberForm = new Form('number') // a form representing a number
 
@@ -272,11 +272,14 @@ objectForm.add(arrayForm, numberForm)
 
 ## Form frame
 
-The form has the `FormFrame` attached to it. It is a basic visual element which comes with a title and buttons. The reason for this is that you can use the `Form` as the root element so that you can use the `value` property directly. For conveniencet he `Form` yields the same properties as the `FormFrame` and the constructor even accepts its title.
+The form has the `FormFrame` attached to it. It is a basic visual element which comes with a title and buttons. The reason for this is that you can use the `Form` as the root element so that you can use its `value` property directly. For convenience the `Form` yields the same properties as the `FormFrame` and the constructor even accepts its title.
 
 ```typescript
 var form = new Form("Title")
 form.addButtons(new Button("submit"))
+
+// for forms having a value type other then object
+var arrayForm = new Form("array", "Title")
 ```
 
 If you do not need it then just ignore it. If you do not like it then just create your own form frame.
@@ -350,7 +353,7 @@ form.find('skills').value = arne // will do nothing because structure does not m
 form.find('skills').value = arne.skills // works!
 ```
 
-The resulting object in the property `value` will look like this in JSON.
+The resulting object in JSON.
 
 ```json
 {
@@ -460,16 +463,24 @@ var form = new Form().add(
 
 ## Widgets
 
-All of the renderers that we provide will look for a widget on the field.
+The widget that we ship has the following basic properties.
+
+- `invisble`
+- `disabled`
+- `label`
+- `required`
+- `error`
+
+Define any widget that you may need.
 
 ```typescript
-var field = new Field('number')
-field.widget = new HtmlInput.number(0, 9001) // min and max values
+class NumberInput extends Widget {
+  public min: number
+  public max: number
+}
 ```
 
-If they find one than then good, they will use it. If not then they are able to choose one that will work for the given field. This is the entrypoint for customizing the configuration of a widget and for attaching new widgets that you created.
-
-# Rendering templates
+## Templates
 
 The way you render your form is different in every famework you use. Similar is the way we want you to work with renderers. In our universe renderers are not some black box components that you choose and which you can only extend in a mystical way. In our universe you download the source of one of our provided renderers and include it into your project. Most of the time this is one file. The renderer serves as a starting point from which on you extend it. Programmatically. Not through mystic configuration.
 
@@ -478,17 +489,17 @@ A renderer is really simple. It is just a mapping from a field to visual represe
 Here you can see an example for Angular. The following code snippet is the TypeScript part of an Angular component `form.component.ts`.
 
 ```typescript
-@ViewChild('stringInput') private stringInputWidget: TemplateRef<any>;
-@ViewChild('numberInput') private numberInputWidget: TemplateRef<any>;
-@ViewChild('select') private selectWidget: TemplateRef<any>;
-@ViewChild('list') private listWidget: TemplateRef<any>;
-@ViewChild('object') private objectWidget: TemplateRef<any>;
-@ViewChild('form') private formWidget: TemplateRef<any>;
-@ViewChild('fieldSet') private fieldSetWidget: TemplateRef<any>;
-@ViewChild('checkbox') private checkboxWidget: TemplateRef<any>;
-@ViewChild('mapping') private mappingWidget: TemplateRef<any>;
-@ViewChild('dateInput') private dateInputWidget: TemplateRef<any>;
-@ViewChild('elements') private elementsWidget: TemplateRef<any>;
+@ViewChild('stringInput') private stringInputTemplate: TemplateRef<any>;
+@ViewChild('numberInput') private numberInputTemplate: TemplateRef<any>;
+@ViewChild('select') private selectTemplate: TemplateRef<any>;
+@ViewChild('list') private listTemplate: TemplateRef<any>;
+@ViewChild('object') private objectTemplate: TemplateRef<any>;
+@ViewChild('form') private formTemplate: TemplateRef<any>;
+@ViewChild('fieldSet') private fieldSetTemplate: TemplateRef<any>;
+@ViewChild('checkbox') private checkboxTemplate: TemplateRef<any>;
+@ViewChild('fieldValueMapping') private fieldValueMappingTemplate: TemplateRef<any>;
+@ViewChild('dateInput') private dateInputTemplate: TemplateRef<any>;
+@ViewChild('element') private elementTemplate: TemplateRef<any>;
 ```
 
 This is the complete list of template references which are defined in the HTML part of the Angular component `form.component.html`. Here for example is the definition of an Angular template for a checkbox widget.
@@ -501,29 +512,27 @@ This is the complete list of template references which are defined in the HTML p
 
 If you want to change it just edit the file. You included it into your project for this purpose.
 
-The next step is to determine the appropriate wiget for the field. Either the field has a widget object attached. In this case just return the corresponding template. Or determine the widget based on the data found an the field. Here you can see how the property `valueType` is used to determine the appropriate widget.
+The next step is to determine the appropriate wiget for the field. Either the field has a widget object attached. In this case just return the corresponding template. Or determine the widget based on the data found on the field. Here you can see how the property `valueType` is used to determine the appropriate widget.
 
 ```typescript
-public determineWidget(element: Element): TemplateRef<any> {
+public getWidget(element: Element): TemplateRef<any> {
   // in case the widget was specified explicitely
   if (element.widget != null) {
     return element.widget;
   }
 
   // in all other cases the widget is auto detected
-  if (element instanceof Form) {
-    return this.formWidget;
+  if (element instanceof Field) {
+    if (element.valueType == 'number') {
+      return new NumberInput(); // can contain meaningful defaults
+    }
   }
-
-  if (element instanceof FieldSet) {
-    return this.fieldSetWidget;
-  }
-
-  ...
 }
 ```
 
-You can go nuts here. It all depends on your imagination. No deterministic configuration logic which prevents you from exrepssing what you really need. It is just good old programming. This is very accessible for anyone without the need to learn black box behaviour.
+The next step is a mapping from a widget to a template.
+
+This is the way we do it. But you do not necessarily do it the same way. You can go nuts here. It all depends on your imagination. No deterministic configuration logic which prevents you from exrepssing what you really need. It is just good old programming. This is very accessible for anyone without the need to learn black box behaviour.
 
 The next thing that you want to do is to react to a form submission. Exactly the way you need it to be. There is the `onSubmit()` method which is already implemented but if you do not like it then replace it. Or just extend it. It is up to you.
 
@@ -562,7 +571,7 @@ class TranslationVisitor extends FormVisitor {
   }
 
   field(field: Field) {
-    translator.translate(field.fieldPath) // use the field path here to be independent of tree changes which do not change the structure of the object described by the fields
+    translator.translate(field.fieldPath) // use the field path here to be independent of tree changes
   }
 }
 ```
