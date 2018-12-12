@@ -461,6 +461,8 @@ var form = new Form().add(
 
 # Rendering
 
+If you do not have any renderer code as a boilerplate for your new project you will want to write it on your own. Create an infrastructure consisting of widgets and their mapping to concrete components of your platform dependent UI framework.
+
 ## Widgets
 
 The widget that we ship has the following basic properties.
