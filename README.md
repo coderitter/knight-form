@@ -505,8 +505,8 @@ Here you can see an example for Angular. The following code snippet is the TypeS
 This is the complete list of template references which are defined in the HTML part of the Angular component `form.component.html`. Here for example is the definition of an Angular template for the number input widget.
 
 ```html
-<ng-template #checkbox let-field="element">
-  <input matInput [(ngModel)]="field.value" [type]="number" [disabled]="field.widget.disabled" [placeholder]="label" [min]="field.widget.min" [max]="field.widget.max" />
+<ng-template #checkbox let-field="element" let-widget="element.widget">
+  <input matInput [(ngModel)]="field.value" [type]="number" [disabled]="widget.disabled" [placeholder]="widget.label" [min]="widget.min" [max]="widget.max" />
 </ng-template>
 ```
 
