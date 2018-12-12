@@ -522,6 +522,12 @@ fieldValueMapping(fieldValueMapping: FieldValueMapping)
 
 Use it to implement your own functionality.
 
+Run it like this.
+
+```typescript
+form.visit(new YourVisitor())
+```
+
 ## Translation
 
 To use your favourite translation mechanism create a visitor.
@@ -539,6 +545,12 @@ class TranslationVisitor extends FormVisitor {
     translator.translate(field.fieldPath) // use the field path here to be independent of tree changes which do not change the structure of the object described by the fields
   }
 }
+```
+
+And run it.
+
+```typescript
+form.visit(new TranslationVisitor())
 ```
 
 ## Validation
@@ -563,5 +575,16 @@ class ValidationVisitor extends FormVisitor {
     var validators = field.validators
     validators.forEach(validator => this.valid &= validator.isValid(field.value))
   }
+}
+```
+
+And then validate.
+
+```typescript
+var validationVisitor = new ValidationVisitor();
+form.visit(validationVisitor)
+
+if (! validationVisitor.valid) {
+  // ...
 }
 ```
