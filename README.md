@@ -47,7 +47,7 @@ While the user plays around with the form the object will reflect the changes im
 If you did not provide any object the form will create one for you which you can retreive.
 
 ```typescript
-var arne = form.getValue()
+var arne = form.value
 ```
 
 ## Render
@@ -311,7 +311,7 @@ var form = new Form().add(
   )
 )
 
-var object = form.getValue()
+var object = form.value
 ```
 
 ```json
@@ -350,7 +350,7 @@ form.find('skills').value = arne // will do nothing because structure does not m
 form.find('skills').value = arne.skills // works!
 ```
 
-The resulting object after a call to `getValue()` will look like this in JSON.
+The resulting object in the property `value` will look like this in JSON.
 
 ```json
 {
