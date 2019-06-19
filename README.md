@@ -1,6 +1,6 @@
 # Quick start
 
-An elegant tree consisting of fields describing the structure of an object of your application combined with visuals. It has implementations in different programming languages. It is super easy extensible. It does not force you to use any specific technology. It is a nice data structure to describe your forms.
+A nice and flexible data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently. Because it has implementations in many different programming languages you can serialize the data structure to JSON and continue using it somewhere else.
 
 ## Create a form
 
@@ -16,15 +16,6 @@ form.add(
 
 form.setTitle('My first form')
 form.addButtons(new Button('submit'))
-```
-
-## Load a form
-
-Or define it platform independent in JSON and load it into your application.
-
-```typescript
-Form.load('path/to/form.json') // load from file
-Form.load('{"@type":"form","name":"character"') // load from string
 ```
 
 ## Set values
@@ -44,7 +35,7 @@ While the user plays around with the form the object will reflect the changes im
 
 ## Get values
 
-If you did not provide any object the form will create one for you which you can retreive.
+If you did not provide any object the form will create one for you.
 
 ```typescript
 var arne = form.value
@@ -52,9 +43,11 @@ var arne = form.value
 
 ## Render
 
-Now that your form is there you can render it. There are numerous renderers for different plattforms. The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
+Now that your form is there you can render it. The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
 
-There are many renderers for different platforms and the list continues to grow. There already is support for Angular and React but also for Android and iOS. Even some desktop GUIs starting to be supported. A exhaustive list can be found here. 
+So basically you create a renderer for one project which is able to render your form exactly in exactly that look of your application. So every time you render a form you will get the same result and if you want to change something about your forms you do it at exactly in one place.
+
+There are numerous renderers for different plattforms available as a starting point and the list continues to grow. There already is support for Angular and React but also for Android and iOS. Even some desktop GUIs starting to be supported. An exhaustive list can be found here.
 
 ```html
 <!-- React -->
@@ -64,39 +57,46 @@ There are many renderers for different platforms and the list continues to grow.
 <form [form]="form" />
 ```
 
-That is what is basically is. Describe a form, put data in, render it, get data out.
+This is what it basically is. Describe a form, put data in, render it, get data out.
+
+# Overview
+
+This data structure is a tree. Every element of the tree is an instance of class `Element` or one of its sub classes. Basically there is only one other sub class that has weight which is `Field`. A field represents a user inputtable value.
+
+So what you can do is adding fields to represent user inputtable values. You can add visual elements like a fieldset or a row to align elements in a row. You can add buttons which have some instant dynamic behaviour on the form or buttons that submit the form. Also you can add more complex behavioural elements like a mapping which is able to replace parts of the form with other elements depending on a value of a field.
+
+There are the following elements available and you may add as many as you like.
+
+- Fields: `Field`, `Form`
+- Buttons: `Button`
+- Visuals elements: `Row`, `FieldSet`, `FormFrame`
+- Behavioural elements: `Mapping`, `FieldValueMapping`
+
+Buttons, visual elements and behavioural elements are in fact just sub classes of `Element`. We differentiate to have a nicer way of thinking about it.
+
+And yes, the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms. So you will be able to define forms for your domain objects and then you can combine them. You will just want get rid of the form frame and its buttons when rendering. The good thing is that you do not need to think about it because our renderers will do that automatically.
+
+UML diagram
 
 # Element
 
-The form tree constists of elements. Every element can have arbitrary many elements underneath. Basically there are two types of elements.
+The `Element` is the core object. Every other element used is at least an `Element`.
 
-- `Element`
-- `Field`
+Here are its properties.
 
-Fields are elements that can handle values. Plain elements can be anything that you want them to be. There are just nodes in a tree which will do face a renderer. It will decide what is done with the element and you will be the one programming it. So you have free hand to do whatever you like. Choose the `Field` as your super class if you want your element be able to handle values and choose `Element` for everything else like visual components.
-
-We already ship some simple elements for your convenience.
-
-- Fields: `Form`
-- Buttons: `Button`
-- Visuals elements: `Row`, `FieldSet`, `FormFrame`
-- Behavioural elements: `Mapping`
-
-Yes the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms.
-
-So really, this library is meant as a toolkit which tries to not stand in your way. Use it as a starting point and do not be afraid to extend it.
-
-## Element properties
-
-Every element has the following attributes.
-
-- `parent`: Every element knows its parent. You do not have to set it by yourself.
-- `name`: Every element has a name which it can be referred to. On fields it additionally refers to a property on one of your objects.
+- `parent`: Every element knows its parent. (You do not have to set it by yourself.)
 - `elements`: Every element can have arbitrary many sub elements.
-- `prototype`: Another element which can be used as a blueprint or whatever you would come up with. It is used in the `Field` for example.
-- `widget`: Here you can set view specific attributes. We ship a basic widget with very basic attributes. Use it as a starting point for your own widgets.
+- `name`: Every element has a name which it can be referred to. Additionally to its core function you can use it for anything you need. This is the idea here. It is a data structure.
+- `prototype`: This is not used in the core element. It is used in `Field` when having a list where you can add and remove items. Use it for whatever you think.
+- `widget`: Here you can set view specific attributes.
 
-Also you can add any further property that you need! Use it to extend the elements data wise.
+This element is the starting point if you do not have to deal with use inputtable values. Create anything you like from it. Remember is is just a data structure. The renderer that you create will decide what to do with your custom elements.
+
+Do not be afraid to extend it.
+
+## Extending the element by adding properties
+
+Because you are in TypeScript it is very easy to add further properties. You just need to do it.
 
 ```typescript
 var field = new Field('string', 'name');
@@ -104,6 +104,8 @@ field.validators = [ new Required() ]
 ```
 
 Here we add an array of validators to the field. You do not need to subclass the field to do it.
+
+[How to use it?]
 
 ## Paths
 
@@ -424,10 +426,6 @@ form.find('submit').listen(button => {
 ```
 
 # Visual elements
-
-## Form frame
-
-... work in progress ...
 
 ## Row
 
