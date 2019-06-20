@@ -45,7 +45,7 @@ var arne = form.value
 
 Now that your form is there you can render it. The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
 
-So basically you create a renderer for one project which is able to render your form exactly in exactly that look of your application. So every time you render a form you will get the same result and if you want to change something about your forms you do it at exactly in one place.
+So basically you create a renderer for one project which is able to render your form exactly in that look of your application. So every time you render a form you will get the same result and if you want to change something about your forms you do it in exactly one place.
 
 There are numerous renderers for different plattforms available as a starting point and the list continues to grow. There already is support for Angular and React but also for Android and iOS. Even some desktop GUIs starting to be supported. An exhaustive list can be found here.
 
@@ -61,7 +61,7 @@ This is what it basically is. Describe a form, put data in, render it, get data 
 
 # Overview
 
-This data structure is a tree. Every element of the tree is an instance of class `Element` or one of its sub classes. Basically there is only one other sub class that has weight which is `Field`. A field represents a user inputtable value.
+The data structure is a tree. Every element in the tree is an instance of class `Element` or one of its sub classes. Basically there is only one other sub class that is worth mentioning which is `Field`. A field represents user inputtable value.
 
 So what you can do is adding fields to represent user inputtable values. You can add visual elements like a fieldset or a row to align elements in a row. You can add buttons which have some instant dynamic behaviour on the form or buttons that submit the form. Also you can add more complex behavioural elements like a mapping which is able to replace parts of the form with other elements depending on a value of a field.
 
@@ -72,7 +72,7 @@ There are the following elements available and you may add as many as you like.
 - Visuals elements: `Row`, `FieldSet`, `FormFrame`
 - Behavioural elements: `Mapping`, `FieldValueMapping`
 
-Buttons, visual elements and behavioural elements are in fact just sub classes of `Element`. We differentiate to have a nicer way of thinking about it.
+Buttons, visual elements and behavioural elements are in fact just sub classes of `Element`. We differentiate them hear simply to have a nicer way of thinking about it.
 
 And yes, the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms. So you will be able to define forms for your domain objects and then you can combine them. You will just want get rid of the form frame and its buttons when rendering. The good thing is that you do not need to think about it because our renderers will do that automatically.
 
@@ -80,19 +80,23 @@ UML diagram
 
 # Element
 
-The `Element` is the core object. Every other element used is at least an `Element`.
-
-Here are its properties.
+The `Element` is the base class for every element in the tree. Here are its properties.
 
 - `parent`: Every element knows its parent. (You do not have to set it by yourself.)
-- `elements`: Every element can have arbitrary many sub elements.
+- `elements`: Every element can have arbitrary many sub elements. (It is a tree.)
 - `name`: Every element has a name which it can be referred to. Additionally to its core function you can use it for anything you need. This is the idea here. It is a data structure.
-- `prototype`: This is not used in the core element. It is used in `Field` when having a list where you can add and remove items. Use it for whatever you think.
+- `prototype`: It is not used in the base element. It is used in `Field` when having a list where you can add and remove items. Use it for whatever you think.
 - `widget`: Here you can set view specific attributes.
 
 This element is the starting point if you do not have to deal with use inputtable values. Create anything you like from it. Remember is is just a data structure. The renderer that you create will decide what to do with your custom elements.
 
 Do not be afraid to extend it.
+
+## Element properties act as features
+
+Setting values on the elements is always optional. Think of it like activating a feature if you set a certain property. If you do not need a certain feature the library will not mind.
+
+For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing. If you give it an object to set the field's values the nameless will be left out in the cold.
 
 ## Extending the element by adding properties
 
@@ -105,7 +109,7 @@ field.validators = [ new Required() ]
 
 Here we add an array of validators to the field. You do not need to subclass the field to do it.
 
-[How to use it?]
+[Insert a hint on how to use it? Refer to the corresponding section]
 
 ## Paths
 
@@ -121,7 +125,7 @@ new Form('character').add( // character
 
 If an element does not have a name it is ignorned.
 
-## Retreiving elements
+## Retrieving elements
 
 The `find()` method lets you retreive any element from any element. A dot notation is used to access fields down the chain.
 
@@ -166,12 +170,6 @@ element.root // the root element which can be the form but has not to be
 element.form // the next parent form up in the chain
 element.path // the complete path of the element up the the root
 ```
-
-## Element properties act as features
-
-Setting values on the elements is always optional. Think of it like activating a feature if you set a certain property. If you do not need a certain feature the library will not mind.
-
-For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing. If you give it an object to set the field's values the nameless will be left out in the cold.
 
 # Field
 
