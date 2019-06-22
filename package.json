@@ -1,0 +1,33 @@
+{
+  "name": "form",
+  "version": "0.0.1",
+  "description": "An elegant data structure to work with forms",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.7",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
+    "ts-node": "^8.3.0"
+  },
+  "scripts": {
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/c0deritter/form.git"
+  },
+  "keywords": [
+    "form"
+  ],
+  "author": "Coderitter GmbH",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/c0deritter/form/issues"
+  },
+  "homepage": "https://github.com/c0deritter/form#readme"
+}
