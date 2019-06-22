@@ -19,6 +19,15 @@ export class FormElement {
   widget: Widget|null = null
 
   /**
+   * @param name The name (optional)
+   */
+  constructor(name?: string) {
+    if (name) {
+      this.name = name
+    }
+  }
+
+  /**
    * Get the parent.
    */
   get parent(): FormElement|null {
@@ -91,6 +100,30 @@ export class FormElement {
     }
 
     return null
+  }
+
+  get path(): string {
+    if (! this.name) {
+      return ''
+    }
+
+    return this.getPath()
+  }
+
+  private getPath(): string {
+    if (this.parent === null) {
+      if (this.name) {
+        return this.name
+      }
+
+      return ''
+    }
+
+    if (this.name) {
+      return this.parent.getPath() + '.' + this.name
+    }
+
+    return this.parent.getPath()
   }
 
   /**
