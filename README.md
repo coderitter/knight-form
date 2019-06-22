@@ -96,14 +96,14 @@ Do not be afraid to extend it.
 
 Setting values on the elements is always optional. Think of it like activating a feature if you set a certain property. If you do not need a certain feature the library will not mind.
 
-For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing. If you give it an object to set the field's values the nameless will be left out in the cold.
+For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing.
 
 ## Extending the element by adding properties
 
 Because you are in TypeScript it is very easy to add further properties. You just need to do it.
 
 ```typescript
-var field = new Field('string', 'name');
+var field = new Field('string', 'name')
 field.validators = [ new Required() ]
 ```
 
