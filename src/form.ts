@@ -52,6 +52,17 @@ export class FormElement {
   }
 
   /**
+   * Get the root. If called from the root it return the root.
+   */
+  get root(): FormElement|null {
+    if (this.parent !== null) {
+      return this.parent.root
+    }
+
+    return this
+  }
+
+  /**
    * Get all children.
    */
   get children(): FormElement[] {

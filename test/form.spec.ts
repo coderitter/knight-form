@@ -6,46 +6,46 @@ import { FormElement } from '../src/form'
 describe('Test handling of children', () => {
 
   it('should add a child and set its parent accordingly.', () => {
-    const rootElement = new FormElement
-    const child = new FormElement
+    const root = new FormElement('root')
+    const child = new FormElement('child')
 
     // Add the child to the root element. The parent of the child should be set afterwards.
-    rootElement.add(child)
+    root.add(child)
 
-    expect(rootElement.children).to.include(child)
-    expect(child.parent).to.equal(rootElement)
+    expect(root.children).to.include(child)
+    expect(child.parent).to.equal(root)
   })
 
   it('should add an element which parent is set to that parent\'s children.', () => {
-    const rootElement = new FormElement
-    const child = new FormElement
+    const root = new FormElement('root')
+    const child = new FormElement('child')
 
     // Set the parent of the child. The root element should include the child afterwards.
-    child.parent = rootElement
+    child.parent = root
 
-    expect(child.parent).to.equal(rootElement)
-    expect(rootElement.children).to.include(child)
+    expect(child.parent).to.equal(root)
+    expect(root.children).to.include(child)
   })
 
   it('should remove a child if its parent is set to null', () => {
-    const rootElement = new FormElement
-    const child = new FormElement
+    const root = new FormElement('root')
+    const child = new FormElement('child')
 
-    child.parent = rootElement
+    child.parent = root
 
-    expect(child.parent).to.equal(rootElement)
-    expect(rootElement.children).to.include(child)
+    expect(child.parent).to.equal(root)
+    expect(root.children).to.include(child)
 
     child.parent = null
 
     expect(child.parent).to.equal(null)
-    expect(rootElement.children).to.not.include(child)
+    expect(root.children).to.not.include(child)
   })
 
   it('should add a child to its new parent and remove it from the old one', () => {
-    const oldRoot = new FormElement
-    const newRoot = new FormElement
-    const child = new FormElement
+    const oldRoot = new FormElement('oldRoot')
+    const newRoot = new FormElement('newRoot')
+    const child = new FormElement('child')
 
     child.parent = oldRoot
 
@@ -57,6 +57,24 @@ describe('Test handling of children', () => {
     expect(child.parent).to.equal(newRoot)
     expect(newRoot.children).to.include(child)
     expect(oldRoot.children).to.not.include(child)
+  })
+
+  it('should determine the root correctly', () => {
+    const root = new FormElement('root')
+    const child1 = new FormElement('child1')
+    const child2 = new FormElement('child2')
+
+    root.add(child1)
+    child1.add(child2)
+
+    expect(root.root).to.equal(root)
+    expect(child1.root).to.equal(root)
+    expect(child2.root).to.equal(root)
+
+    child1.parent = null
+
+    expect(child1.root).to.equal(child1)
+    expect(child2.root).to.equal(child1)
   })
   
 })
