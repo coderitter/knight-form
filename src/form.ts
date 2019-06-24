@@ -292,30 +292,19 @@ export class FormElement {
     return field
   }
 
-  protected findDirectSubFields(): Field[] {
-    let fields: Field[] = []
-
-    for (let child of this.children) {
-      if (child instanceof Field) {
-        fields.push(child)
-      }
-      else {
-        const subFields = child.findDirectSubFields()
-        fields = fields.concat(subFields)
-      }
+  visit<T>(visitor: Visitor<T>): T|undefined {
+    if (! visitor.doNotVisitStartElement) {
+      visitor.visit(this)
     }
-    
-    return fields
-  }
-
-  visit(visitor: Visitor) {
-    visitor.visit(this)
 
     for (let child of this.children) {
       if (child !== null) {
-        child.visit(visitor)
+        // the recursion is implemented in the visitor itself
+        visitor.visit(child)
       }
     }
+
+    return visitor.result
   }
 
   clone(): this {
@@ -399,11 +388,13 @@ export class Field extends FormElement {
     this._value = value
 
     if (this.type === FieldType.object && typeof value === 'object') {
-      const subFields = this.findDirectSubFields()
+      const subFields = this.visit(new FindDirectSubFieldsVisitor)
 
-      for (let field of subFields) {
-        if (field.name && field.name in value) {
-          field.value = value[field.name]
+      if (subFields) {
+        for (let field of subFields) {
+          if (field.name && field.name in value) {
+            field.value = value[field.name]
+          }
         }
       }
     }
@@ -672,6 +663,35 @@ function joinPath(path: Array<String>) {
   return path.join(".")
 }
 
-export abstract class Visitor {
+export abstract class Visitor<T = any> {
+
+  result: T|undefined
+  doNotVisitStartElement: boolean = false
+
   abstract visit(element: FormElement): void
+
+  visitDeeper(element: FormElement) {
+    for (let child of element.children) {
+      this.visit(child)
+    }
+  }
+}
+
+export class FindDirectSubFieldsVisitor extends Visitor<Field[]> {
+
+  result: Field[] = []
+  
+  constructor() {
+    super()
+    this.doNotVisitStartElement = true
+  }
+
+  visit(element: FormElement): void {
+    if (element instanceof Field) {
+      this.result.push(element)
+    }
+    else {
+      this.visitDeeper(element)
+    }
+  }
 }
