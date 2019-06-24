@@ -15,7 +15,7 @@ form.add(
 )
 
 form.title = 'My first form'
-form.addButtons(new Button('submit'))
+form.buttons = [ new Button('submit') ]
 ```
 
 ## Set values

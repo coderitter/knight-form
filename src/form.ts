@@ -112,25 +112,23 @@ export class FormElement {
    * 
    * @param element May be a FormElement object or a name
    */
-  remove(element: FormElement|string): FormElement|null {
+  remove(element: FormElement|string): this {
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i]
 
       if (typeof element === 'string') {
         if (child.name === element) {
           this.children.splice(i)
-          return child
         }
       }
       else {
         if (child === element) {
           this.children.splice(i)
-          return child
         }
       }
     }
 
-    return null
+    return this
   }
 
   get path(): string {
@@ -474,53 +472,11 @@ export class Option {
 
 export class Form extends Field {
 
-  frame: FormFrame = new FormFrame
-
-  constructor(type: string = FieldType.object) {
-    super(type)
-  }
-
-  protected initFrame() {
-    if (!this.frame) {
-      this.frame = new FormFrame
-    }
-  }
-
-  get title(): string|undefined {
-    this.initFrame()
-    return this.frame.title
-  }
-
-  set title(title: string|undefined) {
-    this.initFrame()
-    this.frame.title = title
-  }
-
-  get buttons(): Button[] {
-    this.initFrame()
-    return this.frame.buttons
-  }
-
-  set buttons(buttons: Button[]) {
-    this.initFrame()
-    this.frame.buttons = buttons
-  }
-
-  addButtons(...buttons: Button[]) {
-    this.initFrame()
-    this.frame.addButtons(...buttons)
-  }
-}
-
-export class FormFrame {
-
   title: string|undefined = undefined
   buttons: Button[] = []
 
-  constructor(title?: string) {
-    if (title) {
-      this.title = title
-    }
+  constructor(type: string = FieldType.object) {
+    super(type)
   }
 
   addButtons(...buttons: Button[]) {
