@@ -634,8 +634,22 @@ export class FieldValueMapping extends Mapping {
 }
 
 export class Widget {
+
+  invisible: boolean|undefined
+  disabled: boolean|undefined
+  label: string|undefined
+  required: boolean|undefined
+  error: string|undefined
+
   clone(): this {
     const clone = Object.create(this)
+
+    clone.invisible = this.invisible
+    clone.disabled = this.disabled
+    clone.label = this.label
+    clone.required = this.required
+    clone.error = this.error
+
     return clone
   }
 }
