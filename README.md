@@ -61,7 +61,7 @@ This is what it basically is. Describe a form, put data in, render it, get data 
 
 # Overview
 
-The data structure is a tree. Every element in the tree is an instance of class `Element` or one of its sub classes. Basically there is only one other sub class that is worth mentioning which is `Field`. A field represents user inputtable value.
+The data structure is a tree. Every element in the tree is an instance of class `FormElement` or one of its sub classes. Basically there is only one other sub class that is worth mentioning which is `Field`. A field represents user inputtable value.
 
 So what you can do is adding fields to represent user inputtable values. You can add visual elements like a fieldset or a row to align elements in a row. You can add buttons which have some instant dynamic behaviour on the form or buttons that submit the form. Also you can add more complex behavioural elements like a mapping which is able to replace parts of the form with other elements depending on a value of a field.
 
@@ -72,15 +72,15 @@ There are the following elements available and you may add as many as you like.
 - Visuals elements: `Row`, `FieldSet`, `FormFrame`
 - Behavioural elements: `Mapping`, `FieldValueMapping`
 
-Buttons, visual elements and behavioural elements are in fact just sub classes of `Element`. We differentiate them hear simply to have a nicer way of thinking about it.
+Buttons, visual elements and behavioural elements are in fact just sub classes of `FormElement`. We differentiate them hear simply to have a nicer way of thinking about it.
 
 And yes, the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms. So you will be able to define forms for your domain objects and then you can combine them. You will just want get rid of the form frame and its buttons when rendering. The good thing is that you do not need to think about it because our renderers will do that automatically.
 
 UML diagram
 
-# Element
+# FormElement
 
-The `Element` is the base class for every element in the tree. Here are its properties.
+The `FormElement` is the base class for every element in the tree. Here are its properties.
 
 - `parent`: Every element knows its parent. (You do not have to set it by yourself.)
 - `elements`: Every element can have arbitrary many sub elements. (It is a tree.)
@@ -92,7 +92,7 @@ This element is the starting point if you do not have to deal with use inputtabl
 
 Do not be afraid to extend it.
 
-## Element properties act as features
+## FormElement properties act as features
 
 Setting values on the elements is always optional. Think of it like activating a feature if you set a certain property. If you do not need a certain feature the library will not mind.
 
@@ -444,10 +444,10 @@ var fieldSet = new FieldSet('fieldSetName').add(
 
 ## Create your own
 
-Just extend `Element` and do whatever you need to do.
+Just extend `FormElement` and do whatever you need to do.
 
 ```typescript
-class Separator extends Element {
+class Separator extends FormElement {
 }
 ```
 
@@ -539,7 +539,7 @@ If you want to change it just edit the file. You included it into your project f
 The next step is to determine the appropriate wiget for the field. Either the field has a widget object attached. In this case just return the corresponding template. Or determine the widget based on the data found on the field. Here you can see how the property `type` is used to determine the appropriate widget.
 
 ```typescript
-public getWidget(element: Element): TemplateRef<any> {
+public getWidget(element: FormElement): TemplateRef<any> {
   // in case the widget was specified explicitely
   if (element.widget != null) {
     return element.widget;
@@ -566,7 +566,7 @@ We have built a visitor which visits every element of the form tree.
 
 ```typescript
 button(button: Button)
-element(element: Element)
+element(element: FormElement)
 field(field: Field)
 form(form: Form)
 formFrame(formFrame: FormFrame)
@@ -590,7 +590,7 @@ class TranslationVisitor extends FormVisitor {
   
   constructor(private translator: YourTranslator)
 
-  element(element: Element) {
+  element(element: FormElement) {
     translator.translate(element.path) // use the path to create a nice translation id
   }
 
