@@ -515,9 +515,33 @@ export class FormFrame {
 }
 
 export class Button extends FormElement {
-
   label: string|undefined
 
+  clone(): this {
+    const clone = super.clone()
+    clone.label = this.label
+    return clone
+  }
+}
+
+export class Row extends FormElement {
+  label: string|undefined
+
+  clone(): this {
+    const clone = super.clone()
+    clone.label = this.label
+    return clone
+  }
+}
+
+export class FieldSet extends FormElement {
+  label: string|undefined
+
+  clone(): this {
+    const clone = super.clone()
+    clone.label = this.label
+    return clone
+  }
 }
 
 export class Widget {
