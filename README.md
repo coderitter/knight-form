@@ -215,8 +215,7 @@ You determine the type of a field by setting its value type property. Here are t
 
 - `boolean`
 - `date`
-- `float32`, `float64`
-- `int8`, `int16`, `int32`, `int64`
+- `number`
 - `string`
 
 The constructor for all of these look the same.
@@ -283,7 +282,7 @@ var field = new Field('string')
 field.value = 33
 ```
 
-If your value is an object and the field's type is `object` the field will try to distribute every the object property value to its sub fields. It uses the name of the field to match a property and a field.
+Setting a whole object will result in all sub fields to be filled with values from this object if possible. The field which you want to set the object on needs to be of type `object` and the names of the sub fields need to match the property names of the object.
 
 ```typescript
 var goku = {
@@ -292,8 +291,10 @@ var goku = {
 }
 
 var character = new Field('object').add(
-  new Field('string', 'name'),
-  new Field('number', 'level')
+  new Row().add( // additional non field elements will be ignored.
+    new Field('string', 'name'),
+    new Field('number', 'level')
+  )
 )
 
 character.value = goku
@@ -302,7 +303,7 @@ character.findField('name').value // === 'Son Goku'
 character.findField('level').value // === 9001
 ```
 
-If your value is an array and the field's type is `array` the field will remove any existing children and uses the `prototype` to create new children according to the contents of the given array value. If there is not prototype set the list of children will simply remain empty.
+If your value is an array and the field's type is `array` the field will remove any existing children and uses the `prototype` to create new children according to the contents of the given array value. If there is no prototype set the list of children will simply remain empty.
 
 ```typescript
 var characters = [
@@ -316,13 +317,12 @@ var characters = [
   }
 ]
 
-var character = new Field('object').add(
+var characterPrototype = new Field('object').add(
   new Field('string', 'name'),
   new Field('number', 'level')
 )
 
-var charactersField = new Field('array')
-
+var charactersField = new Field('array', characterPrototype)
 charactersField.value = characters
 ```
 
@@ -399,78 +399,6 @@ Form.load({ // from a form alike object
 ```
 
 In the latter case the `@type` property is important. Without it the correct form element class cannot be chosen.
-
-## Object treatment
-
-If you did not set any object on the form it will create one for you. If you did set one the form will just give the one you have set back to you. Having all the values that where edited through form.
-
-```typescript
-var form = new Form().add(
-  new FieldSet('general').add(
-    new Field('string', 'name'), // 'Arne Steppat'
-    new Field('number', 'level') // 9001
-  )
-)
-
-var object = form.value
-```
-
-```json
-{
-  "name": "Arne Steppat",
-  "level": 9001
-}
-```
-
-When the object is created it ignores every element apart from fields.
-
-## Set values on a form
-
-You can also input only partially complete objects. It is only important that the field structure and the object structure match somewhere.
-
-```typescript
-var form = new Form().add(
-  new Field('string', 'name'),
-  new Field('object', 'skills').add(
-    new Field('number', 'agility'),
-    new Field('number', 'strength')
-  )
-)
-
-var arne = {
-  name: 'Arne Steppat',
-  skills: {
-    agility: "78", // it is a string instead of a number! will be converted when set
-    strength: 'NaN', // will be assigned as string
-    unknownField: 'unknown' // will be ignored because the form does not have a corresponding field
-  }
-}
-
-form.value = arne
-form.find('skills').value = arne // will do nothing because structure does not match
-form.find('skills').value = arne.skills // works!
-```
-
-The resulting object in JSON.
-
-```json
-{
-  "name": "Arne Steppat",
-  "skills": {
-    "agility": 78, // the string got converted to its target type
-    "strength": "NaN" // was assigned as it was because it could not be converted
-    // unknownField is left out because the form did not define any field for it
-  }
-}
-```
-
-## Reset form
-
-If you want to restore all the initial values use the `reset` method.
-
-```typescript
-form.reset()
-```
 
 # Buttons
 
