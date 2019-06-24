@@ -323,7 +323,7 @@ export enum FieldType {
 
 export class Field extends FormElement {
 
-  type: string = ''
+  type: string|undefined = undefined
   protected _value: any = undefined
 
   /**
@@ -334,11 +334,11 @@ export class Field extends FormElement {
    */
   options: any[] = []
 
-  constructor(valueType?: string, nameOrOptionsOrPrototype?: string|any[]|FormElement, optionsOrPrototype?: any[]|FormElement) {
+  constructor(type?: string, nameOrOptionsOrPrototype?: string|any[]|FormElement, optionsOrPrototype?: any[]|FormElement) {
     super()
 
-    if (valueType) {
-      this.type = valueType
+    if (type) {
+      this.type = type
     }
 
     if (nameOrOptionsOrPrototype) {
@@ -441,7 +441,7 @@ export class Field extends FormElement {
 export class Option {
 
   value: any = undefined
-  label: string = ''
+  label: string|undefined = undefined
   disabled: boolean = false
 
   clone(): this {
@@ -453,6 +453,70 @@ export class Option {
 
     return clone
   }
+
+}
+
+export class Form extends Field {
+
+  frame: FormFrame = new FormFrame
+
+  constructor(type: string = FieldType.object) {
+    super(type)
+  }
+
+  protected initFrame() {
+    if (!this.frame) {
+      this.frame = new FormFrame
+    }
+  }
+
+  get title(): string|undefined {
+    this.initFrame()
+    return this.frame.title
+  }
+
+  set title(title: string|undefined) {
+    this.initFrame()
+    this.frame.title = title
+  }
+
+  get buttons(): Button[] {
+    this.initFrame()
+    return this.frame.buttons
+  }
+
+  set buttons(buttons: Button[]) {
+    this.initFrame()
+    this.frame.buttons = buttons
+  }
+
+  addButtons(buttons: any[]) {
+    this.initFrame()
+    this.frame.addButtons(buttons)
+  }
+}
+
+export class FormFrame {
+
+  title: string|undefined = undefined
+  buttons: Button[] = []
+
+  constructor(title?: string) {
+    if (title) {
+      this.title = title
+    }
+  }
+
+  addButtons(buttons: Button[]) {
+    for (let button of buttons) {
+      this.buttons.push(button)
+    }
+  }
+}
+
+export class Button extends FormElement {
+
+  label: string|undefined
 
 }
 
