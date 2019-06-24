@@ -63,6 +63,21 @@ export class FormElement {
   }
 
   /**
+   * Get the next parent form. Return null if there was not any.
+   */
+  get form(): Form|null {
+    if (this.parent instanceof Form) {
+      return this.parent
+    }
+
+    if (this.parent !== null) {
+      return this.parent.form
+    }
+
+    return null
+  }
+
+  /**
    * Get all children.
    */
   get children(): FormElement[] {
@@ -490,9 +505,9 @@ export class Form extends Field {
     this.frame.buttons = buttons
   }
 
-  addButtons(buttons: any[]) {
+  addButtons(...buttons: Button[]) {
     this.initFrame()
-    this.frame.addButtons(buttons)
+    this.frame.addButtons(...buttons)
   }
 }
 
@@ -507,7 +522,7 @@ export class FormFrame {
     }
   }
 
-  addButtons(buttons: Button[]) {
+  addButtons(...buttons: Button[]) {
     for (let button of buttons) {
       this.buttons.push(button)
     }
@@ -541,6 +556,80 @@ export class FieldSet extends FormElement {
     const clone = super.clone()
     clone.label = this.label
     return clone
+  }
+}
+
+export class Mapping extends FormElement {
+
+  mappings: KeyToElement[] = []
+
+  constructor() {
+    super()
+  }
+
+  addMappings(...mappings: KeyToElement[]) {
+    if (!Array.isArray(this.mappings)) {
+      this.mappings = []
+    }
+
+    for (let mapping of mappings) {
+      this.mappings.push(mapping)
+    }
+  }
+}
+
+export class KeyToElement {
+  key: any
+  element: FormElement|null = null
+}
+
+export class FieldValueMapping extends Mapping {
+  private _decisiveFieldName: string|undefined
+  private _decisiveField: Field|null = null
+
+  constructor(decisiveFieldOrFieldName: Field|string|undefined) {
+    super()
+
+    if (decisiveFieldOrFieldName) {
+      if (typeof decisiveFieldOrFieldName === 'string') {
+        this._decisiveFieldName = decisiveFieldOrFieldName
+      }
+      else if (decisiveFieldOrFieldName instanceof Field) {
+        this._decisiveField = decisiveFieldOrFieldName
+      }
+    }
+  }
+
+  get decisiveFieldName(): string|undefined {
+    if (this._decisiveFieldName) {
+      return this._decisiveFieldName
+    }
+
+    if (this._decisiveField) {
+      return this._decisiveField.name
+    }
+  }
+
+  set decisiveFieldName(decisiveFieldName: string|undefined) {
+    this._decisiveField = null
+    this._decisiveFieldName = decisiveFieldName
+  }
+
+  get decisiveField(): Field|null {
+    if (this._decisiveFieldName && this.form !== null) {
+      return this.form.findField(this._decisiveFieldName)
+    }
+
+    if (this._decisiveField) {
+      return this._decisiveField
+    }
+
+    return null
+  }
+
+  set decisiveField(decisiveField: Field|null) {
+    this._decisiveFieldName = undefined
+    this._decisiveField = decisiveField
   }
 }
 
