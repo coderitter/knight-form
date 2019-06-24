@@ -671,8 +671,10 @@ export abstract class Visitor<T = any> {
   abstract visit(element: FormElement): void
 
   visitDeeper(element: FormElement) {
-    for (let child of element.children) {
-      this.visit(child)
+    if (element && element.children) {
+      for (let child of element.children) {
+        this.visit(child)
+      }
     }
   }
 }

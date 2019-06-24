@@ -14,7 +14,7 @@ form.add(
   new Field('number', 'level')
 )
 
-form.setTitle('My first form')
+form.title = 'My first form'
 form.addButtons(new Button('submit'))
 ```
 
@@ -72,11 +72,9 @@ There are the following elements available and you may add as many as you like.
 - Visuals elements: `Row`, `FieldSet`, `FormFrame`
 - Behavioural elements: `Mapping`, `FieldValueMapping`
 
-Buttons, visual elements and behavioural elements are in fact just sub classes of `FormElement`. We differentiate them hear simply to have a nicer way of thinking about it.
+Buttons, visual elements and behavioural elements are in fact just sub classes of `FormElement`. We differentiate them here simply to have a nicer way of thinking about it.
 
 And yes, the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms. So you will be able to define forms for your domain objects and then you can combine them. You will just want get rid of the form frame and its buttons when rendering. The good thing is that you do not need to think about it because our renderers will do that automatically.
-
-UML diagram
 
 # FormElement
 
@@ -157,7 +155,7 @@ var form = form.add(
 form.find('general.clear') // ignores the row and still finds the element
 ```
 
-At first the form tries to resolve the path gapless not considering container elements without a name. If this fails the form starts to search the whole tree matching the path allowing gaps. If it finds only one element it will return it. Otherwise it will return null leaving a error message in the log.
+At first the form tries to resolve the path gapless not considering container elements without a name. If this fails the form starts to search the whole tree matching the path allowing gaps. It will return the first element it found.
 
 We use a very tolerant approach here in order to meet you. Even if you are being more loose in your specifications the form will still try to make the best out of it.
 
@@ -174,11 +172,11 @@ element.path // the complete path of the element up the the root
 
 # Field
 
-The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents an attribute on your object.
+The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents a property on your object. The field itself does not determine a specific widget. That makes this form library platform independent.
 
 ## Field properties
 
-Look at the field as a building block to describe everything there is to a property needed to display a widget. The field itself does not determine a specific widget. That makes this form library platform independent.
+The properties of the field.
 
 - `type`: The type of the value
 - `value`: The actual value
