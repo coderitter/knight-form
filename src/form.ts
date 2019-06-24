@@ -290,7 +290,7 @@ export enum FieldValueType {
 
 export class Field extends FormElement {
 
-  valueType: string = FieldValueType.string
+  type: string = FieldValueType.string
   value: any = undefined
 
   /**
@@ -299,17 +299,23 @@ export class Field extends FormElement {
    * you can adjust the standard renderer to use a sub class of Option or even a completely
    * different class.
    */
-  options: [] = []
+  options: any[] = []
 
-  constructor(valueType?: string, name?: string, options?: []) {
+  constructor(valueType?: string, name?: string, optionsOrPrototype?: any[]|FormElement) {
     super(name)
 
     if (valueType) {
-      this.valueType = valueType
+      this.type = valueType
     }
 
-    if (options) {
-      this.options = options
+    if (optionsOrPrototype) {
+      if (Array.isArray(optionsOrPrototype)) {
+        this.options = optionsOrPrototype
+      }
+
+      if (optionsOrPrototype instanceof FormElement) {
+        this.prototype = optionsOrPrototype
+      }
     }
   }
 

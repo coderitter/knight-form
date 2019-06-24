@@ -1,7 +1,27 @@
 import { expect } from 'chai'
 import 'mocha'
 
-import { FormElement, Field } from '../src/form'
+import { FormElement, Field, Option } from '../src/form'
+
+describe('Test constructor', () => {
+  it('should set the constructor parameters', () => {
+    const options = [ new Option, new Option ]
+    const field1 = new Field('boolean', 'field1', options)
+    
+    expect(field1.type).to.equal('boolean')
+    expect(field1.name).to.equal('field1')
+    expect(field1.options).to.equal(options)
+    expect(field1.prototype).to.equal(null)
+
+    const prototype = new FormElement('prototype')
+    const field2 = new Field('object', 'field2', prototype)
+
+    expect(field2.type).to.equal('object')
+    expect(field2.name).to.equal('field2')
+    expect(field2.prototype).to.equal(prototype)
+    expect(field2.options.length).to.equal(0)
+  })
+})
 
 describe('Test fieldPath', () => {
 
