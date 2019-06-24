@@ -139,6 +139,7 @@ var form = form.add(
 
 form.find('general')
 form.find('general.name')
+form.find('general.level')
 ```
 
 If an element which contains sub elements does not have a name it will still be taken into consideration.
@@ -262,7 +263,7 @@ friendsField.addOptions(
 )
 ```
 
-This scenario of referencing ids could also be solved differently through a field of type `number`. It all depends on what you need.
+This scenario of referencing ids could also be solved differently through a field of type `number`. It all depends on what you need.
 
 ## Array fields
 
@@ -301,7 +302,7 @@ objectForm.add(arrayForm, numberForm)
 
 ## Form frame
 
-The form has the `FormFrame` attached to it. It is a basic visual element which comes with a title and buttons. The reason for this is that you can use the `Form` as the root element so that you can use its `value` property directly. For convenience the `Form` yields the same properties as the `FormFrame` and the constructor even accepts its title.
+The form has the `FormFrame` attached to it. It is a basic visual element which comes with a title and buttons. The reason for this is that you can use the `Form` as the root element so that you can use its `value` property directly. For convenience the `Form` yields the same properties as the `FormFrame` and the constructor even accepts its title.
 
 ```typescript
 var form = new Form("Title")
@@ -492,10 +493,10 @@ If you do not have any renderer code as a boilerplate for your new project you w
 
 The widget that we ship has the following basic properties.
 
-- `invisble`
-- `disabled`
-- `label`
-- `required`
+- `invisble`
+- `disabled`
+- `label`
+- `required`
 - `error`
 
 Define any widget that you may need.
