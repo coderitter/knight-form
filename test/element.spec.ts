@@ -79,7 +79,7 @@ describe('Test handling of children', () => {
   
 })
 
-describe('Test the functionality associated to the name', () => {
+describe('Test path', () => {
 
   it('should create the correct path', () => {
     const root = new FormElement('root')
@@ -133,18 +133,24 @@ describe('Test the functionality associated to the name', () => {
     expect(childWithoutName2.path).to.equal('')
     expect(childWithEmptyName2.path).to.equal('')
   })
+
+})
+
+describe('Test find', () => {
   
   it('should find a child by name', () => {
     const root = new FormElement('root')
-    const child = new FormElement('child')
+    const child1 = new FormElement('child1')
+    const child2 = new FormElement('child2')
 
-    root.add(child)
+    root.add(child1)
+    child1.add(child2)
 
-    const foundChild1 = root.find('child')
-    expect(foundChild1).to.equal(child)
+    const foundChild1 = root.find('child1')
+    expect(foundChild1).to.equal(child1)
 
-    const foundChild2 = root.find([ 'child' ])
-    expect(foundChild2).to.equal(child)
+    const foundChild2 = root.find([ 'child1' ])
+    expect(foundChild2).to.equal(child1)
 
     const foundChild3 = root.find('wrongName')
     expect(foundChild3).to.equal(null)
@@ -157,33 +163,102 @@ describe('Test the functionality associated to the name', () => {
 
     const foundChild6 = root.find([])
     expect(foundChild6).to.equal(null)
+
+    const foundChild7 = root.find('child1.child2')
+    expect(foundChild7).to.equal(child2)
+
+    const foundChild8 = root.find([ 'child1', 'child2' ])
+    expect(foundChild8).to.equal(child2)
+
+    const foundChild9 = root.find('wrongName.child2')
+    expect(foundChild9).to.equal(null)
+
+    const foundChild10 = root.find([ 'wrongName', 'child2' ])
+    expect(foundChild10).to.equal(null)
+
+    const foundChild11 = root.find('child1.wrongName')
+    expect(foundChild11).to.equal(null)
+
+    const foundChild12 = root.find([ 'child1', 'wrongName' ])
+    expect(foundChild12).to.equal(null)
   })
 
-  it('should find a child by name in the third level', () => {
+  it('should find a child even when there is a gap in the path', () => {
     const root = new FormElement('root')
-    const child1 = new FormElement('child1')
-    const child2 = new FormElement('child2')
+    const child1 = new FormElement // gap
+    const child11 = new FormElement('child11') // element after one gape
+    const child111 = new FormElement('child111') // sub element of element after one gap
+    const child112 = new FormElement // gap -> no gap -> gap
+    const child1121 = new FormElement('child1121') // element after two gaps
+    const child12 = new FormElement // gap -> gap
+    const child121 = new FormElement('child121') // element after two gaps
+    const child1211 = new FormElement('child1211') // sub element of element after two gaps
+    const child111Duplicate = new FormElement('child111') // duplicate element in different branch of the tree
 
     root.add(child1)
-    child1.add(child2)
+    child1.add(child11)
+    child11.add(child111)
+    child11.add(child112)
+    child112.add(child1121)
+    child1.add(child12)
+    child12.add(child121)
+    child121.add(child1211)
+    child121.add(child111Duplicate)
 
-    const foundChild1 = root.find('child1.child2')
-    expect(foundChild1).to.equal(child2)
+    // find child with a one level gap
+    const foundChild1 = root.find('child11')
+    const foundChild2 = root.find([ 'child11' ])
+    expect(foundChild1).to.equal(child11)
+    expect(foundChild2).to.equal(child11)
 
-    const foundChild2 = root.find([ 'child1', 'child2' ])
-    expect(foundChild2).to.equal(child2)
-
-    const foundChild3 = root.find('wrongName.child2')
+    // do not find child with a not existing name in the beginning of the path
+    const foundChild3 = root.find('wrongName.child11')
+    const foundChild4 = root.find([ 'wrongName' , 'child11' ])
     expect(foundChild3).to.equal(null)
-
-    const foundChild4 = root.find([ 'wrongName', 'child2' ])
     expect(foundChild4).to.equal(null)
 
-    const foundChild5 = root.find('child1.wrongName')
+    // do not find child with a not existing name in the end of the path
+    const foundChild5 = root.find('child11.wrongName')
+    const foundChild6 = root.find([ 'child11' , 'wrongName' ])
     expect(foundChild5).to.equal(null)
-
-    const foundChild6 = root.find([ 'child1', 'wrongName' ])
     expect(foundChild6).to.equal(null)
+
+    // find a direct sub child of a child which is after a gap
+    const foundChild7 = root.find('child11.child111')
+    const foundChild8 = root.find([ 'child11', 'child111' ])
+    expect(foundChild7).to.equal(child111)
+    expect(foundChild8).to.equal(child111)
+
+    // do not find a direct sub child of a child which is after a gap but which has a wrong name between the child and its sub child
+    const foundChild9 = root.find('child11.wrongName.child111')
+    const foundChild10 = root.find([ 'child11', 'wrongName', 'child111' ])
+    expect(foundChild9).to.equal(null)
+    expect(foundChild10).to.equal(null)
+
+    // do not find a direct sub child of a child which is after a gap but which has a wrong name at the end
+    const foundChild11 = root.find('child12.child111.wrongName')
+    const foundChild12 = root.find([ 'child12', 'child111', 'wrongName' ])
+    expect(foundChild11).to.equal(null)
+    expect(foundChild12).to.equal(null)
+
+    // find a child which comes after two gaps
+    const foundChild15 = root.find('child121')
+    const foundChild16 = root.find([ 'child121' ])
+    expect(foundChild15).to.equal(child121)
+    expect(foundChild16).to.equal(child121)
+
+    // find a direct sub child of a child which is after two gaps
+    const foundChild17 = root.find('child121.child1211')
+    const foundChild18 = root.find([ 'child121', 'child1211' ])
+    expect(foundChild17).to.equal(child1211)
+    expect(foundChild18).to.equal(child1211)
+
+    // do not find a dislocated child which got accidentally put into another branch
+    const foundChild19 = root.find('child1111')
+    const foundChild20 = root.find([ 'child1111' ])
+    expect(foundChild19).to.equal(null)
+    expect(foundChild20).to.equal(null)
   })
+
 
 })

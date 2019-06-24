@@ -118,23 +118,18 @@ export class FormElement {
       return ''
     }
 
-    return this.getPath()
-  }
-
-  private getPath(): string {
-    if (this.parent === null) {
-      if (this.name) {
-        return this.name
+    let path = ''
+    let element: FormElement|null = this
+    
+    while (element !== null) {
+      if (element.name) {
+        path = element.name + (path ? '.' + path : '')
       }
 
-      return ''
+      element = element.parent
     }
 
-    if (this.name) {
-      return this.parent.getPath() + '.' + this.name
-    }
-
-    return this.parent.getPath()
+    return path
   }
 
   /**
@@ -160,7 +155,7 @@ export class FormElement {
     }
 
     // get the first part of the path and look for an element with that name
-    const first = pathArray.shift()
+    const first = pathArray[0]
 
     let element = null
     for (let child of this._children) {
@@ -174,19 +169,179 @@ export class FormElement {
       return element
     }
 
-    // if an element was found and the path still has parts left
+    // if an element was found
     if (element !== null) {
-      // go on an look further
-      element = element.find(pathArray)
+
+      // if the path still has parts left
+      if (pathArray.length > 1) {
+
+        // clone the path array
+        const clonedPathArray = pathArray.slice()
+
+        // remove first part of the path
+        clonedPathArray.shift()
+
+        // go on an look further
+        element = element.find(clonedPathArray)
+      }
     }
-
     // if there was no element found
-    if (element == null) {
+    else {
 
+      // iterator through all children not considering their name
+      for (let child of this._children) {
+        
+        // if the child does not have a name and it has children ask it to find the element
+        if (!child.name && child.children && child.children.length) {
+          element = child.find(pathArray)
+          
+          if (element) {
+            break
+          }
+        }
+      }
     }
 
     return element
   }
+
+  findField(path: string|string[]): Field|null {
+    let pathArray: string[] = []
+
+    // determine if the path was given as string or array
+    if (typeof path === 'string') {
+      pathArray = splitPath(path)
+    }
+    else if (path instanceof Array) {
+      pathArray = <string[]> path
+    }
+
+    // if there is nothing in the path then there is no element to find
+    if (pathArray.length == 0) {
+      return null
+    }
+
+    // get the first part of the path and look for an element with that name
+    const first = pathArray[0]
+
+    let field: Field|null = null
+    for (let child of this._children) {
+      if (child instanceof Field && child.name === first) {
+        field = child
+      }
+    }
+
+    // if there are not any more parts in the path we are done
+    if (pathArray.length == 0) {
+      return field
+    }
+
+    // if an element was found
+    if (field !== null) {
+
+      // if the path still has parts left
+      if (pathArray.length > 1) {
+
+        // clone the path array
+        const clonedPathArray = pathArray.slice()
+
+        // remove first part of the path
+        clonedPathArray.shift()
+
+        // go on an look further
+        field = field.findField(clonedPathArray)
+      }
+    }
+    // if there was no element found
+    else {
+
+      // iterator through all children not considering their name
+      for (let child of this._children) {
+
+        // if the child has children ask it to find the element
+        if (!child.name && child.children && child.children.length) {
+          field = child.findField(pathArray)
+
+          if (field) {
+            break
+          }
+        }
+      }
+    }
+
+    return field
+  }
+
+}
+
+export enum FieldValueType {
+  array = 'array',
+  boolean = 'boolean',
+  date = 'date',
+  float32 = 'float32',
+  float64 = 'float64',
+  int8 = 'int8',
+  int16 = 'int16',
+  int32 = 'int32',
+  int64 = 'int64',
+  object = 'object',
+  string = 'string'
+}
+
+export class Field extends FormElement {
+
+  valueType: string = FieldValueType.string
+  value: any = undefined
+
+  /**
+   * Attach options to your field. The standard renderers use this property when dealing with
+   * fields of type array. When using the standard renderer you can use class Option. Of course
+   * you can adjust the standard renderer to use a sub class of Option or even a completely
+   * different class.
+   */
+  options: [] = []
+
+  constructor(valueType?: string, name?: string, options?: []) {
+    super(name)
+
+    if (valueType) {
+      this.valueType = valueType
+    }
+
+    if (options) {
+      this.options = options
+    }
+  }
+
+  /**
+   * Get the field path. It only considers fields and sub classes but not other form elements.
+   */
+  get fieldPath(): string {
+    if (! this.name) {
+      return ''
+    }
+
+    let fieldPath = ''
+    let element: FormElement|null = this
+    
+    while (element !== null) {
+      if (element instanceof Field && element.name) {
+        fieldPath = element.name + (fieldPath ? '.' + fieldPath : '')
+      }
+
+      element = element.parent
+    }
+
+    return fieldPath
+  }
+}
+
+export class Option {
+
+  value: any = undefined
+  label: string = ''
+  disabled: boolean = false
+
 }
 
 export class Widget {
