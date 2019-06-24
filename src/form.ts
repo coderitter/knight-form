@@ -308,6 +308,16 @@ export class FormElement {
     return fields
   }
 
+  visit(visitor: Visitor) {
+    visitor.visit(this)
+
+    for (let child of this.children) {
+      if (child !== null) {
+        child.visit(visitor)
+      }
+    }
+  }
+
   clone(): this {
     const clone = Object.create(this)
     
@@ -660,4 +670,8 @@ function splitPath(path: String) {
 
 function joinPath(path: Array<String>) {
   return path.join(".")
+}
+
+export abstract class Visitor {
+  abstract visit(element: FormElement): void
 }
