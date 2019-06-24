@@ -20,6 +20,30 @@ describe('Test constructor', () => {
     expect(field2.name).to.equal('field2')
     expect(field2.prototype).to.equal(prototype)
     expect(field2.options.length).to.equal(0)
+
+    const field3 = new Field('array', prototype)
+    expect(field3.type).to.equal('array')
+    expect(field3.name).to.equal(undefined)
+    expect(field3.prototype).to.equal(prototype)
+    expect(field3.options.length).to.equal(0)
+
+    const field4 = new Field('number', options)
+    expect(field4.type).to.equal('number')
+    expect(field4.name).to.equal(undefined)
+    expect(field4.options).to.equal(options)
+    expect(field4.prototype).to.equal(null)
+
+    const field5 = new Field('date', prototype, options)
+    expect(field5.type).to.equal('date')
+    expect(field5.name).to.equal(undefined)
+    expect(field5.prototype).to.equal(prototype)
+    expect(field5.options).to.equal(options)
+
+    const field6 = new Field('string', options, prototype)
+    expect(field6.type).to.equal('string')
+    expect(field6.name).to.equal(undefined)
+    expect(field6.options).to.equal(options)
+    expect(field6.prototype).to.equal(prototype)
   })
 })
 
@@ -318,6 +342,198 @@ describe('Test findField', () => {
     const foundChild20 = root.findField([ 'child1111' ])
     expect(foundChild19).to.equal(null)
     expect(foundChild20).to.equal(null)
+  })
+
+})
+
+describe('Test setting of values', () => {
+  it('should have an undefined value initially', () => {
+    const arrayField = new Field('array')
+    const booleanField = new Field('boolean')
+    const dateField = new Field('date')
+    const numberField = new Field('number')
+    const objectField = new Field('object')
+    const stringField = new Field('string')
+
+    expect(arrayField.value).to.equal(undefined)
+    expect(booleanField.value).to.equal(undefined)
+    expect(dateField.value).to.equal(undefined)
+    expect(numberField.value).to.equal(undefined)
+    expect(objectField.value).to.equal(undefined)
+    expect(stringField.value).to.equal(undefined)
+  })
+
+  it('should set primitive typed fields properly', () => {
+    const booleanField = new Field('boolean')
+    const dateField = new Field('date')
+    const numberField = new Field('number')
+    const stringField = new Field('string')
+
+    // test boolean field
+    booleanField.value = true
+    expect(booleanField.value).to.equal(true)
+    booleanField.value = false
+    expect(booleanField.value).to.equal(false)
+
+    // test date field
+    const now = new Date
+    dateField.value = now
+    expect(dateField.value).to.equal(now)
+
+    // test number field
+    numberField.value = 9001
+    expect(numberField.value).to.equal(9001)
+
+    // test string field
+    stringField.value = 'string'
+    expect(stringField.value).to.equal('string')
+  })
+
+  it('should set any value even it is not the correct type', () => {
+    const arrayField = new Field('array')
+    const booleanField = new Field('boolean')
+    const dateField = new Field('date')
+    const numberField = new Field('number')
+    const objectField = new Field('object')
+    const stringField = new Field('string')
+
+    // test array field
+    arrayField.value = 'array'
+    expect(arrayField.value).to.equal('array')
+
+    // test boolean field
+    booleanField.value = 'true'
+    expect(booleanField.value).to.equal('true')
+
+    // test date field
+    dateField.value = 'now'
+    expect(dateField.value).to.equal('now')
+
+    // test number field
+    numberField.value = '9001'
+    expect(numberField.value).to.equal('9001')
+
+    // test object field
+    objectField.value = 'object'
+    expect(objectField.value).to.equal('object')
+
+    // test string field
+    stringField.value = false
+    expect(stringField.value).to.equal(false)
+  })
+
+  it('should create a child for every array item', () => {
+    // test with primitive types
+    const now = new Date
+
+    const primitiveArray = [
+      true, now, 4, 'string'
+    ]
+
+    const primitivePrototype = new Field()
+    const primitiveArrayField = new Field('array', primitivePrototype)
+    primitiveArrayField.value = primitiveArray
+
+    expect((<Field> primitiveArrayField.children[0]).value).to.equal(true)
+    expect((<Field> primitiveArrayField.children[1]).value).to.equal(now)
+    expect((<Field> primitiveArrayField.children[2]).value).to.equal(4)
+    expect((<Field> primitiveArrayField.children[3]).value).to.equal('string')
+
+    // test with array type
+    const arrayArray = [
+      [ true, now, 4, 'string' ]
+    ]
+
+    const arrayPrototype = new Field('array', primitivePrototype)
+    const arrayArrayField = new Field('array', arrayPrototype)
+    arrayArrayField.value = arrayArray
+
+    expect(arrayArrayField.value).to.equal(arrayArray)
+    expect((<Field> arrayArrayField.children[0]).value).to.equal(arrayArray[0])
+    expect((<Field> arrayArrayField.children[0].children[0]).value).to.equal(true)
+    expect((<Field> arrayArrayField.children[0].children[1]).value).to.equal(now)
+    expect((<Field> arrayArrayField.children[0].children[2]).value).to.equal(4)
+    expect((<Field> arrayArrayField.children[0].children[3]).value).to.equal('string')
+    
+    // test with object type
+    const objectArray = [
+      { property: 'test1' },
+      { property: 'test2' }
+    ]
+
+    const objectPrototype = new Field('object')
+    const objectArrayField = new Field('array', objectPrototype)
+    objectArrayField.value = objectArray
+
+    expect(objectArrayField.value).to.equal(objectArray)
+    expect((<Field> objectArrayField.children[0]).value).to.equal(objectArray[0])
+    expect((<Field> objectArrayField.children[1]).value).to.equal(objectArray[1])
+  })
+
+  it('should propagate objects properties to sub fields', () => {
+    const now = new Date
+
+    const object = {
+      array: [],
+      boolean: true,
+      date: now,
+      number: 44,
+      object: {
+        property1: 'property1',
+        property2: 'property2'
+      },
+      string: 'string'
+    }
+
+    const arrayField = new Field('array', 'array')
+    const booleanField = new Field('boolean', 'boolean')
+    const dateField = new Field('date', 'date')
+    const numberField = new Field('number', 'number')
+    const objectField = new Field('object', 'object')
+    const stringField = new Field('string', 'string')
+
+    const field1 = new Field('object').add(
+      arrayField, booleanField, dateField, numberField, objectField, stringField
+    )
+
+    field1.value = object
+
+    expect(field1.value).to.equal(object)
+    expect(arrayField.value).to.equal(object.array)
+    expect(booleanField.value).to.equal(object.boolean)
+    expect(dateField.value).to.equal(object.date)
+    expect(numberField.value).to.equal(object.number)
+    expect(objectField.value).to.equal(object.object)
+    expect(stringField.value).to.equal(object.string)
+
+    const field2 = new Field('object').add(
+      new FormElement('formElement').add(
+        arrayField, booleanField, dateField, numberField, objectField, stringField
+      )      
+    )
+
+    arrayField.value = undefined
+    booleanField.value = undefined
+    dateField.value = undefined
+    numberField.value = undefined
+    objectField.value = undefined
+    stringField.value = undefined
+
+    expect(arrayField.value).to.equal(undefined)
+    expect(booleanField.value).to.equal(undefined)
+    expect(dateField.value).to.equal(undefined)
+    expect(numberField.value).to.equal(undefined)
+    expect(objectField.value).to.equal(undefined)
+    expect(stringField.value).to.equal(undefined)
+
+    field2.value = object
+
+    expect(arrayField.value).to.equal(object.array)
+    expect(booleanField.value).to.equal(object.boolean)
+    expect(dateField.value).to.equal(object.date)
+    expect(numberField.value).to.equal(object.number)
+    expect(objectField.value).to.equal(object.object)
+    expect(stringField.value).to.equal(object.string)
   })
 
 })

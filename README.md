@@ -86,7 +86,7 @@ The `Element` is the base class for every element in the tree. Here are its prop
 - `elements`: Every element can have arbitrary many sub elements. (It is a tree.)
 - `name`: Every element has a name which it can be referred to. Additionally to its core function you can use it for anything you need. This is the idea here. It is a data structure.
 - `prototype`: It is not used in the base element. It is used in `Field` when having a list where you can add and remove items. Use it for whatever you think.
-- `widget`: Here you can set view specific attributes.
+- `widget`: Here you can set view specific attributes. We provide a base class which you can extend.
 
 This element is the starting point if you do not have to deal with use inputtable values. Create anything you like from it. Remember is is just a data structure. The renderer that you create will decide what to do with your custom elements.
 
@@ -180,11 +180,22 @@ The field is your building block to describe the structure of the object your fo
 
 Look at the field as a building block to describe everything there is to a property needed to display a widget. The field itself does not determine a specific widget. That makes this form library platform independent.
 
-- `valueType`: The type of the value
+- `type`: The type of the value
 - `value`: The actual value
 - `options`: An array of options to choose from
 
-You should not be afraid to inherit the field. It is more like a data container than it yields certain semantic. Thats why there is only one class. Inherit it and then define a widget for it. It is up to you how you like to use the available properties of the field.
+The pre-defined value types are defined in enum `ValueType`.
+
+- `array`
+- `boolean`
+- `date`
+- `number`
+- `object`
+- `string`
+
+The type of property `type` is a string which is on purpose. Add as many new types as you like. Remember it all depends on your renderer and what he makes of the given type.
+
+Also do not be afraid to inherit from `Field`.
 
 ## The field path
 
@@ -198,7 +209,7 @@ new Form('character').add(
 )
 ```
 
-## Primitive type fields
+## Primitive fields
 
 You determine the type of a field by setting its value type property. Here are the primitive ones.
 
@@ -217,28 +228,6 @@ var booleanField = new Field('boolean', 'name')
 Just exchange the value type `boolean` with anything from the list above.
 
 In the field the name additionally represents the name of an attribute on an object. It is key for mapping your form fields to actual object attributes.
-
-## Fields with options
-
-An option is basically a value and a label. 
-
-```typescript
-var option = new Option(value, 'label', disabled)
-```
-
-Set options on the field if you want to have the user to choose from a give set of possibilities. It can be rendered to a drop down for example but also a auto completion field is thinkable.
-
-Activate the feature on a field by presenting an array of options.
-
-```typescript
-var options = [
-  new Option(150, "Satan"),
-  new Option(9001, "Son Goku"),
-  new Option(100000000, "Omni-King", true) // it is disabled
-]
-
-var field = new Field("int64", "level", options)
-```
 
 ## Object fields
 
@@ -278,7 +267,86 @@ new Field('array', 'favouriteFood', new Field('object').add(
 
 The prototypical element does not need to have a name otherwise every form element in the array field will have the same name. Also it can be any form element of course.
 
-Or how about adding options?
+## Setting values
+
+Setting a value is just like this.
+
+```typescript
+var field = new Field('string')
+field.value = 'a value'
+```
+
+You can also set unappropriate values.
+
+```typescript
+var field = new Field('string')
+field.value = 33
+```
+
+If your value is an object and the field's type is `object` the field will try to distribute every the object property value to its sub fields. It uses the name of the field to match a property and a field.
+
+```typescript
+var goku = {
+  name: 'Son Goku',
+  level: 9001
+}
+
+var character = new Field('object').add(
+  new Field('string', 'name'),
+  new Field('number', 'level')
+)
+
+character.value = goku
+
+character.findField('name').value // === 'Son Goku'
+character.findField('level').value // === 9001
+```
+
+If your value is an array and the field's type is `array` the field will remove any existing children and uses the `prototype` to create new children according to the contents of the given array value. If there is not prototype set the list of children will simply remain empty.
+
+```typescript
+var characters = [
+  {
+    name: 'Son Goku',
+    level: 9001
+  },
+  {
+    name: 'Vegeta',
+    level: 17000
+  }
+]
+
+var character = new Field('object').add(
+  new Field('string', 'name'),
+  new Field('number', 'level')
+)
+
+var charactersField = new Field('array')
+
+charactersField.value = characters
+```
+
+## Options
+
+An option is basically a value and a label. 
+
+```typescript
+var option = new Option(value, 'label', disabled)
+```
+
+Set options on the field if you want to have the user to choose from a give set of possibilities. It can be rendered to a drop down for example but also a auto completion field is thinkable.
+
+Activate the feature on a field by presenting an array of options.
+
+```typescript
+var options = [
+  new Option(150, "Satan"),
+  new Option(9001, "Son Goku"),
+  new Option(100000000, "Omni-King", true) // it is disabled
+]
+
+var field = new Field("int64", "level", options)
+```
 
 # Form
 
@@ -540,7 +608,7 @@ This is the complete list of template references which are defined in the HTML p
 
 If you want to change it just edit the file. You included it into your project for this purpose.
 
-The next step is to determine the appropriate wiget for the field. Either the field has a widget object attached. In this case just return the corresponding template. Or determine the widget based on the data found on the field. Here you can see how the property `valueType` is used to determine the appropriate widget.
+The next step is to determine the appropriate wiget for the field. Either the field has a widget object attached. In this case just return the corresponding template. Or determine the widget based on the data found on the field. Here you can see how the property `type` is used to determine the appropriate widget.
 
 ```typescript
 public getWidget(element: Element): TemplateRef<any> {
@@ -551,7 +619,7 @@ public getWidget(element: Element): TemplateRef<any> {
 
   // in all other cases the widget is auto detected
   if (element instanceof Field) {
-    if (element.valueType == 'number') {
+    if (element.type == 'number') {
       return new NumberInput(); // can contain meaningful defaults
     }
   }

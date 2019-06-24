@@ -73,8 +73,9 @@ export class FormElement {
    * Set all children. It will also adjust the parents of the children.
    */
   set children(elements: FormElement[]) {
+    this.children.forEach(e => e._parent = null)
     this._children = elements
-    this._children.forEach(e => e._parent = this)
+    this.children.forEach(e => e._parent = this)
   }
 
   /**
@@ -82,9 +83,13 @@ export class FormElement {
    * 
    * @param element The element to be added.
    */
-  add(element: FormElement): void {
-    this._children.push(element)
-    element._parent = this
+  add(...elements: FormElement[]): this {
+    for (let element of elements) {
+      this._children.push(element)
+      element._parent = this
+    }
+
+    return this
   }
 
   /**
@@ -93,18 +98,18 @@ export class FormElement {
    * @param element May be a FormElement object or a name
    */
   remove(element: FormElement|string): FormElement|null {
-    for (let i = 0; i < this._children.length; i++) {
-      const child = this._children[i]
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i]
 
       if (typeof element === 'string') {
         if (child.name === element) {
-          this._children.splice(i)
+          this.children.splice(i)
           return child
         }
       }
       else {
         if (child === element) {
-          this._children.splice(i)
+          this.children.splice(i)
           return child
         }
       }
@@ -158,7 +163,7 @@ export class FormElement {
     const first = pathArray[0]
 
     let element = null
-    for (let child of this._children) {
+    for (let child of this.children) {
       if (child.name === first) {
         element = child
       }
@@ -189,7 +194,7 @@ export class FormElement {
     else {
 
       // iterator through all children not considering their name
-      for (let child of this._children) {
+      for (let child of this.children) {
         
         // if the child does not have a name and it has children ask it to find the element
         if (!child.name && child.children && child.children.length) {
@@ -225,7 +230,7 @@ export class FormElement {
     const first = pathArray[0]
 
     let field: Field|null = null
-    for (let child of this._children) {
+    for (let child of this.children) {
       if (child instanceof Field && child.name === first) {
         field = child
       }
@@ -256,7 +261,7 @@ export class FormElement {
     else {
 
       // iterator through all children not considering their name
-      for (let child of this._children) {
+      for (let child of this.children) {
 
         // if the child has children ask it to find the element
         if (!child.name && child.children && child.children.length) {
@@ -272,26 +277,54 @@ export class FormElement {
     return field
   }
 
+  protected findDirectSubFields(): Field[] {
+    let fields: Field[] = []
+
+    for (let child of this.children) {
+      if (child instanceof Field) {
+        fields.push(child)
+      }
+      else {
+        const subFields = child.findDirectSubFields()
+        fields = fields.concat(subFields)
+      }
+    }
+    
+    return fields
+  }
+
+  clone(): this {
+    const clone = Object.create(this)
+    
+    clone.parent = this.parent
+    clone.name = this.name
+    clone.prototype = this.prototype ? this.prototype.clone() : null
+    clone.widget = this.widget ? this.widget.clone() : null
+
+    for (let child of this.children) {
+      if (child) {
+        const childClone = child.clone()
+        childClone.parent = clone // will add the clone automatically to its parent
+      }
+    }
+
+    return clone
+  }
 }
 
-export enum FieldValueType {
+export enum FieldType {
   array = 'array',
   boolean = 'boolean',
   date = 'date',
-  float32 = 'float32',
-  float64 = 'float64',
-  int8 = 'int8',
-  int16 = 'int16',
-  int32 = 'int32',
-  int64 = 'int64',
+  number = 'number',
   object = 'object',
   string = 'string'
 }
 
 export class Field extends FormElement {
 
-  type: string = FieldValueType.string
-  value: any = undefined
+  type: string = ''
+  protected _value: any = undefined
 
   /**
    * Attach options to your field. The standard renderers use this property when dealing with
@@ -301,11 +334,25 @@ export class Field extends FormElement {
    */
   options: any[] = []
 
-  constructor(valueType?: string, name?: string, optionsOrPrototype?: any[]|FormElement) {
-    super(name)
+  constructor(valueType?: string, nameOrOptionsOrPrototype?: string|any[]|FormElement, optionsOrPrototype?: any[]|FormElement) {
+    super()
 
     if (valueType) {
       this.type = valueType
+    }
+
+    if (nameOrOptionsOrPrototype) {
+      if (typeof nameOrOptionsOrPrototype === 'string') {
+        this.name = nameOrOptionsOrPrototype
+      }
+
+      if (Array.isArray(nameOrOptionsOrPrototype)) {
+        this.options = nameOrOptionsOrPrototype
+      }
+
+      if (nameOrOptionsOrPrototype instanceof FormElement) {
+        this.prototype = nameOrOptionsOrPrototype
+      }
     }
 
     if (optionsOrPrototype) {
@@ -315,6 +362,39 @@ export class Field extends FormElement {
 
       if (optionsOrPrototype instanceof FormElement) {
         this.prototype = optionsOrPrototype
+      }
+    }
+  }
+
+  get value(): any {
+    return this._value
+  }
+
+  set value(value: any) {
+    this._value = value
+
+    if (this.type === FieldType.object && typeof value === 'object') {
+      const subFields = this.findDirectSubFields()
+
+      for (let field of subFields) {
+        if (field.name && field.name in value) {
+          field.value = value[field.name]
+        }
+      }
+    }
+
+    if (this.type === FieldType.array && Array.isArray(value)) {
+      // clear all children in any way
+      this.children = []
+
+      // if there is a prototype set we can create new children. if not there are simply no children.
+      // also the prototype needs to be an instance of Field. Otherwise we cannot set a value.
+      if (this.prototype instanceof Field) {
+        for (let arrayElement of value) {
+          const clone = this.prototype.clone()
+          clone.value = arrayElement
+          this.add(clone)
+        }
       }
     }
   }
@@ -340,6 +420,22 @@ export class Field extends FormElement {
 
     return fieldPath
   }
+
+  clone(): this {
+    const clone = super.clone()
+
+    clone.type = this.type
+    clone.value = this.value
+
+    for (let option of this.options) {
+      if (option) {
+        const optionClone = option.clone()
+        clone.options.push(optionClone)
+      }      
+    }
+
+    return clone
+  }
 }
 
 export class Option {
@@ -348,10 +444,23 @@ export class Option {
   label: string = ''
   disabled: boolean = false
 
+  clone(): this {
+    const clone = Object.create(this)
+
+    clone.value = this.value
+    clone.label = this.label
+    clone.disabled = this.disabled
+
+    return clone
+  }
+
 }
 
 export class Widget {
-
+  clone(): this {
+    const clone = Object.create(this)
+    return clone
+  }
 }
 
 function splitPath(path: String) {
