@@ -76,6 +76,29 @@ describe('Test handling of children', () => {
     expect(child1.root).to.equal(child1)
     expect(child2.root).to.equal(child1)
   })
+
+  it('should handle setting an array of children correctly', () => {
+    const root = new FormElement('root')
+    const child1 = new FormElement('child1')
+    const child2 = new FormElement('child2')
+    const children1 = [ child1, child2 ]
+
+    root.children = children1
+
+    expect(child1.parent).to.equal(root)
+    expect(child2.parent).to.equal(root)
+    
+    const child3 = new FormElement('child3')
+    const child4 = new FormElement('child4')
+    const children2 = [ child3, child4 ]
+
+    root.children = children2
+
+    expect(child1.parent).to.equal(null)
+    expect(child2.parent).to.equal(null)
+    expect(child3.parent).to.equal(root)
+    expect(child4.parent).to.equal(root)
+  })
   
 })
 
