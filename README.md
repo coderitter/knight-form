@@ -368,17 +368,17 @@ objectForm.add(arrayForm, numberForm)
 
 ## Visual properties
 
-The form has the `FormFrame` attached to it. It is a basic visual element which comes with a title and buttons. The reason for this is that you can use the `Form` as the root element so that you can use its `value` property directly. For convenience the `Form` yields the same properties as the `FormFrame` and the constructor even accepts its title.
+The form has two properties to describe a frame for the form.
 
 ```typescript
-var form = new Form("Title")
-form.addButtons(new Button("submit"))
+var form = new Form
 
-// for forms having a value type other then object
-var arrayForm = new Form("array", "Title")
+form.title = "Character form"
+form.addButtons(
+  new Button("submit"),
+  new Button("reset")
+)
 ```
-
-If you do not need it then just ignore it. If you do not like it then just create your own form frame.
 
 ## Form creation from different sources
 
