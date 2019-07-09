@@ -1,22 +1,21 @@
 export class FormElement {
 
   /**
-   * The parent.
-   * 
-   * Note: It is protected because we need to care about the parent/child relationships.
+   * The parent. It is protected because we need to care about the parent/child relationships
+   * which we will do in the set method.
    */
   protected _parent: FormElement|null = null
 
   /**
-   * The children.
-   * 
-   * Note: It is protected because we need to care about the parent/child relationships.
+   * The children. It is protected because we want to care about the parent/child relationships
+   * which we will do in the set method.
    */
   protected _children: FormElement[] = []
 
   name: string|undefined = undefined
   prototype: FormElement|null = null
   widget: Widget|null = null
+  extension: any = {}
 
   /**
    * @param name The name (optional)

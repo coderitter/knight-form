@@ -170,6 +170,17 @@ element.form // the next parent form up in the chain
 element.path // the complete path of the element up the the root
 ```
 
+## Extending with additional properties
+
+You can attach any property to any form element.
+
+```typescript
+var element = new FormElement
+element.extension.validators = []
+```
+
+Use it to attach the data you need for further functionality like validation.
+
 # Field
 
 The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents a property on your object. The field itself does not determine a specific widget. That makes this form library platform independent.
