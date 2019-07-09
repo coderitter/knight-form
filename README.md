@@ -69,7 +69,7 @@ There are the following elements available and you may add as many as you like.
 
 - Fields: `Field`, `Form`
 - Buttons: `Button`
-- Visuals elements: `Row`, `FieldSet`, `FormFrame`
+- Visuals elements: `Row`, `FieldSet`
 - Behavioural elements: `Mapping`, `FieldValueMapping`
 
 Buttons, visual elements and behavioural elements are in fact just sub classes of `FormElement`. We differentiate them here simply to have a nicer way of thinking about it.
@@ -366,7 +366,7 @@ Also they are easily combinable.
 objectForm.add(arrayForm, numberForm)
 ```
 
-## Form frame
+## Visual properties
 
 The form has the `FormFrame` attached to it. It is a basic visual element which comes with a title and buttons. The reason for this is that you can use the `Form` as the root element so that you can use its `value` property directly. For convenience the `Form` yields the same properties as the `FormFrame` and the constructor even accepts its title.
 
