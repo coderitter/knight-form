@@ -479,10 +479,9 @@ export class Form extends Field {
     super(type)
   }
 
-  addButtons(...buttons: Button[]) {
-    for (let button of buttons) {
-      this.buttons.push(button)
-    }
+  addButtons(...buttons: Button[]): this {
+    buttons.forEach(b => this.buttons.push(b))
+    return this
   }
 }
 
@@ -524,7 +523,7 @@ export class Mapping extends FormElement {
     super()
   }
 
-  addMappings(...mappings: KeyToElement[]) {
+  addMappings(...mappings: KeyToElement[]): this {
     if (!Array.isArray(this.mappings)) {
       this.mappings = []
     }
@@ -532,6 +531,8 @@ export class Mapping extends FormElement {
     for (let mapping of mappings) {
       this.mappings.push(mapping)
     }
+
+    return this
   }
 }
 
