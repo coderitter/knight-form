@@ -4,6 +4,9 @@
   "description": "An mega nice data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
+  "files": [
+    "lib/**/*"
+  ],
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.2.4",
