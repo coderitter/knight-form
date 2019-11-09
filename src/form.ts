@@ -4,7 +4,7 @@ export class FormElement {
    * The parent. It is protected because we need to care about the parent/child relationships
    * which we will do in the set method.
    */
-  protected _parent: FormElement|null = null
+  protected _parent?: FormElement
 
   /**
    * The children. It is protected because we want to care about the parent/child relationships
@@ -12,10 +12,10 @@ export class FormElement {
    */
   protected _children: FormElement[] = []
 
-  name: string|undefined = undefined
-  prototype: FormElement|null = null
-  widget: Widget|null = null
-  extension: any = {}
+  name?: string
+  prototype?: FormElement
+  widget?: Widget
+  extension: { [key: string]: any } = {}
 
   /**
    * @param name The name (optional)
@@ -29,7 +29,7 @@ export class FormElement {
   /**
    * Get the parent.
    */
-  get parent(): FormElement|null {
+  get parent(): FormElement|undefined {
     return this._parent
   }
 
@@ -37,15 +37,14 @@ export class FormElement {
    * Set the parent. You do not need to set this by yourself. If you set it
    * the parents childrens are updated accordingly.
    */
-  set parent(parent: FormElement|null) {
-    if (this._parent !== null) {
+  set parent(parent: FormElement|undefined) {
+    if (this._parent != undefined) {
       this._parent.remove(this)
     }
 
-    if (parent === null) {
-      this._parent = null
-    }
-    else {
+    this._parent = parent
+    
+    if (parent != undefined) {
       parent.add(this)
     }
   }
@@ -53,8 +52,8 @@ export class FormElement {
   /**
    * Get the root. If called from the root it return the root.
    */
-  get root(): FormElement|null {
-    if (this.parent !== null) {
+  get root(): FormElement|undefined {
+    if (this.parent != undefined) {
       return this.parent.root
     }
 
@@ -62,18 +61,16 @@ export class FormElement {
   }
 
   /**
-   * Get the next parent form. Return null if there was not any.
+   * Get the next parent form. Return undefined if there was not any.
    */
-  get form(): Form|null {
+  get form(): Form|undefined {
     if (this.parent instanceof Form) {
       return this.parent
     }
 
-    if (this.parent !== null) {
+    if (this.parent != undefined) {
       return this.parent.form
     }
-
-    return null
   }
 
   /**
@@ -87,7 +84,7 @@ export class FormElement {
    * Set all children. It will also adjust the parents of the children.
    */
   set children(elements: FormElement[]) {
-    this.children.forEach(e => e._parent = null)
+    this.children.forEach(e => e._parent = undefined)
     this._children = elements
     this.children.forEach(e => e._parent = this)
   }
@@ -136,9 +133,9 @@ export class FormElement {
     }
 
     let path = ''
-    let element: FormElement|null = this
+    let element: FormElement|undefined = this
     
-    while (element !== null) {
+    while (element != undefined) {
       if (element.name) {
         path = element.name + (path ? '.' + path : '')
       }
@@ -155,7 +152,7 @@ export class FormElement {
    * 
    * @param path The path as string or as array of strings
    */
-  find(path: string|string[]): FormElement|null {
+  find(path: string|string[]): FormElement|undefined {
     let pathArray: string[] = []
 
     // determine if the path was given as string or array
@@ -168,13 +165,13 @@ export class FormElement {
 
     // if there is nothing in the path then there is no element to find
     if (pathArray.length == 0) {
-      return null
+      return
     }
 
     // get the first part of the path and look for an element with that name
     const first = pathArray[0]
 
-    let element = null
+    let element
     for (let child of this.children) {
       if (child.name === first) {
         element = child
@@ -187,7 +184,7 @@ export class FormElement {
     }
 
     // if an element was found
-    if (element !== null) {
+    if (element != undefined) {
 
       // if the path still has parts left
       if (pathArray.length > 1) {
@@ -222,7 +219,7 @@ export class FormElement {
     return element
   }
 
-  findField(path: string|string[]): Field|null {
+  findField(path: string|string[]): Field|undefined {
     let pathArray: string[] = []
 
     // determine if the path was given as string or array
@@ -235,13 +232,13 @@ export class FormElement {
 
     // if there is nothing in the path then there is no element to find
     if (pathArray.length == 0) {
-      return null
+      return
     }
 
     // get the first part of the path and look for an element with that name
     const first = pathArray[0]
 
-    let field: Field|null = null
+    let field: Field|undefined = undefined
     for (let child of this.children) {
       if (child instanceof Field && child.name === first) {
         field = child
@@ -250,11 +247,11 @@ export class FormElement {
 
     // if there are not any more parts in the path we are done
     if (pathArray.length == 0) {
-      return field
+      return
     }
 
     // if an element was found
-    if (field !== null) {
+    if (field != undefined) {
 
       // if the path still has parts left
       if (pathArray.length > 1) {
@@ -272,7 +269,7 @@ export class FormElement {
     // if there was no element found
     else {
 
-      // iterator through all children not considering their name
+      // iterate through all children not considering their name
       for (let child of this.children) {
 
         // if the child has children ask it to find the element
@@ -295,7 +292,7 @@ export class FormElement {
     }
 
     for (let child of this.children) {
-      if (child !== null) {
+      if (child != undefined) {
         // the recursion is implemented in the visitor itself
         visitor.visit(child)
       }
@@ -304,13 +301,79 @@ export class FormElement {
     return visitor.result
   }
 
+  toJsonObj(): object {
+    let obj: { [key: string]: any } = {}
+    
+    obj["@type"] = this.constructor.name
+
+    // copy any field that is not private and not the parent
+    for (let field in this) {
+      if (! Object.prototype.hasOwnProperty.call(this, field)) {
+        continue
+      }
+
+      if (field.endsWith("parent")) {
+        continue
+      }
+      
+      let fieldName = field.trim() // trick to get a string
+      let fieldValue: any
+
+      if (field.startsWith("_")) {
+        fieldName = field.substr(1)
+
+        if (fieldName in this) {
+          fieldValue = (<any> this)[fieldName]
+        }
+      }
+      else {
+        fieldValue = (<any> this)[fieldName]
+      }
+
+      if (fieldValue == undefined) {
+        continue
+      }
+
+      if (fieldName === 'extension' && Object.keys(fieldValue).length === 0) {
+        continue
+      }
+      
+      if ((fieldName === 'children' || fieldName === 'options' || fieldName === 'buttons') 
+          && (<Array<any>> fieldValue).length == 0) {
+        continue
+      }
+      
+      if (typeof fieldValue.toJsonObj === 'function') {
+        obj[fieldName] = fieldValue.toJsonObj()
+      }
+      else if (fieldValue instanceof Array) {
+        let jsonArray = []
+        for (let arrayValue of fieldValue) {
+          if (typeof arrayValue.toJsonObj === 'function') {
+            jsonArray.push(arrayValue.toJsonObj())
+          }
+          else {
+            jsonArray.push(arrayValue)
+          }
+        }
+
+        obj[fieldName] = jsonArray
+      }
+      else {
+        obj[fieldName] = fieldValue
+      }
+    }
+
+    return obj
+  }
+
   clone(): this {
     const clone = Object.create(this)
     
     clone.parent = this.parent
     clone.name = this.name
-    clone.prototype = this.prototype ? this.prototype.clone() : null
-    clone.widget = this.widget ? this.widget.clone() : null
+    clone.prototype = this.prototype ? this.prototype.clone() : undefined
+    clone.widget = this.widget ? this.widget.clone() : undefined
 
     for (let child of this.children) {
       if (child) {
@@ -421,9 +484,9 @@ export class Field extends FormElement {
     }
 
     let fieldPath = ''
-    let element: FormElement|null = this
+    let element: FormElement|undefined = this
     
-    while (element !== null) {
+    while (element != undefined) {
       if (element instanceof Field && element.name) {
         fieldPath = element.name + (fieldPath ? '.' + fieldPath : '')
       }
@@ -537,12 +600,12 @@ export class Mapping extends FormElement {
 
 export class KeyToElement {
   key: any
-  element: FormElement|null = null
+  element?: FormElement
 }
 
 export class FieldValueMapping extends Mapping {
-  private _decisiveFieldName: string|undefined
-  private _decisiveField: Field|null = null
+  private _decisiveFieldName?: string
+  private _decisiveField?: Field
 
   constructor(decisiveFieldOrFieldName: Field|string|undefined) {
     super()
@@ -568,12 +631,12 @@ export class FieldValueMapping extends Mapping {
   }
 
   set decisiveFieldName(decisiveFieldName: string|undefined) {
-    this._decisiveField = null
+    this._decisiveField = undefined
     this._decisiveFieldName = decisiveFieldName
   }
 
-  get decisiveField(): Field|null {
-    if (this._decisiveFieldName && this.form !== null) {
+  get decisiveField(): Field|undefined {
+    if (this._decisiveFieldName && this.form != undefined) {
       return this.form.findField(this._decisiveFieldName)
     }
 
@@ -581,10 +644,10 @@ export class FieldValueMapping extends Mapping {
       return this._decisiveField
     }
 
-    return null
+    return
   }
 
-  set decisiveField(decisiveField: Field|null) {
+  set decisiveField(decisiveField: Field|undefined) {
     this._decisiveFieldName = undefined
     this._decisiveField = decisiveField
   }

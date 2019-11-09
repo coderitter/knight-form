@@ -1,6 +1,6 @@
 {
   "name": "mega-form",
-  "version": "0.0.1",
+  "version": "0.0.4",
   "description": "An mega nice data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
@@ -18,11 +18,7 @@
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "build": "tsc",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm test",
-    "version": "git add -A src",
-    "postversion": "git push && git push --tags"
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
