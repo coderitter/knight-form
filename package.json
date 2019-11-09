@@ -2,7 +2,8 @@
   "name": "form",
   "version": "0.0.1",
   "description": "An mega nice data structure to work with forms",
-  "main": "./lib/form.js",
+  "main": "lib/form.js",
+  "types": "lib/form.d.ts",
   "directories": {
     "test": "test"
   },
