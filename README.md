@@ -1,6 +1,6 @@
 # Quick start
 
-A nice and flexible data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently. Because it has implementations in many different programming languages you can serialize the data structure to JSON and continue using it somewhere else.
+A mega nice data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently. Because it has implementations in many different programming languages you can serialize the data structure to JSON and continue using it somewhere else.
 
 ## Create a form
 
