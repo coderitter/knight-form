@@ -1,22 +1,26 @@
 {
   "name": "form",
   "version": "0.0.1",
-  "description": "An elegant data structure to work with forms",
-  "main": "index.js",
+  "description": "An mega nice data structure to work with forms",
+  "main": "./lib/form.js",
   "directories": {
     "test": "test"
   },
+  "files": [
+    "lib/**/*"
+  ],
   "dependencies": {},
   "devDependencies": {
-    "@types/chai": "^4.1.7",
+    "@types/chai": "^4.2.4",
     "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
-    "mocha": "^6.1.4",
-    "ts-node": "^8.3.0",
-    "typescript": "^3.5.2"
+    "mocha": "^6.2.2",
+    "ts-node": "^8.4.1",
+    "typescript": "^3.7.2"
   },
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.spec.ts"
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
