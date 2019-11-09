@@ -1,5 +1,5 @@
 {
-  "name": "form",
+  "name": "mega-form",
   "version": "0.0.1",
   "description": "An mega nice data structure to work with forms",
   "main": "lib/form.js",
@@ -18,11 +18,15 @@
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/c0deritter/form.git"
+    "url": "git+https://github.com/c0deritter/mega-form.git"
   },
   "keywords": [
     "form"
