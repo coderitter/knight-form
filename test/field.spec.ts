@@ -11,7 +11,7 @@ describe('Test constructor', () => {
     expect(field1.type).to.equal('boolean')
     expect(field1.name).to.equal('field1')
     expect(field1.options).to.equal(options)
-    expect(field1.prototype).to.equal(null)
+    expect(field1.prototype).to.equal(undefined)
 
     const prototype = new FormElement('prototype')
     const field2 = new Field('object', 'field2', prototype)
@@ -31,7 +31,7 @@ describe('Test constructor', () => {
     expect(field4.type).to.equal('number')
     expect(field4.name).to.equal(undefined)
     expect(field4.options).to.equal(options)
-    expect(field4.prototype).to.equal(null)
+    expect(field4.prototype).to.equal(undefined)
 
     const field5 = new Field('date', prototype, options)
     expect(field5.type).to.equal('date')
@@ -137,16 +137,16 @@ describe('Test findField', () => {
     expect(foundChild2).to.equal(child1)
 
     const foundChild3 = root.find('wrongName')
-    expect(foundChild3).to.equal(null)
+    expect(foundChild3).to.equal(undefined)
 
     const foundChild4 = root.find([ 'wrongName' ])
-    expect(foundChild4).to.equal(null)
+    expect(foundChild4).to.equal(undefined)
 
     const foundChild5 = root.find('')
-    expect(foundChild5).to.equal(null)
+    expect(foundChild5).to.equal(undefined)
 
     const foundChild6 = root.find([])
-    expect(foundChild6).to.equal(null)
+    expect(foundChild6).to.equal(undefined)
 
     const foundChild7 = root.find('child1.child2')
     expect(foundChild7).to.equal(child2)
@@ -155,16 +155,16 @@ describe('Test findField', () => {
     expect(foundChild8).to.equal(child2)
 
     const foundChild9 = root.find('wrongName.child2')
-    expect(foundChild9).to.equal(null)
+    expect(foundChild9).to.equal(undefined)
 
     const foundChild10 = root.find([ 'wrongName', 'child2' ])
-    expect(foundChild10).to.equal(null)
+    expect(foundChild10).to.equal(undefined)
 
     const foundChild11 = root.find('child1.wrongName')
-    expect(foundChild11).to.equal(null)
+    expect(foundChild11).to.equal(undefined)
 
     const foundChild12 = root.find([ 'child1', 'wrongName' ])
-    expect(foundChild12).to.equal(null)
+    expect(foundChild12).to.equal(undefined)
   })
 
   it('should find a child even when there is one gap in the path', () => {
@@ -221,14 +221,14 @@ describe('Test findField', () => {
     // do not find child with a not existing name in the beginning of the path
     const foundChild3 = root.findField('wrongName.child11')
     const foundChild4 = root.findField([ 'wrongName' , 'child11' ])
-    expect(foundChild3).to.equal(null)
-    expect(foundChild4).to.equal(null)
+    expect(foundChild3).to.equal(undefined)
+    expect(foundChild4).to.equal(undefined)
 
     // do not find child with a not existing name in the end of the path
     const foundChild5 = root.findField('child11.wrongName')
     const foundChild6 = root.findField([ 'child11' , 'wrongName' ])
-    expect(foundChild5).to.equal(null)
-    expect(foundChild6).to.equal(null)
+    expect(foundChild5).to.equal(undefined)
+    expect(foundChild6).to.equal(undefined)
 
     // find a direct sub child of a child which is after a gap
     const foundChild7 = root.findField('child11.child111')
@@ -239,14 +239,14 @@ describe('Test findField', () => {
     // do not find a direct sub child of a child which is after a gap but which has a wrong name between the child and its sub child
     const foundChild9 = root.findField('child11.wrongName.child111')
     const foundChild10 = root.findField([ 'child11', 'wrongName', 'child111' ])
-    expect(foundChild9).to.equal(null)
-    expect(foundChild10).to.equal(null)
+    expect(foundChild9).to.equal(undefined)
+    expect(foundChild10).to.equal(undefined)
 
     // do not find a direct sub child of a child which is after a gap but which has a wrong name at the end
     const foundChild11 = root.findField('child12.child111.wrongName')
     const foundChild12 = root.findField([ 'child12', 'child111', 'wrongName' ])
-    expect(foundChild11).to.equal(null)
-    expect(foundChild12).to.equal(null)
+    expect(foundChild11).to.equal(undefined)
+    expect(foundChild12).to.equal(undefined)
 
     // find a child which comes after two gaps
     const foundChild15 = root.findField('child121')
@@ -263,8 +263,8 @@ describe('Test findField', () => {
     // do not find a dislocated child which got accidentally put into another branch
     const foundChild19 = root.findField('child1111')
     const foundChild20 = root.findField([ 'child1111' ])
-    expect(foundChild19).to.equal(null)
-    expect(foundChild20).to.equal(null)
+    expect(foundChild19).to.equal(undefined)
+    expect(foundChild20).to.equal(undefined)
   })
 
   it('should ignore non fields', () => {
@@ -298,14 +298,14 @@ describe('Test findField', () => {
     // do not find child with a not existing name in the beginning of the path
     const foundChild3 = root.findField('wrongName.child11')
     const foundChild4 = root.findField([ 'wrongName' , 'child11' ])
-    expect(foundChild3).to.equal(null)
-    expect(foundChild4).to.equal(null)
+    expect(foundChild3).to.equal(undefined)
+    expect(foundChild4).to.equal(undefined)
 
     // do not find child with a not existing name in the end of the path
     const foundChild5 = root.findField('child11.wrongName')
     const foundChild6 = root.findField([ 'child11' , 'wrongName' ])
-    expect(foundChild5).to.equal(null)
-    expect(foundChild6).to.equal(null)
+    expect(foundChild5).to.equal(undefined)
+    expect(foundChild6).to.equal(undefined)
 
     // find a direct sub child of a child which is after a gap
     const foundChild7 = root.findField('child11.child111')
@@ -316,14 +316,14 @@ describe('Test findField', () => {
     // do not find a direct sub child of a child which is after a gap but which has a wrong name between the child and its sub child
     const foundChild9 = root.findField('child11.wrongName.child111')
     const foundChild10 = root.findField([ 'child11', 'wrongName', 'child111' ])
-    expect(foundChild9).to.equal(null)
-    expect(foundChild10).to.equal(null)
+    expect(foundChild9).to.equal(undefined)
+    expect(foundChild10).to.equal(undefined)
 
     // do not find a direct sub child of a child which is after a gap but which has a wrong name at the end
     const foundChild11 = root.findField('child12.child111.wrongName')
     const foundChild12 = root.findField([ 'child12', 'child111', 'wrongName' ])
-    expect(foundChild11).to.equal(null)
-    expect(foundChild12).to.equal(null)
+    expect(foundChild11).to.equal(undefined)
+    expect(foundChild12).to.equal(undefined)
 
     // find a child which comes after two gaps
     const foundChild15 = root.findField('child121')
@@ -340,8 +340,8 @@ describe('Test findField', () => {
     // do not find a dislocated child which got accidentally put into another branch
     const foundChild19 = root.findField('child1111')
     const foundChild20 = root.findField([ 'child1111' ])
-    expect(foundChild19).to.equal(null)
-    expect(foundChild20).to.equal(null)
+    expect(foundChild19).to.equal(undefined)
+    expect(foundChild20).to.equal(undefined)
   })
 
 })

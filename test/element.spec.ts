@@ -27,7 +27,7 @@ describe('Test handling of children', () => {
     expect(root.children).to.include(child)
   })
 
-  it('should remove a child if its parent is set to null', () => {
+  it('should remove a child if its parent is set to undefined', () => {
     const root = new FormElement('root')
     const child = new FormElement('child')
 
@@ -36,9 +36,9 @@ describe('Test handling of children', () => {
     expect(child.parent).to.equal(root)
     expect(root.children).to.include(child)
 
-    child.parent = null
+    child.parent = undefined
 
-    expect(child.parent).to.equal(null)
+    expect(child.parent).to.equal(undefined)
     expect(root.children).to.not.include(child)
   })
 
@@ -71,7 +71,7 @@ describe('Test handling of children', () => {
     expect(child1.root).to.equal(root)
     expect(child2.root).to.equal(root)
 
-    child1.parent = null
+    child1.parent = undefined
 
     expect(child1.root).to.equal(child1)
     expect(child2.root).to.equal(child1)
@@ -94,8 +94,8 @@ describe('Test handling of children', () => {
 
     root.children = children2
 
-    expect(child1.parent).to.equal(null)
-    expect(child2.parent).to.equal(null)
+    expect(child1.parent).to.equal(undefined)
+    expect(child2.parent).to.equal(undefined)
     expect(child3.parent).to.equal(root)
     expect(child4.parent).to.equal(root)
   })
@@ -176,16 +176,16 @@ describe('Test find', () => {
     expect(foundChild2).to.equal(child1)
 
     const foundChild3 = root.find('wrongName')
-    expect(foundChild3).to.equal(null)
+    expect(foundChild3).to.equal(undefined)
 
     const foundChild4 = root.find([ 'wrongName' ])
-    expect(foundChild4).to.equal(null)
+    expect(foundChild4).to.equal(undefined)
 
     const foundChild5 = root.find('')
-    expect(foundChild5).to.equal(null)
+    expect(foundChild5).to.equal(undefined)
 
     const foundChild6 = root.find([])
-    expect(foundChild6).to.equal(null)
+    expect(foundChild6).to.equal(undefined)
 
     const foundChild7 = root.find('child1.child2')
     expect(foundChild7).to.equal(child2)
@@ -194,16 +194,16 @@ describe('Test find', () => {
     expect(foundChild8).to.equal(child2)
 
     const foundChild9 = root.find('wrongName.child2')
-    expect(foundChild9).to.equal(null)
+    expect(foundChild9).to.equal(undefined)
 
     const foundChild10 = root.find([ 'wrongName', 'child2' ])
-    expect(foundChild10).to.equal(null)
+    expect(foundChild10).to.equal(undefined)
 
     const foundChild11 = root.find('child1.wrongName')
-    expect(foundChild11).to.equal(null)
+    expect(foundChild11).to.equal(undefined)
 
     const foundChild12 = root.find([ 'child1', 'wrongName' ])
-    expect(foundChild12).to.equal(null)
+    expect(foundChild12).to.equal(undefined)
   })
 
   it('should find a child even when there is a gap in the path', () => {
@@ -237,14 +237,14 @@ describe('Test find', () => {
     // do not find child with a not existing name in the beginning of the path
     const foundChild3 = root.find('wrongName.child11')
     const foundChild4 = root.find([ 'wrongName' , 'child11' ])
-    expect(foundChild3).to.equal(null)
-    expect(foundChild4).to.equal(null)
+    expect(foundChild3).to.equal(undefined)
+    expect(foundChild4).to.equal(undefined)
 
     // do not find child with a not existing name in the end of the path
     const foundChild5 = root.find('child11.wrongName')
     const foundChild6 = root.find([ 'child11' , 'wrongName' ])
-    expect(foundChild5).to.equal(null)
-    expect(foundChild6).to.equal(null)
+    expect(foundChild5).to.equal(undefined)
+    expect(foundChild6).to.equal(undefined)
 
     // find a direct sub child of a child which is after a gap
     const foundChild7 = root.find('child11.child111')
@@ -255,14 +255,14 @@ describe('Test find', () => {
     // do not find a direct sub child of a child which is after a gap but which has a wrong name between the child and its sub child
     const foundChild9 = root.find('child11.wrongName.child111')
     const foundChild10 = root.find([ 'child11', 'wrongName', 'child111' ])
-    expect(foundChild9).to.equal(null)
-    expect(foundChild10).to.equal(null)
+    expect(foundChild9).to.equal(undefined)
+    expect(foundChild10).to.equal(undefined)
 
     // do not find a direct sub child of a child which is after a gap but which has a wrong name at the end
     const foundChild11 = root.find('child12.child111.wrongName')
     const foundChild12 = root.find([ 'child12', 'child111', 'wrongName' ])
-    expect(foundChild11).to.equal(null)
-    expect(foundChild12).to.equal(null)
+    expect(foundChild11).to.equal(undefined)
+    expect(foundChild12).to.equal(undefined)
 
     // find a child which comes after two gaps
     const foundChild15 = root.find('child121')
@@ -279,8 +279,8 @@ describe('Test find', () => {
     // do not find a dislocated child which got accidentally put into another branch
     const foundChild19 = root.find('child1111')
     const foundChild20 = root.find([ 'child1111' ])
-    expect(foundChild19).to.equal(null)
-    expect(foundChild20).to.equal(null)
+    expect(foundChild19).to.equal(undefined)
+    expect(foundChild20).to.equal(undefined)
   })
 
 })

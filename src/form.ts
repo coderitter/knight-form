@@ -301,67 +301,148 @@ export class FormElement {
     return visitor.result
   }
 
-  toJsonObj(): object {
+  toObj(exludedProps: string[] = []): any {
+    exludedProps.push('parent')
+
     let obj: { [key: string]: any } = {}
     
     obj["@type"] = this.constructor.name
 
     // copy any field that is not private and not the parent
-    for (let field in this) {
-      if (! Object.prototype.hasOwnProperty.call(this, field)) {
+    for (let attr in this) {
+      if (! Object.prototype.hasOwnProperty.call(this, attr)) {
         continue
       }
 
-      if (field.endsWith("parent")) {
-        continue
-      }
-      
-      let fieldName = field.trim() // trick to get a string
-      let fieldValue: any
+      let attrName = attr.trim() // trick to get a string
+      let attrValue: any
 
-      if (field.startsWith("_")) {
-        fieldName = field.substr(1)
+      // if the attribute is a private or protected one it should start with _
+      if (attr.indexOf("_") == 0) {
+        // get property name which should be the same but without the _
+        attrName = attr.substr(1)
 
-        if (fieldName in this) {
-          fieldValue = (<any> this)[fieldName]
+        // if there is a property on the object use it to retrieve the value
+        if (attrName in this) {
+          attrValue = (<any> this)[attrName]
         }
       }
+      // if it is not private just retrieve the value
       else {
-        fieldValue = (<any> this)[fieldName]
+        attrValue = (<any> this)[attrName]
       }
 
-      if (fieldValue == undefined) {
+      if (exludedProps.indexOf(attrName) != -1) {
         continue
       }
 
-      if (fieldName === 'extension' && Object.keys(fieldValue).length === 0) {
+      // if the value is undefined skip it. We do not want to have it in the object.
+      if (attrValue == undefined) {
+        continue
+      }
+
+      // if the extension attribute is just an empty object, skip it
+      if (attrName === 'extension' && Object.keys(attrValue).length === 0) {
         continue
       }
       
-      if ((fieldName === 'children' || fieldName === 'options' || fieldName === 'buttons') 
-          && (<Array<any>> fieldValue).length == 0) {
+      if ((attrName === 'children' || attrName === 'options' || attrName === 'buttons') 
+          && (<Array<any>> attrValue).length == 0) {
         continue
       }
       
-      if (typeof fieldValue.toJsonObj === 'function') {
-        obj[fieldName] = fieldValue.toJsonObj()
+      // if the value is an object it may have the 'toObj' method
+      if (typeof attrValue.toObj === 'function') {
+        obj[attrName] = attrValue.toObj()
       }
-      else if (fieldValue instanceof Array) {
+      // else if it is an array we need to iterate every single array itme
+      else if (attrValue instanceof Array) {
         let jsonArray = []
-        for (let arrayValue of fieldValue) {
-          if (typeof arrayValue.toJsonObj === 'function') {
-            jsonArray.push(arrayValue.toJsonObj())
+
+        for (let arrayValue of attrValue) {
+          if (typeof arrayValue.toObj === 'function') {
+            jsonArray.push(arrayValue.toObj())
           }
           else {
             jsonArray.push(arrayValue)
           }
         }
 
-        obj[fieldName] = jsonArray
+        obj[attrName] = jsonArray
       }
+      // otherwise just set it
       else {
-        obj[fieldName] = fieldValue
+        obj[attrName] = attrValue
       }
+    }
+
+    return obj
+  }
+
+  fillFromObj(obj: any) {
+    if (typeof obj !== 'object') {
+      return
+    }
+
+    for (let attr in this) {
+      if (! Object.prototype.hasOwnProperty.call(this, attr)) {
+        continue
+      }
+
+      if (attr == "parent") {
+        continue
+      }
+
+      let attrName = attr.trim() // trick to get a string
+      
+      if (attr.indexOf("_") == 0) {
+        // get property name which should be the same but without the _
+        attrName = attr.substr(1)
+      }
+
+      if (attrName in obj) {
+        (<any> this)[attrName] = Form.fromObj(obj)
+      }
+    }
+  }
+
+  static fromObj(obj: any): any {
+    if (typeof obj !== 'object') {
+      return obj
+    }
+
+    if (obj instanceof Array) {
+      let resultArray = []
+
+      for (let arrayValue of obj) {
+        let fromed = Form.fromObj(arrayValue)
+        resultArray.push(fromed)
+      }
+
+      return resultArray
+    }
+
+    if (! ('@type' in obj)) {
+      return obj
+    }
+
+    let type = obj['@type']
+    let element: any = undefined
+
+    if ('FormElement' == type) {
+      element = new FormElement()
+    }
+    else if ('Field' == type) {
+      element = new Field()
+    }
+    else if ('Form' == type) {
+      element = new Form()
+    }
+
+    if (element != undefined) {
+      element.fillFromObj(obj)
+
+      return element
     }
 
     return obj
@@ -397,8 +478,8 @@ export enum FieldType {
 
 export class Field extends FormElement {
 
-  type: string|undefined = undefined
-  protected _value: any = undefined
+  type?: string
+  protected _value?: any
 
   /**
    * Attach options to your field. The standard renderers use this property when dealing with
@@ -495,6 +576,16 @@ export class Field extends FormElement {
     }
 
     return fieldPath
+  }
+
+  toObj(exludedProps: string[] = []): any {
+    // If type equals object exlude the value. This is done for object which are 
+    // ORM managed for example. You do not want to serialize those.
+    if (this.type == 'object') {
+      exludedProps.push('value')
+    }
+
+    return super.toObj(exludedProps)
   }
 
   clone(): this {
