@@ -306,7 +306,7 @@ export class FormElement {
 
     let obj: { [key: string]: any } = {}
     
-    obj["@type"] = this.constructor.name
+    obj['@type'] = this.constructor.name
 
     // copy any field that is not private and not the parent
     for (let attr in this) {
@@ -318,7 +318,7 @@ export class FormElement {
       let attrValue: any
 
       // if the attribute is a private or protected one it should start with _
-      if (attr.indexOf("_") == 0) {
+      if (attr.indexOf('_') == 0) {
         // get property name which should be the same but without the _
         attrName = attr.substr(1)
 
@@ -379,34 +379,26 @@ export class FormElement {
     return obj
   }
 
-  fillFromObj(obj: any) {
-    if (typeof obj !== 'object') {
-      return
-    }
-
-    for (let attr in this) {
-      if (! Object.prototype.hasOwnProperty.call(this, attr)) {
-        continue
-      }
-
-      if (attr == "parent") {
+  fillFromObj(obj: object) {
+    for (let attr in obj) {
+      if (! Object.prototype.hasOwnProperty.call(obj, attr)) {
         continue
       }
 
       let attrName = attr.trim() // trick to get a string
       
-      if (attr.indexOf("_") == 0) {
-        // get property name which should be the same but without the _
+      if (attr.indexOf('_') == 0) {
+        // set property name which should be the same but without the _
         attrName = attr.substr(1)
       }
 
       if (attrName in obj) {
-        (<any> this)[attrName] = Form.fromObj(obj)
+        (<any> this)[attrName] = Form.fromObj((<any> obj)[attrName])
       }
     }
   }
 
-  static fromObj(obj: any): any {
+  static fromObj(obj: any, classMapping = new FormElementTypes()): any {
     if (typeof obj !== 'object') {
       return obj
     }
@@ -429,17 +421,11 @@ export class FormElement {
     let type = obj['@type']
     let element: any = undefined
 
-    if ('FormElement' == type) {
-      element = new FormElement()
-    }
-    else if ('Field' == type) {
-      element = new Field()
-    }
-    else if ('Form' == type) {
-      element = new Form()
+    if (type in classMapping) {
+      element = new (<any> classMapping)[type]()
     }
 
-    if (element != undefined) {
+    if (element instanceof FormElement) {
       element.fillFromObj(obj)
 
       return element
@@ -578,16 +564,6 @@ export class Field extends FormElement {
     return fieldPath
   }
 
-  toObj(exludedProps: string[] = []): any {
-    // If type equals object exlude the value. This is done for object which are 
-    // ORM managed for example. You do not want to serialize those.
-    if (this.type == 'object') {
-      exludedProps.push('value')
-    }
-
-    return super.toObj(exludedProps)
-  }
-
   clone(): this {
     const clone = super.clone()
 
@@ -607,9 +583,9 @@ export class Field extends FormElement {
 
 export class Option {
 
-  value: any = undefined
-  label: string|undefined = undefined
-  disabled: boolean = false
+  value: any
+  label?: string
+  disabled?: boolean
 
   clone(): this {
     const clone = Object.create(this)
@@ -625,7 +601,7 @@ export class Option {
 
 export class Form extends Field {
 
-  title: string|undefined = undefined
+  title?: string
   buttons: Button[] = []
 
   constructor(type: string = FieldType.object) {
@@ -639,7 +615,7 @@ export class Form extends Field {
 }
 
 export class Button extends FormElement {
-  label: string|undefined
+  label?: string
 
   clone(): this {
     const clone = super.clone()
@@ -649,7 +625,7 @@ export class Button extends FormElement {
 }
 
 export class Row extends FormElement {
-  label: string|undefined
+  label?: string
 
   clone(): this {
     const clone = super.clone()
@@ -659,7 +635,7 @@ export class Row extends FormElement {
 }
 
 export class FieldSet extends FormElement {
-  label: string|undefined
+  label?: string
 
   clone(): this {
     const clone = super.clone()
@@ -698,7 +674,7 @@ export class FieldValueMapping extends Mapping {
   private _decisiveFieldName?: string
   private _decisiveField?: Field
 
-  constructor(decisiveFieldOrFieldName: Field|string|undefined) {
+  constructor(decisiveFieldOrFieldName?: Field|string) {
     super()
 
     if (decisiveFieldOrFieldName) {
@@ -746,11 +722,11 @@ export class FieldValueMapping extends Mapping {
 
 export class Widget {
 
-  invisible: boolean|undefined
-  disabled: boolean|undefined
-  label: string|undefined
-  required: boolean|undefined
-  error: string|undefined
+  invisible?: boolean
+  disabled?: boolean
+  label?: string
+  required?: boolean
+  error?: string
 
   clone(): this {
     const clone = Object.create(this)
@@ -766,16 +742,16 @@ export class Widget {
 }
 
 function splitPath(path: String) {
-  return path.split(".")
+  return path.split('.')
 }
 
 function joinPath(path: Array<String>) {
-  return path.join(".")
+  return path.join('.')
 }
 
 export abstract class Visitor<T = any> {
 
-  result: T|undefined
+  result?: T
   doNotVisitStartElement: boolean = false
 
   abstract visit(element: FormElement): void
@@ -806,4 +782,15 @@ export class FindDirectSubFieldsVisitor extends Visitor<Field[]> {
       this.visitDeeper(element)
     }
   }
+}
+
+export class FormElementTypes {
+  FormElement = FormElement
+  Field = Field
+  Form = Form
+  Button = Button
+  Row = Row
+  FieldSet = FieldSet
+  Mapping = Mapping
+  FieldValueMapping = FieldValueMapping
 }
