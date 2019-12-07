@@ -12,6 +12,7 @@ export class FormElement {
    */
   protected _children: FormElement[] = []
 
+  protected _type?: string
   name?: string
   prototype?: FormElement
   widget?: Widget
@@ -87,6 +88,18 @@ export class FormElement {
     this.children.forEach(e => e._parent = undefined)
     this._children = elements
     this.children.forEach(e => e._parent = this)
+  }
+
+  get type(): string {
+    if (this._type != undefined) {
+      return this._type
+    }
+
+    return this.constructor.name
+  }
+
+  set type(type: string) {
+    this._type = type
   }
 
   /**
@@ -306,7 +319,7 @@ export class FormElement {
 
     let obj: { [key: string]: any } = {}
     
-    obj['@type'] = this.constructor.name
+    obj['@class'] = this.constructor.name
 
     // copy any field that is not private and not the parent
     for (let attr in this) {
@@ -424,15 +437,15 @@ export class FormElement {
       return resultArray
     }
 
-    if (! ('@type' in obj)) {
+    if (! ('@class' in obj)) {
       return obj
     }
 
-    let type = obj['@type']
+    let cls = obj['@class']
     let element: any = undefined
 
-    if (type in classMapping) {
-      element = new (<any> classMapping)[type]()
+    if (cls in classMapping) {
+      element = new (<any> classMapping)[cls]()
     }
 
     if (element instanceof FormElement) {
@@ -447,6 +460,7 @@ export class FormElement {
   clone(): this {
     const clone = Object.create(this)
     
+    clone.type = this.type
     clone.parent = this.parent
     clone.name = this.name
     clone.prototype = this.prototype ? this.prototype.clone() : undefined
@@ -474,7 +488,7 @@ export enum FieldType {
 
 export class Field extends FormElement {
 
-  type?: string
+  valueType?: string
   protected _value?: any
 
   /**
@@ -485,11 +499,11 @@ export class Field extends FormElement {
    */
   options: any[] = []
 
-  constructor(type?: string, nameOrOptionsOrPrototype?: string|any[]|FormElement, optionsOrPrototype?: any[]|FormElement) {
+  constructor(valueType?: string, nameOrOptionsOrPrototype?: string|any[]|FormElement, optionsOrPrototype?: any[]|FormElement) {
     super()
 
-    if (type) {
-      this.type = type
+    if (valueType) {
+      this.valueType = valueType
     }
 
     if (nameOrOptionsOrPrototype) {
@@ -524,7 +538,7 @@ export class Field extends FormElement {
   set value(value: any) {
     this._value = value
 
-    if (this.type === FieldType.object && typeof value === 'object') {
+    if (this.valueType === FieldType.object && typeof value === 'object') {
       const subFields = this.visit(new FindDirectSubFieldsVisitor)
 
       if (subFields) {
@@ -536,7 +550,7 @@ export class Field extends FormElement {
       }
     }
 
-    if (this.type === FieldType.array && Array.isArray(value)) {
+    if (this.valueType === FieldType.array && Array.isArray(value)) {
       // clear all children in any way
       this.children = []
 
@@ -577,7 +591,7 @@ export class Field extends FormElement {
   clone(): this {
     const clone = super.clone()
 
-    clone.type = this.type
+    clone.valueType = this.valueType
     clone.value = this.value
 
     for (let option of this.options) {
@@ -614,8 +628,8 @@ export class Form extends Field {
   title?: string
   buttons: Button[] = []
 
-  constructor(type: string = FieldType.object) {
-    super(type)
+  constructor(valueType: string = FieldType.object) {
+    super(valueType)
   }
 
   addButtons(...buttons: Button[]): this {
