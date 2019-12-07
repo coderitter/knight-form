@@ -1,7 +1,7 @@
 {
   "name": "mega-nice-form",
-  "version": "0.1.0",
-  "description": "An mega nice data structure to work with forms",
+  "version": "0.2.1",
+  "description": "A mega nice data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
   "files": [

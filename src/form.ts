@@ -380,6 +380,16 @@ export class FormElement {
   }
 
   fillFromObj(obj: object) {
+    if (typeof obj === 'string') {
+      try {
+        let parsed = JSON.parse(obj)
+        this.fillFromObj(parsed)
+      }
+      catch (e) {
+        // do nothing
+      }
+    }
+
     for (let attr in obj) {
       if (! Object.prototype.hasOwnProperty.call(obj, attr)) {
         continue
