@@ -477,7 +477,7 @@ export class FormElement {
   }
 }
 
-export enum FieldType {
+export enum ValueType {
   array = 'array',
   boolean = 'boolean',
   date = 'date',
@@ -538,7 +538,7 @@ export class Field extends FormElement {
   set value(value: any) {
     this._value = value
 
-    if (this.valueType === FieldType.object && typeof value === 'object') {
+    if (this.valueType === ValueType.object && typeof value === 'object') {
       const subFields = this.visit(new FindDirectSubFieldsVisitor)
 
       if (subFields) {
@@ -550,7 +550,7 @@ export class Field extends FormElement {
       }
     }
 
-    if (this.valueType === FieldType.array && Array.isArray(value)) {
+    if (this.valueType === ValueType.array && Array.isArray(value)) {
       // clear all children in any way
       this.children = []
 
@@ -628,7 +628,7 @@ export class Form extends Field {
   title?: string
   buttons: Button[] = []
 
-  constructor(valueType: string = FieldType.object) {
+  constructor(valueType: string = ValueType.object) {
     super(valueType)
   }
 
