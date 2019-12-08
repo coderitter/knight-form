@@ -1,6 +1,6 @@
 {
   "name": "mega-nice-form",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A mega nice data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
@@ -11,14 +11,18 @@
   "devDependencies": {
     "@types/chai": "^4.2.5",
     "@types/mocha": "^5.2.7",
+    "awesome-typescript-loader": "^5.2.1",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
     "ts-node": "^8.5.2",
-    "typescript": "^3.7.2"
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
   },
   "scripts": {
     "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "build": "tsc"
+    "build": "npm run clean && tsc && tsc -m es6 --outDir lib-esm && webpack",
+    "clean": "rm -rf _bundles lib lib-esm"
   },
   "repository": {
     "type": "git",
