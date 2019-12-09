@@ -453,7 +453,7 @@ export class FormElement {
     clone.parent = this.parent
     clone.name = this.name
     clone.prototype = this.prototype ? this.prototype.clone() : undefined
-    clone.widget = this.widget ? this.widget.clone() : undefined
+    clone.widget = this.widget ? this.widget.clone() : undefined // clone appropriately
 
     for (let child of this.children) {
       if (child) {
@@ -721,6 +721,15 @@ export class Widget {
   error?: string
   more: { [key: string]: any } = {}
 
+  constructor(obj: { [key: string]: any }) {
+    this.invisible = obj.invisible
+    this.disabled = obj.disabled
+    this.title = obj.title
+    this.required = obj.required
+    this.error = obj.error
+    this.more = obj.more
+  }
+
   clone(): this {
     const clone = Object.create(this)
 
@@ -732,6 +741,17 @@ export class Widget {
     clone.more = this.more // TODO: clone appropriately
 
     return clone
+  }
+}
+
+export class FieldWidget extends Widget {
+
+  password?: boolean
+
+  constructor(obj: { [key: string]: any }) {
+    super(obj)
+
+    this.password = obj.password
   }
 }
 
