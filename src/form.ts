@@ -90,6 +90,11 @@ export class FormElement {
     this.children.forEach(e => e._parent = this)
   }
 
+  setFlavor(flavor: string): this {
+    this.flavor = flavor
+    return this
+  }
+
   setWidget(widget: any): this {
     this.widget = widget
     return this
