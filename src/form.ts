@@ -454,6 +454,7 @@ export class FormElement {
     clone.name = this.name
     clone.prototype = this.prototype ? this.prototype.clone() : undefined
     clone.widget = this.widget ? this.widget.clone() : undefined // clone appropriately
+    clone.more = this.more
 
     for (let child of this.children) {
       if (child) {
@@ -527,17 +528,17 @@ export class Field extends FormElement {
   set value(value: any) {
     this._value = value
 
-    if (this.valueType === ValueType.object && typeof value === 'object') {
-      const subFields = this.visit(new FindDirectSubFieldsVisitor)
+    // if (this.valueType === ValueType.object && typeof value === 'object') {
+    //   const subFields = this.visit(new FindDirectSubFieldsVisitor)
 
-      if (subFields) {
-        for (let field of subFields) {
-          if (field.name && field.name in value) {
-            field.value = value[field.name]
-          }
-        }
-      }
-    }
+    //   if (subFields) {
+    //     for (let field of subFields) {
+    //       if (field.name && field.name in value) {
+    //         field.value = value[field.name]
+    //       }
+    //     }
+    //   }
+    // }
 
     if (this.valueType === ValueType.array && Array.isArray(value)) {
       // clear all children in any way
@@ -775,25 +776,6 @@ export abstract class FormVisitor<T = any> {
       for (let child of element.children) {
         this.visit(child)
       }
-    }
-  }
-}
-
-export class FindDirectSubFieldsVisitor extends FormVisitor<Field[]> {
-
-  result: Field[] = []
-  
-  constructor() {
-    super()
-    this.doNotVisitStartElement = true
-  }
-
-  visit(element: FormElement): void {
-    if (element instanceof Field) {
-      this.result.push(element)
-    }
-    else {
-      this.visitDeeper(element)
     }
   }
 }
