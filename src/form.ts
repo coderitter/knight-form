@@ -12,7 +12,6 @@ export class FormElement {
    */
   protected _children: FormElement[] = []
 
-  flavor?: string
   name?: string
   title?: string
   prototype?: FormElement
@@ -22,9 +21,8 @@ export class FormElement {
   /**
    * @param flavor The name (optional)
    */
-  constructor(name?: string, flavor?: string) {
+  constructor(name?: string) {
     this.name = name
-    this.flavor = flavor
   }
 
   /**
@@ -88,11 +86,6 @@ export class FormElement {
     this.children.forEach(e => e._parent = undefined)
     this._children = elements
     this.children.forEach(e => e._parent = this)
-  }
-
-  setFlavor(flavor: string): this {
-    this.flavor = flavor
-    return this
   }
 
   setWidget(widget: any): this {
@@ -458,7 +451,6 @@ export class FormElement {
   clone(): this {
     const clone = Object.create(this)
     
-    clone.flavor = this.flavor
     clone.parent = this.parent
     clone.name = this.name
     clone.prototype = this.prototype ? this.prototype.clone() : undefined
