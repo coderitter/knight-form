@@ -12,19 +12,19 @@ export class FormElement {
    */
   protected _children: FormElement[] = []
 
-  protected _type?: string
+  flavor?: string
   name?: string
+  title?: string
   prototype?: FormElement
-  widget?: Widget
-  extension: { [key: string]: any } = {}
+  widget?: any
+  more: { [key: string]: any } = {}
 
   /**
-   * @param name The name (optional)
+   * @param flavor The name (optional)
    */
-  constructor(name?: string) {
-    if (name) {
-      this.name = name
-    }
+  constructor(name?: string, flavor?: string) {
+    this.name = name
+    this.flavor = flavor
   }
 
   /**
@@ -90,16 +90,8 @@ export class FormElement {
     this.children.forEach(e => e._parent = this)
   }
 
-  get type(): string {
-    if (this._type != undefined) {
-      return this._type
-    }
-
-    return this.constructor.name
-  }
-
-  set type(type: string) {
-    this._type = type
+  setWidget(widget: any) {
+    this.widget = widget
   }
 
   /**
@@ -299,7 +291,7 @@ export class FormElement {
     return field
   }
 
-  visit<T>(visitor: Visitor<T>): T|undefined {
+  visit<T>(visitor: FormVisitor<T>): T|undefined {
     if (! visitor.doNotVisitStartElement) {
       visitor.visit(this)
     }
@@ -460,7 +452,7 @@ export class FormElement {
   clone(): this {
     const clone = Object.create(this)
     
-    clone.type = this.type
+    clone.flavor = this.flavor
     clone.parent = this.parent
     clone.name = this.name
     clone.prototype = this.prototype ? this.prototype.clone() : undefined
@@ -620,16 +612,15 @@ export class Option {
 
     return clone
   }
-
 }
 
 export class Form extends Field {
 
-  title?: string
   buttons: Button[] = []
 
-  constructor(valueType: string = ValueType.object) {
-    super(valueType)
+  constructor(name?: string) {
+    super(ValueType.object)
+    this.name = name
   }
 
   addButtons(...buttons: Button[]): this {
@@ -639,26 +630,6 @@ export class Form extends Field {
 }
 
 export class Button extends FormElement {
-  label?: string
-
-  clone(): this {
-    const clone = super.clone()
-    clone.label = this.label
-    return clone
-  }
-}
-
-export class Row extends FormElement {
-  label?: string
-
-  clone(): this {
-    const clone = super.clone()
-    clone.label = this.label
-    return clone
-  }
-}
-
-export class FieldSet extends FormElement {
   label?: string
 
   clone(): this {
@@ -773,7 +744,7 @@ function joinPath(path: Array<String>) {
   return path.join('.')
 }
 
-export abstract class Visitor<T = any> {
+export abstract class FormVisitor<T = any> {
 
   result?: T
   doNotVisitStartElement: boolean = false
@@ -789,7 +760,7 @@ export abstract class Visitor<T = any> {
   }
 }
 
-export class FindDirectSubFieldsVisitor extends Visitor<Field[]> {
+export class FindDirectSubFieldsVisitor extends FormVisitor<Field[]> {
 
   result: Field[] = []
   
@@ -813,8 +784,6 @@ export class FormElementTypes {
   Field = Field
   Form = Form
   Button = Button
-  Row = Row
-  FieldSet = FieldSet
   Mapping = Mapping
   FieldValueMapping = FieldValueMapping
 }
