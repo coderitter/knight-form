@@ -13,7 +13,6 @@ export class FormElement {
   protected _children: FormElement[] = []
 
   name?: string
-  title?: string
   prototype?: FormElement
   widget?: any
   more: { [key: string]: any } = {}
@@ -717,18 +716,20 @@ export class Widget {
 
   invisible?: boolean
   disabled?: boolean
-  label?: string
+  title?: string
   required?: boolean
   error?: string
+  more: { [key: string]: any } = {}
 
   clone(): this {
     const clone = Object.create(this)
 
     clone.invisible = this.invisible
     clone.disabled = this.disabled
-    clone.label = this.label
+    clone.title = this.title
     clone.required = this.required
     clone.error = this.error
+    clone.more = this.more // TODO: clone appropriately
 
     return clone
   }
