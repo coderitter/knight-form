@@ -90,8 +90,9 @@ export class FormElement {
     this.children.forEach(e => e._parent = this)
   }
 
-  setWidget(widget: any) {
+  setWidget(widget: any): this {
     this.widget = widget
+    return this
   }
 
   /**

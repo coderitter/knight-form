@@ -1,12 +1,16 @@
 {
   "name": "mega-nice-form",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "A mega nice data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
   "files": [
     "lib/**/*"
   ],
+  "scripts": {
+    "test": "mocha -r ts-node/register test/**/*.spec.ts",
+    "build": "rm -rf lib && tsc"
+  },
   "dependencies": {},
   "devDependencies": {
     "@types/chai": "^4.2.5",
@@ -15,10 +19,6 @@
     "mocha": "^6.2.2",
     "ts-node": "^8.5.2",
     "typescript": "^3.7.2"
-  },
-  "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.spec.ts",
-    "build": "tsc"
   },
   "repository": {
     "type": "git",
