@@ -1,3 +1,5 @@
+import { toJsonObj, fromJsonObj, Instantiator } from 'mega-nice-json'
+
 export class FormElement {
 
   /**
@@ -304,147 +306,18 @@ export class FormElement {
     return visitor.result
   }
 
-  toObj(exludedProps: string[] = []): any {
-    exludedProps.push('parent')
+  toObj(excludeProps: string[] = []): any {
+    let standardExclude = [ 'parent' ]
 
-    let obj: { [key: string]: any } = {}
-    
-    obj['@class'] = this.constructor.name
-
-    // copy any field that is not private and not the parent
-    for (let attr in this) {
-      if (! Object.prototype.hasOwnProperty.call(this, attr)) {
-        continue
-      }
-
-      let attrName = attr.trim() // trick to get a string
-      let attrValue: any
-
-      // if the attribute is a private or protected one it should start with _
-      if (attr.indexOf('_') == 0) {
-        // get property name which should be the same but without the _
-        attrName = attr.substr(1)
-
-        // if there is a property on the object use it to retrieve the value
-        if (attrName in this) {
-          attrValue = (<any> this)[attrName]
-        }
-      }
-      // if it is not private just retrieve the value
-      else {
-        attrValue = (<any> this)[attrName]
-      }
-
-      if (exludedProps.indexOf(attrName) != -1) {
-        continue
-      }
-
-      // if the value is undefined skip it. We do not want to have it in the object.
-      if (attrValue == undefined) {
-        continue
-      }
-
-      // if the extension attribute is just an empty object, skip it
-      if (attrName === 'extension' && Object.keys(attrValue).length === 0) {
-        continue
-      }
-      
-      if ((attrName === 'children' || attrName === 'options' || attrName === 'buttons') 
-          && (<Array<any>> attrValue).length == 0) {
-        continue
-      }
-      
-      // if the value is an object it may have the 'toObj' method
-      if (typeof attrValue.toObj === 'function') {
-        obj[attrName] = attrValue.toObj()
-      }
-      // else if it is an array we need to iterate every single array itme
-      else if (attrValue instanceof Array) {
-        let jsonArray = []
-
-        for (let arrayValue of attrValue) {
-          if (typeof arrayValue.toObj === 'function') {
-            jsonArray.push(arrayValue.toObj())
-          }
-          else {
-            jsonArray.push(arrayValue)
-          }
-        }
-
-        obj[attrName] = jsonArray
-      }
-      // otherwise just set it
-      else {
-        obj[attrName] = attrValue
-      }
+    if (excludeProps instanceof Array) {
+      standardExclude.concat(excludeProps)
     }
 
-    return obj
+    return toJsonObj(this, { exclude: standardExclude })
   }
 
-  fillFromObj(obj: object) {
-    if (typeof obj === 'string') {
-      try {
-        let parsed = JSON.parse(obj)
-        this.fillFromObj(parsed)
-      }
-      catch (e) {
-        // do nothing
-      }
-    }
-
-    for (let attr in obj) {
-      if (! Object.prototype.hasOwnProperty.call(obj, attr)) {
-        continue
-      }
-
-      let attrName = attr.trim() // trick to get a string
-      
-      if (attr.indexOf('_') == 0) {
-        // set property name which should be the same but without the _
-        attrName = attr.substr(1)
-      }
-
-      if (attrName in obj) {
-        (<any> this)[attrName] = Form.fromObj((<any> obj)[attrName])
-      }
-    }
-  }
-
-  static fromObj(obj: any, classMapping = new FormElementTypes()): any {
-    if (typeof obj !== 'object') {
-      return obj
-    }
-
-    if (obj instanceof Array) {
-      let resultArray = []
-
-      for (let arrayValue of obj) {
-        let fromed = Form.fromObj(arrayValue)
-        resultArray.push(fromed)
-      }
-
-      return resultArray
-    }
-
-    if (! ('@class' in obj)) {
-      return obj
-    }
-
-    let cls = obj['@class']
-    let element: any = undefined
-
-    if (cls in classMapping) {
-      element = new (<any> classMapping)[cls]()
-    }
-
-    if (element instanceof FormElement) {
-      element.fillFromObj(obj)
-
-      return element
-    }
-
-    return obj
+  static fromObj(obj: any, instantiator = new FormElementInstantiator()): any {
+    return fromJsonObj(obj, instantiator)
   }
 
   clone(): this {
@@ -522,23 +395,27 @@ export class Field extends FormElement {
   }
 
   get value(): any {
+    if (this.valueType === ValueType.object) {
+      
+    }
+
     return this._value
   }
 
   set value(value: any) {
     this._value = value
 
-    // if (this.valueType === ValueType.object && typeof value === 'object') {
-    //   const subFields = this.visit(new FindDirectSubFieldsVisitor)
+    if (this.valueType === ValueType.object && typeof value === 'object') {
+      const subFields = this.visit(new FindDirectSubFieldsVisitor)
 
-    //   if (subFields) {
-    //     for (let field of subFields) {
-    //       if (field.name && field.name in value) {
-    //         field.value = value[field.name]
-    //       }
-    //     }
-    //   }
-    // }
+      if (subFields) {
+        for (let field of subFields) {
+          if (field.name && field.name in value) {
+            field.value = value[field.name]
+          }
+        }
+      }
+    }
 
     if (this.valueType === ValueType.array && Array.isArray(value)) {
       // clear all children in any way
@@ -780,11 +657,30 @@ export abstract class FormVisitor<T = any> {
   }
 }
 
-export class FormElementTypes {
-  FormElement = FormElement
-  Field = Field
-  Form = Form
-  Button = Button
-  Mapping = Mapping
-  FieldValueMapping = FieldValueMapping
+export class FindDirectSubFieldsVisitor extends FormVisitor<Field[]> {
+
+  result: Field[] = []
+  
+  constructor() {
+    super()
+    this.doNotVisitStartElement = true
+  }
+
+  visit(element: FormElement): void {
+    if (element instanceof Field) {
+      this.result.push(element)
+    }
+    else {
+      this.visitDeeper(element)
+    }
+  }
+}
+
+export class FormElementInstantiator extends Instantiator {
+  'FormElement' = () => new FormElement()
+  'Field' = () => new Field()
+  'Form' = () => new Form()
+  'Button' = () => new Button()
+  'Mapping' = () => new Mapping()
+  'FieldValueMapping' = () => new FieldValueMapping()
 }
