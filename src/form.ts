@@ -313,7 +313,9 @@ export class FormElement {
       standardExclude.concat(excludeProps)
     }
 
-    return toJsonObj(this, { exclude: standardExclude })
+    // set doNotUseConversionMethodOnObject to true to avoid recursion because toJsonObj will call
+    // toObj method if present and told not differently to do so
+    return toJsonObj(this, { exclude: standardExclude, doNotUseConversionMethodOnObject: true })
   }
 
   static fromObj(obj: any, instantiator = new FormElementInstantiator()): any {
