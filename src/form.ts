@@ -413,7 +413,25 @@ export class Field extends FormElement {
 
   get value(): any {
     if (this.valueType === ValueType.object) {
-      
+      let obj
+
+      if (typeof this._value === 'object') {
+        obj = this._value
+      }
+      else if (this._value === undefined) {
+        obj = {}
+      }
+      else {
+        return this._value
+      }
+
+      for (let field of this.fields) {
+        if (field.name) {
+          obj[field.name] = field.value
+        }
+      }
+
+      return obj
     }
 
     return this._value
