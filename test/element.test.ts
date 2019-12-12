@@ -289,9 +289,9 @@ describe("Test extending a form element", () => {
   it("Should include attached properties", () => {
     const element = new FormElement
     const validators = [ 1, 2, 3] 
-    element.extension.validators = validators
+    element.more.validators = validators
 
-    expect(element.extension.validators).to.exist
-    expect(element.extension.validators).to.equal(validators)
+    expect(element.more.validators).to.exist
+    expect(element.more.validators).to.equal(validators)
   })
 })

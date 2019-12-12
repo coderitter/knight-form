@@ -8,7 +8,7 @@ describe('Test constructor', () => {
     const options = [ new Option, new Option ]
     const field1 = new Field('boolean', 'field1', options)
     
-    expect(field1.type).to.equal('boolean')
+    expect(field1.valueType).to.equal('boolean')
     expect(field1.name).to.equal('field1')
     expect(field1.options).to.equal(options)
     expect(field1.prototype).to.equal(undefined)
@@ -16,31 +16,31 @@ describe('Test constructor', () => {
     const prototype = new FormElement('prototype')
     const field2 = new Field('object', 'field2', prototype)
 
-    expect(field2.type).to.equal('object')
+    expect(field2.valueType).to.equal('object')
     expect(field2.name).to.equal('field2')
     expect(field2.prototype).to.equal(prototype)
     expect(field2.options.length).to.equal(0)
 
     const field3 = new Field('array', prototype)
-    expect(field3.type).to.equal('array')
+    expect(field3.valueType).to.equal('array')
     expect(field3.name).to.equal(undefined)
     expect(field3.prototype).to.equal(prototype)
     expect(field3.options.length).to.equal(0)
 
     const field4 = new Field('number', options)
-    expect(field4.type).to.equal('number')
+    expect(field4.valueType).to.equal('number')
     expect(field4.name).to.equal(undefined)
     expect(field4.options).to.equal(options)
     expect(field4.prototype).to.equal(undefined)
 
     const field5 = new Field('date', prototype, options)
-    expect(field5.type).to.equal('date')
+    expect(field5.valueType).to.equal('date')
     expect(field5.name).to.equal(undefined)
     expect(field5.prototype).to.equal(prototype)
     expect(field5.options).to.equal(options)
 
     const field6 = new Field('string', options, prototype)
-    expect(field6.type).to.equal('string')
+    expect(field6.valueType).to.equal('string')
     expect(field6.name).to.equal(undefined)
     expect(field6.options).to.equal(options)
     expect(field6.prototype).to.equal(prototype)

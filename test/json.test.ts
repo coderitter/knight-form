@@ -9,7 +9,7 @@ describe('Test JSON object conversion', () => {
     let formElementObj = formElement.toObj()
 
     expect(formElementObj).to.deep.equal({
-      '@type': 'FormElement',
+      '@class': 'FormElement',
       name: 'testName'
     })
     
@@ -17,15 +17,15 @@ describe('Test JSON object conversion', () => {
     formElementObj = formElement.toObj()
 
     expect(formElementObj).to.deep.equal({
-      '@type': 'FormElement',
+      '@class': 'FormElement',
       name: 'testName',
       prototype: {
-        '@type': 'FormElement',
+        '@class': 'FormElement',
         name: 'testSubName'
       }
     })
 
-    formElement.extension = {
+    formElement.more = {
       attribute1: 'attribute1',
       attribute2: 'attribute2'
     }
@@ -33,13 +33,13 @@ describe('Test JSON object conversion', () => {
     formElementObj = formElement.toObj()
 
     expect(formElementObj).to.deep.equal({
-      '@type': 'FormElement',
+      '@class': 'FormElement',
       name: 'testName',
       prototype: {
-        '@type': 'FormElement',
+        '@class': 'FormElement',
         name: 'testSubName'
       },
-      extension: {
+      more: {
         attribute1: 'attribute1',
         attribute2: 'attribute2'
       }
@@ -48,20 +48,20 @@ describe('Test JSON object conversion', () => {
 
   it('should transfer all Field properties', () => {
     let field = new Field()
-    field.type = 'string'
+    field.valueType = 'string'
     let fieldObj = field.toObj()
     
     expect(fieldObj).to.deep.equal({
-      '@type': 'Field',
-      'type': 'string'
+      '@class': 'Field',
+      'valueType': 'string'
     })
 
     field.value = 'testValue'
     fieldObj = field.toObj()
 
     expect(fieldObj).to.deep.equal({
-      '@type': 'Field',
-      type: 'string',
+      '@class': 'Field',
+      valueType: 'string',
       value: 'testValue'
     })
 
@@ -69,8 +69,8 @@ describe('Test JSON object conversion', () => {
     fieldObj = field.toObj()
 
     expect(fieldObj).to.deep.equal({
-      '@type': 'Field',
-      type: 'string',
+      '@class': 'Field',
+      valueType: 'string',
       value: 'testValue',
       options: [ 1, 2, 3 ]
     })    
@@ -78,17 +78,17 @@ describe('Test JSON object conversion', () => {
 
   it('should transfer all properties to FormElement', () => {
     let formElementObj = {
-      '@type': 'FormElement',
+      '@class': 'FormElement',
       name: 'testName',
       prototype: {
-        '@type': 'FormElement',
+        '@class': 'FormElement',
         'name': 'testSubName'
       },
       widget: {
-        '@type': 'Widget',
+        '@class': 'Widget',
         invisible: true
       },
-      extension: {
+      more: {
         attribute1: 'attribute1',
         attribute2: 'attribute2'
       }
@@ -102,15 +102,15 @@ describe('Test JSON object conversion', () => {
     expect(formElement.prototype.name).to.equal('testSubName')
     expect(formElement.widget).to.be.not.undefined
     expect(formElement.widget.invisible).to.equal(true)
-    expect(formElement.extension).to.be.not.undefined
-    expect(formElement.extension.attribute1).to.equal('attribute1')
-    expect(formElement.extension.attribute2).to.equal('attribute2')
+    expect(formElement.more).to.be.not.undefined
+    expect(formElement.more.attribute1).to.equal('attribute1')
+    expect(formElement.more.attribute2).to.equal('attribute2')
   })
 
   it('should transfer all properties to Field', () => {
     let fieldObj = {
-      '@type': 'Field',
-      type: 'string',
+      '@class': 'Field',
+      valueType: 'string',
       value: 'testValue',
       options: [ 'testValue1', 'testValue2']
     }
@@ -118,7 +118,7 @@ describe('Test JSON object conversion', () => {
     let field = FormElement.fromObj(fieldObj)
 
     expect(field).to.be.instanceOf(Field)
-    expect(field.type).to.equal('string')
+    expect(field.valueType).to.equal('string')
     expect(field.value).to.equal('testValue')
     expect(field.options).to.deep.equal([ 'testValue1', 'testValue2'])
   })
