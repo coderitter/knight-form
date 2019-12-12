@@ -74,7 +74,7 @@ export class FormElement {
   }
 
   /**
-   * Get all children.
+   * Get every direct child.
    */
   get children(): FormElement[] {
     return this._children
@@ -87,6 +87,21 @@ export class FormElement {
     this.children.forEach(e => e._parent = undefined)
     this._children = elements
     this.children.forEach(e => e._parent = this)
+  }
+
+  /**
+   * Get every direct child which is a field.
+   */
+  get fields(): Field[] {
+    let fields: Field[] = []
+
+    for (let child of this.children) {
+      if (child instanceof Field) {
+        fields.push(child)
+      }
+    }
+
+    return fields
   }
 
   setWidget(widget: any): this {
