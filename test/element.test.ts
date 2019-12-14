@@ -28,6 +28,23 @@ describe('FormElement', function() {
       expect(root.children).to.include(child)
     })
   
+    it('should add a child after a certain element and set its parent accordingly.', () => {
+      const root = new FormElement('root')
+      const child1 = new FormElement('child1')
+      const child2 = new FormElement('child2')
+      const child3 = new FormElement('child3')
+      const child4 = new FormElement('child4')
+
+      root.add(child1, child2, child4)
+  
+      // Add the child to the root element. The parent of the child should be set afterwards.
+      root.addAfter(child2, child3)
+
+      expect(root.children).to.include(child3)
+      expect(child3.parent).to.equal(root)
+      expect(root.children.indexOf(child3)).to.equal(2)
+    })
+  
     it('should remove a child', function() {
       const root = new FormElement('root')
       const child1 = new FormElement('child1')

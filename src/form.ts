@@ -123,6 +123,34 @@ export class FormElement {
     return this
   }
 
+  addAfter(element: FormElement|string, ...elements: FormElement[]): this {
+    if (typeof element === 'string') {
+      let found = this.find(element)
+
+      if (! found) {
+        return this.add(...elements)
+      }
+      else {
+        element = found
+      }
+    }
+
+    let parent = element.parent
+
+    if (! parent) {
+      return this.add(...elements)
+    }
+
+    let index = parent._children.indexOf(element)
+    this._children.splice(index + 1, 0, ...elements)
+
+    for (let element of elements) {
+      element._parent = parent
+    }
+    
+    return this
+  }
+
   /**
    * Remove a child wether by reference or by name
    * 
