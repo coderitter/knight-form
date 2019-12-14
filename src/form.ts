@@ -306,6 +306,16 @@ export class FormElement {
     return field
   }
 
+  clear() {
+    if (this instanceof Field) {
+      this.value = undefined
+    }
+
+    for (let child of this.children) {
+      child.clear()
+    }
+  }
+
   visit<T>(visitor: FormVisitor<T>): T|undefined {
     if (! visitor.doNotVisitStartElement) {
       visitor.visit(this)

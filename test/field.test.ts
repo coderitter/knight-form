@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import 'mocha'
 
-import { FormElement, Field, Option } from '../src/form'
+import { FormElement, Field, Option, Form } from '../src/form'
 
 describe('Field', function() {
   describe('Test constructor', function() {
@@ -571,6 +571,26 @@ describe('Field', function() {
           test22: 1
         }
       })
+    })
+
+    it('should clear all field values', function() {
+      let field1 = new Field()
+      let field2 = new Field()
+
+      field1.value = 'a'
+      field2.value = 'b'
+
+      let form = new Form().add(
+        field1,
+        new FormElement().add(
+          field2
+        )
+      )
+
+      form.clear()
+
+      expect(field1.value).to.be.undefined
+      expect(field2.value).to.be.undefined
     })
   })
 })
