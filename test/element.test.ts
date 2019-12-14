@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import 'mocha'
 
-import { FormElement, Field } from '../src/form'
+import { FormElement, Field, Form } from '../src/form'
 
 describe('FormElement', function() {
   describe('children', function() {
@@ -26,6 +26,23 @@ describe('FormElement', function() {
   
       expect(child.parent).to.equal(root)
       expect(root.children).to.include(child)
+    })
+  
+    it('should remove a child', function() {
+      const root = new FormElement('root')
+      const child1 = new FormElement('child1')
+      const child2 = new FormElement('child2')
+      const child3 = new FormElement('child3')
+  
+      root.add(
+        child1, child2, child3
+      )
+
+      root.remove(child2)
+  
+      expect(root.children).to.include(child1)
+      expect(root.children).to.not.include(child2)
+      expect(root.children).to.include(child3)
     })
   
     it('should remove a child if its parent is set to undefined', function() {
@@ -179,44 +196,43 @@ describe('FormElement', function() {
       const child1 = new FormElement('child1')
       const child2 = new FormElement('child2')
   
-      root.add(child1)
-      child1.add(child2)
+      root.add(child1.add(child2))
   
-      const foundChild1 = root.find('child1')
-      expect(foundChild1).to.equal(child1)
+      const found1 = root.find('child1')
+      expect(found1).to.equal(child1)
   
-      const foundChild2 = root.find([ 'child1' ])
-      expect(foundChild2).to.equal(child1)
+      const found2 = root.find([ 'child1' ])
+      expect(found2).to.equal(child1)
   
-      const foundChild3 = root.find('wrongName')
-      expect(foundChild3).to.equal(undefined)
+      const found3 = root.find('wrongName')
+      expect(found3).to.equal(undefined)
   
-      const foundChild4 = root.find([ 'wrongName' ])
-      expect(foundChild4).to.equal(undefined)
+      const found4 = root.find([ 'wrongName' ])
+      expect(found4).to.equal(undefined)
   
-      const foundChild5 = root.find('')
-      expect(foundChild5).to.equal(undefined)
+      const found5 = root.find('')
+      expect(found5).to.equal(undefined)
   
-      const foundChild6 = root.find([])
-      expect(foundChild6).to.equal(undefined)
+      const found6 = root.find([])
+      expect(found6).to.equal(undefined)
   
-      const foundChild7 = root.find('child1.child2')
-      expect(foundChild7).to.equal(child2)
+      const found7 = root.find('child1.child2')
+      expect(found7).to.equal(child2)
   
-      const foundChild8 = root.find([ 'child1', 'child2' ])
-      expect(foundChild8).to.equal(child2)
+      const found8 = root.find([ 'child1', 'child2' ])
+      expect(found8).to.equal(child2)
   
-      const foundChild9 = root.find('wrongName.child2')
-      expect(foundChild9).to.equal(undefined)
+      const found9 = root.find('wrongName.child2')
+      expect(found9).to.equal(undefined)
   
-      const foundChild10 = root.find([ 'wrongName', 'child2' ])
-      expect(foundChild10).to.equal(undefined)
+      const found10 = root.find([ 'wrongName', 'child2' ])
+      expect(found10).to.equal(undefined)
   
-      const foundChild11 = root.find('child1.wrongName')
-      expect(foundChild11).to.equal(undefined)
+      const found11 = root.find('child1.wrongName')
+      expect(found11).to.equal(undefined)
   
-      const foundChild12 = root.find([ 'child1', 'wrongName' ])
-      expect(foundChild12).to.equal(undefined)
+      const found12 = root.find([ 'child1', 'wrongName' ])
+      expect(found12).to.equal(undefined)
     })
   
     it('should find a child even when there is a gap in the path', function() {
@@ -231,79 +247,109 @@ describe('FormElement', function() {
       const child1211 = new FormElement('child1211') // sub element of element after two gaps
       const child111Duplicate = new FormElement('child111') // duplicate element in different branch of the tree
   
-      root.add(child1)
-      child1.add(child11)
-      child11.add(child111)
-      child11.add(child112)
-      child112.add(child1121)
-      child1.add(child12)
-      child12.add(child121)
-      child121.add(child1211)
-      child121.add(child111Duplicate)
-  
+      root.add(
+        child1.add( // gap
+          child11.add(
+            child111,
+            child112.add( // gap -> no gap -> gap
+              child1121
+            )
+          ),
+          child12.add( // gap -> gap
+            child121.add(
+              child1211,
+              child111Duplicate
+            )
+          )  
+        ),
+      )
+
       // find child with a one level gap
-      const foundChild1 = root.find('child11')
-      const foundChild2 = root.find([ 'child11' ])
-      expect(foundChild1).to.equal(child11)
-      expect(foundChild2).to.equal(child11)
+      const found1 = root.find('child11')
+      expect(found1).to.equal(child11)
   
       // do not find child with a not existing name in the beginning of the path
-      const foundChild3 = root.find('wrongName.child11')
-      const foundChild4 = root.find([ 'wrongName' , 'child11' ])
-      expect(foundChild3).to.equal(undefined)
-      expect(foundChild4).to.equal(undefined)
+      const found2 = root.find('wrongName.child11')
+      expect(found2).to.equal(undefined)
   
       // do not find child with a not existing name in the end of the path
-      const foundChild5 = root.find('child11.wrongName')
-      const foundChild6 = root.find([ 'child11' , 'wrongName' ])
-      expect(foundChild5).to.equal(undefined)
-      expect(foundChild6).to.equal(undefined)
+      const found3 = root.find('child11.wrongName')
+      expect(found3).to.equal(undefined)
   
       // find a direct sub child of a child which is after a gap
-      const foundChild7 = root.find('child11.child111')
-      const foundChild8 = root.find([ 'child11', 'child111' ])
-      expect(foundChild7).to.equal(child111)
-      expect(foundChild8).to.equal(child111)
+      const found4 = root.find('child11.child111')
+      expect(found4).to.equal(child111)
   
       // do not find a direct sub child of a child which is after a gap but which has a wrong name between the child and its sub child
-      const foundChild9 = root.find('child11.wrongName.child111')
-      const foundChild10 = root.find([ 'child11', 'wrongName', 'child111' ])
-      expect(foundChild9).to.equal(undefined)
-      expect(foundChild10).to.equal(undefined)
+      const found5 = root.find('child11.wrongName.child111')
+      expect(found5).to.equal(undefined)
   
       // do not find a direct sub child of a child which is after a gap but which has a wrong name at the end
-      const foundChild11 = root.find('child12.child111.wrongName')
-      const foundChild12 = root.find([ 'child12', 'child111', 'wrongName' ])
-      expect(foundChild11).to.equal(undefined)
-      expect(foundChild12).to.equal(undefined)
+      const found6 = root.find('child12.child111.wrongName')
+      expect(found6).to.equal(undefined)
   
       // find a child which comes after two gaps
-      const foundChild15 = root.find('child121')
-      const foundChild16 = root.find([ 'child121' ])
-      expect(foundChild15).to.equal(child121)
-      expect(foundChild16).to.equal(child121)
+      const found7 = root.find('child121')
+      expect(found7).to.equal(child121)
   
       // find a direct sub child of a child which is after two gaps
-      const foundChild17 = root.find('child121.child1211')
-      const foundChild18 = root.find([ 'child121', 'child1211' ])
-      expect(foundChild17).to.equal(child1211)
-      expect(foundChild18).to.equal(child1211)
+      const found8 = root.find('child121.child1211')
+      expect(found8).to.equal(child1211)
   
       // do not find a dislocated child which got accidentally put into another branch
-      const foundChild19 = root.find('child1111')
-      const foundChild20 = root.find([ 'child1111' ])
-      expect(foundChild19).to.equal(undefined)
-      expect(foundChild20).to.equal(undefined)
+      const found9 = root.find('child1111')
+      expect(found9).to.equal(undefined)
     })
   
+    it('should find a child if the path is not complete', function() {
+      const root = new FormElement('root')
+      const child1 = new FormElement('child1')
+      const child11 = new FormElement('child11')
+      const child111 = new FormElement('child111')
+      const child1111 = new FormElement('child1111')
+  
+      root.add(
+        child1.add(
+          child11.add(
+            child111.add(
+              child1111
+            )
+          )
+        )
+      )
+
+      let found1 = root.find('child11')
+      expect(found1).to.equal(child11)
+      
+      let found2 = root.find('child111')
+      expect(found2).to.equal(child111)
+
+      let found3 = root.find('child1111')
+      expect(found3).to.equal(child1111)
+
+      let found4 = root.find('child1.child111')
+      expect(found4).to.equal(child111)
+
+      let found5 = root.find('child11.child111')
+      expect(found5).to.equal(child111)
+
+      let found6 = root.find('child1.child1111')
+      expect(found6).to.equal(child1111)
+
+      let found7 = root.find('child1.child11.child1111')
+      expect(found7).to.equal(child1111)
+
+      let found8 = root.find('child1.child111.child1111')
+      expect(found8).to.equal(child1111)
+    })  
   })
   
-  describe("Test extending a form element", function() {
-    it("Should include attached properties", function() {
+  describe('Test extending a form element', function() {
+    it('Should include attached properties', function() {
       const element = new FormElement
       const validators = [ 1, 2, 3] 
       element.more.validators = validators
-  
+
       expect(element.more.validators).to.exist
       expect(element.more.validators).to.equal(validators)
     })
@@ -428,5 +474,49 @@ describe('FormElement', function() {
       expect(field.value).to.equal('testValue')
       expect(field.options).to.deep.equal([ 'testValue1', 'testValue2'])
     })
+  })
+
+  it('should keep the specified elements', function() {
+    let form = new Form().add(
+      new Field('string', 'field1'),
+      new Field('string', 'field2'),
+      new FormElement('formElement1')
+    )
+
+    form.keep('field1')
+
+    expect(form.find('field1')).to.be.not.undefined
+    expect(form.find('field2')).to.be.undefined
+    expect(form.find('formElement1')).to.be.undefined
+
+    form = new Form().add(
+      new Field('string', 'field1'),
+      new FormElement('formElement1').add(
+        new Field('string', 'field2')
+      ),
+      new FormElement('formElement2')
+    )
+
+    form.keep('field1')
+    
+    expect(form.find('field1')).to.be.not.undefined
+    expect(form.find('formElement1')).to.be.undefined
+    expect(form.find('field2')).to.be.undefined
+    expect(form.find('formElement2')).to.be.undefined
+
+    form = new Form().add(
+      new Field('string', 'field1'),
+      new FormElement('formElement1').add(
+        new Field('string', 'field2')
+      ),
+      new FormElement('formElement2')
+    )
+    
+    form.keep('field2')
+
+    expect(form.find('field1')).to.be.undefined
+    expect(form.find('formElement1')).to.be.not.undefined
+    expect(form.find('field2')).to.be.not.undefined   
+    expect(form.find('formElement2')).to.be.undefined
   })
 })

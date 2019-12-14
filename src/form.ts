@@ -139,7 +139,7 @@ export class FormElement {
       }
       else {
         if (child === element) {
-          this.children.splice(i)
+          this.children.splice(i, 1)
         }
       }
     }
@@ -195,6 +195,7 @@ export class FormElement {
     for (let child of this.children) {
       if (child.name === first) {
         element = child
+        break
       }
     }
 
@@ -222,11 +223,11 @@ export class FormElement {
     // if there was no element found
     else {
 
-      // iterator through all children not considering their name
+      // iterate through all children not considering their name
       for (let child of this.children) {
         
         // if the child does not have a name and it has children ask it to find the element
-        if (!child.name && child.children && child.children.length) {
+        if (child.children && child.children.length) {
           element = child.find(pathArray)
           
           if (element) {
@@ -313,6 +314,46 @@ export class FormElement {
 
     for (let child of this.children) {
       child.clear()
+    }
+  }
+
+  keep(...paths: string[]) {
+    let keep = []
+    for (let path of paths) {
+      let element = this.find(path)
+
+      if (element) {
+        keep.push(element)
+      }
+    }
+
+    // with parents
+    let allElementsToKeep = []
+    for (let element of keep) {
+      allElementsToKeep.push(element)
+      
+      let parent = element.parent
+      while (parent) {
+        allElementsToKeep.push(parent)
+        parent = parent.parent
+      }
+    }
+
+    let i = 0
+
+    while (i < this.children.length) {console.log('while', i, this.children.length)
+      for (i = 0; i < this.children.length; i++) {
+        let child = this.children[i]
+  console.log(i)
+        if (allElementsToKeep.indexOf(child) == -1) {console.log('Removing', child.name)
+          this.remove(child)
+          console.log('Afer delete:', this.children)
+          break
+        }
+        else {console.log('Not removing', child.name)
+          child.keep(...paths)
+        }
+      }
     }
   }
 
