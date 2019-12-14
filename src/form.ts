@@ -341,16 +341,15 @@ export class FormElement {
 
     let i = 0
 
-    while (i < this.children.length) {console.log('while', i, this.children.length)
+    while (i < this.children.length) {
       for (i = 0; i < this.children.length; i++) {
         let child = this.children[i]
-  console.log(i)
-        if (allElementsToKeep.indexOf(child) == -1) {console.log('Removing', child.name)
+  
+        if (allElementsToKeep.indexOf(child) == -1) {
           this.remove(child)
-          console.log('Afer delete:', this.children)
           break
         }
-        else {console.log('Not removing', child.name)
+        else {
           child.keep(...paths)
         }
       }
