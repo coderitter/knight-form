@@ -1,4 +1,4 @@
-import { toJsonObj, fromJsonObj, Instantiator } from 'mega-nice-json'
+import { fromJsonObj, Instantiator, toJsonObj } from 'mega-nice-json'
 
 export class FormElement {
 
@@ -411,7 +411,7 @@ export class FormElement {
     return toJsonObj(this, { exclude: standardExclude, doNotUseConversionMethodOnObject: true })
   }
 
-  static fromObj(obj: any, instantiator = new FormElementInstantiator()): any {
+  static fromObj(obj: any, instantiator = new FormInstantiator()): any {
     return fromJsonObj(obj, instantiator)
   }
 
@@ -789,7 +789,7 @@ export class FindDirectSubFieldsVisitor extends FormVisitor<Field[]> {
   }
 }
 
-export class FormElementInstantiator extends Instantiator {
+export class FormInstantiator extends Instantiator {
   'FormElement' = () => new FormElement()
   'Field' = () => new Field()
   'Form' = () => new Form()
