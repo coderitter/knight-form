@@ -712,13 +712,15 @@ export class Widget {
   error?: string
   more: { [key: string]: any } = {}
 
-  constructor(obj: { [key: string]: any }) {
-    this.invisible = obj.invisible
-    this.disabled = obj.disabled
-    this.title = obj.title
-    this.required = obj.required
-    this.error = obj.error
-    this.more = obj.more
+  constructor(obj?: { [key: string]: any }) {
+    if (obj) {
+      this.invisible = obj.invisible
+      this.disabled = obj.disabled
+      this.title = obj.title
+      this.required = obj.required
+      this.error = obj.error
+      this.more = obj.more  
+    }
   }
 
   clone(): this {
