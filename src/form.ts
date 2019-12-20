@@ -162,7 +162,7 @@ export class FormElement {
 
       if (typeof element === 'string') {
         if (child.name === element) {
-          this.children.splice(i)
+          this.children.splice(i, 1)
         }
       }
       else {
