@@ -7,8 +7,8 @@ describe('FormElement', function() {
   describe('children', function() {
 
     it('should add a child and set its parent accordingly.', () => {
-      const root = new FormElement('root')
-      const child = new FormElement('child')
+      let root = new FormElement('root')
+      let child = new FormElement('child')
   
       // Add the child to the root element. The parent of the child should be set afterwards.
       root.add(child)
@@ -18,8 +18,8 @@ describe('FormElement', function() {
     })
   
     it('should add an element which parent is set to that parent\'s children.', function() {
-      const root = new FormElement('root')
-      const child = new FormElement('child')
+      let root = new FormElement('root')
+      let child = new FormElement('child')
   
       // Set the parent of the child. The root element should include the child afterwards.
       child.parent = root
@@ -29,11 +29,11 @@ describe('FormElement', function() {
     })
   
     it('should add a child after a certain element and set its parent accordingly.', () => {
-      const root = new FormElement('root')
-      const child1 = new FormElement('child1')
-      const child2 = new FormElement('child2')
-      const child3 = new FormElement('child3')
-      const child4 = new FormElement('child4')
+      let root = new FormElement('root')
+      let child1 = new FormElement('child1')
+      let child2 = new FormElement('child2')
+      let child3 = new FormElement('child3')
+      let child4 = new FormElement('child4')
 
       root.add(child1, child2, child4)
   
@@ -44,12 +44,27 @@ describe('FormElement', function() {
       expect(child3.parent).to.equal(root)
       expect(root.children.indexOf(child3)).to.equal(2)
     })
+
+    it('should remove itself', function() {
+      let root = new FormElement('root')
+      let child = new FormElement('child')
+
+      root.add(child)
+
+      expect(root.children.length).to.equal(1)
+      expect(root.find('child')).to.not.be.undefined
+
+      child.remove()
+
+      expect(root.children.length).to.equal(0)
+      expect(root.find('child')).to.be.undefined
+    })
   
     it('should remove a child', function() {
-      const root = new FormElement('root')
-      const child1 = new FormElement('child1')
-      const child2 = new FormElement('child2')
-      const child3 = new FormElement('child3')
+      let root = new FormElement('root')
+      let child1 = new FormElement('child1')
+      let child2 = new FormElement('child2')
+      let child3 = new FormElement('child3')
   
       root.add(
         child1, child2, child3
@@ -63,8 +78,8 @@ describe('FormElement', function() {
     })
   
     it('should remove a child if its parent is set to undefined', function() {
-      const root = new FormElement('root')
-      const child = new FormElement('child')
+      let root = new FormElement('root')
+      let child = new FormElement('child')
   
       child.parent = root
   
@@ -78,9 +93,9 @@ describe('FormElement', function() {
     })
   
     it('should add a child to its new parent and remove it from the old one', function() {
-      const oldRoot = new FormElement('oldRoot')
-      const newRoot = new FormElement('newRoot')
-      const child = new FormElement('child')
+      let oldRoot = new FormElement('oldRoot')
+      let newRoot = new FormElement('newRoot')
+      let child = new FormElement('child')
   
       child.parent = oldRoot
   
@@ -95,9 +110,9 @@ describe('FormElement', function() {
     })
   
     it('should determine the root correctly', function() {
-      const root = new FormElement('root')
-      const child1 = new FormElement('child1')
-      const child2 = new FormElement('child2')
+      let root = new FormElement('root')
+      let child1 = new FormElement('child1')
+      let child2 = new FormElement('child2')
   
       root.add(child1)
       child1.add(child2)
@@ -113,19 +128,19 @@ describe('FormElement', function() {
     })
   
     it('should handle setting an array of children correctly', function() {
-      const root = new FormElement('root')
-      const child1 = new FormElement('child1')
-      const child2 = new FormElement('child2')
-      const children1 = [ child1, child2 ]
+      let root = new FormElement('root')
+      let child1 = new FormElement('child1')
+      let child2 = new FormElement('child2')
+      let children1 = [ child1, child2 ]
   
       root.children = children1
   
       expect(child1.parent).to.equal(root)
       expect(child2.parent).to.equal(root)
       
-      const child3 = new FormElement('child3')
-      const child4 = new FormElement('child4')
-      const children2 = [ child3, child4 ]
+      let child3 = new FormElement('child3')
+      let child4 = new FormElement('child4')
+      let children2 = [ child3, child4 ]
   
       root.children = children2
   
@@ -152,10 +167,10 @@ describe('FormElement', function() {
   describe('path', function() {
   
     it('should create the correct path', function() {
-      const root = new FormElement('root')
-      const childWithName = new FormElement('childWithName')
-      const childWithoutName = new FormElement()
-      const childWithEmptyName = new FormElement('')
+      let root = new FormElement('root')
+      let childWithName = new FormElement('childWithName')
+      let childWithoutName = new FormElement()
+      let childWithEmptyName = new FormElement('')
   
       root.add(childWithName)
       root.add(childWithoutName)
@@ -167,13 +182,13 @@ describe('FormElement', function() {
     })
     
     it('should create the correct path in the third level', function() {
-      const root = new FormElement('root')
-      const childWithName1 = new FormElement('childWithName1')
-      const childWithoutName1 = new FormElement()
-      const childWithEmptyName1 = new FormElement('')
-      const childWithName2 = new FormElement('childWithName2')
-      const childWithoutName2 = new FormElement()
-      const childWithEmptyName2 = new FormElement('')
+      let root = new FormElement('root')
+      let childWithName1 = new FormElement('childWithName1')
+      let childWithoutName1 = new FormElement()
+      let childWithEmptyName1 = new FormElement('')
+      let childWithName2 = new FormElement('childWithName2')
+      let childWithoutName2 = new FormElement()
+      let childWithEmptyName2 = new FormElement('')
   
       root.add(childWithName1)
       root.add(childWithoutName1)
@@ -209,60 +224,60 @@ describe('FormElement', function() {
   describe('Test find', function() {
     
     it('should find a child by name', function() {
-      const root = new FormElement('root')
-      const child1 = new FormElement('child1')
-      const child2 = new FormElement('child2')
+      let root = new FormElement('root')
+      let child1 = new FormElement('child1')
+      let child2 = new FormElement('child2')
   
       root.add(child1.add(child2))
   
-      const found1 = root.find('child1')
+      let found1 = root.find('child1')
       expect(found1).to.equal(child1)
   
-      const found2 = root.find([ 'child1' ])
+      let found2 = root.find([ 'child1' ])
       expect(found2).to.equal(child1)
   
-      const found3 = root.find('wrongName')
+      let found3 = root.find('wrongName')
       expect(found3).to.equal(undefined)
   
-      const found4 = root.find([ 'wrongName' ])
+      let found4 = root.find([ 'wrongName' ])
       expect(found4).to.equal(undefined)
   
-      const found5 = root.find('')
+      let found5 = root.find('')
       expect(found5).to.equal(undefined)
   
-      const found6 = root.find([])
+      let found6 = root.find([])
       expect(found6).to.equal(undefined)
   
-      const found7 = root.find('child1.child2')
+      let found7 = root.find('child1.child2')
       expect(found7).to.equal(child2)
   
-      const found8 = root.find([ 'child1', 'child2' ])
+      let found8 = root.find([ 'child1', 'child2' ])
       expect(found8).to.equal(child2)
   
-      const found9 = root.find('wrongName.child2')
+      let found9 = root.find('wrongName.child2')
       expect(found9).to.equal(undefined)
   
-      const found10 = root.find([ 'wrongName', 'child2' ])
+      let found10 = root.find([ 'wrongName', 'child2' ])
       expect(found10).to.equal(undefined)
   
-      const found11 = root.find('child1.wrongName')
+      let found11 = root.find('child1.wrongName')
       expect(found11).to.equal(undefined)
   
-      const found12 = root.find([ 'child1', 'wrongName' ])
+      let found12 = root.find([ 'child1', 'wrongName' ])
       expect(found12).to.equal(undefined)
     })
   
     it('should find a child even when there is a gap in the path', function() {
-      const root = new FormElement('root')
-      const child1 = new FormElement // gap
-      const child11 = new FormElement('child11') // element after one gape
-      const child111 = new FormElement('child111') // sub element of element after one gap
-      const child112 = new FormElement // gap -> no gap -> gap
-      const child1121 = new FormElement('child1121') // element after two gaps
-      const child12 = new FormElement // gap -> gap
-      const child121 = new FormElement('child121') // element after two gaps
-      const child1211 = new FormElement('child1211') // sub element of element after two gaps
-      const child111Duplicate = new FormElement('child111') // duplicate element in different branch of the tree
+      let root = new FormElement('root')
+      let child1 = new FormElement // gap
+      let child11 = new FormElement('child11') // element after one gape
+      let child111 = new FormElement('child111') // sub element of element after one gap
+      let child112 = new FormElement // gap -> no gap -> gap
+      let child1121 = new FormElement('child1121') // element after two gaps
+      let child12 = new FormElement // gap -> gap
+      let child121 = new FormElement('child121') // element after two gaps
+      let child1211 = new FormElement('child1211') // sub element of element after two gaps
+      let child111Duplicate = new FormElement('child111') // duplicate element in different branch of the tree
   
       root.add(
         child1.add( // gap
@@ -282,48 +297,48 @@ describe('FormElement', function() {
       )
 
       // find child with a one level gap
-      const found1 = root.find('child11')
+      let found1 = root.find('child11')
       expect(found1).to.equal(child11)
   
       // do not find child with a not existing name in the beginning of the path
-      const found2 = root.find('wrongName.child11')
+      let found2 = root.find('wrongName.child11')
       expect(found2).to.equal(undefined)
   
       // do not find child with a not existing name in the end of the path
-      const found3 = root.find('child11.wrongName')
+      let found3 = root.find('child11.wrongName')
       expect(found3).to.equal(undefined)
   
       // find a direct sub child of a child which is after a gap
-      const found4 = root.find('child11.child111')
+      let found4 = root.find('child11.child111')
       expect(found4).to.equal(child111)
   
       // do not find a direct sub child of a child which is after a gap but which has a wrong name between the child and its sub child
-      const found5 = root.find('child11.wrongName.child111')
+      let found5 = root.find('child11.wrongName.child111')
       expect(found5).to.equal(undefined)
   
       // do not find a direct sub child of a child which is after a gap but which has a wrong name at the end
-      const found6 = root.find('child12.child111.wrongName')
+      let found6 = root.find('child12.child111.wrongName')
       expect(found6).to.equal(undefined)
   
       // find a child which comes after two gaps
-      const found7 = root.find('child121')
+      let found7 = root.find('child121')
       expect(found7).to.equal(child121)
   
       // find a direct sub child of a child which is after two gaps
-      const found8 = root.find('child121.child1211')
+      let found8 = root.find('child121.child1211')
       expect(found8).to.equal(child1211)
   
       // do not find a dislocated child which got accidentally put into another branch
-      const found9 = root.find('child1111')
+      let found9 = root.find('child1111')
       expect(found9).to.equal(undefined)
     })
   
     it('should find a child if the path is not complete', function() {
-      const root = new FormElement('root')
-      const child1 = new FormElement('child1')
-      const child11 = new FormElement('child11')
-      const child111 = new FormElement('child111')
-      const child1111 = new FormElement('child1111')
+      let root = new FormElement('root')
+      let child1 = new FormElement('child1')
+      let child11 = new FormElement('child11')
+      let child111 = new FormElement('child111')
+      let child1111 = new FormElement('child1111')
   
       root.add(
         child1.add(
@@ -363,8 +378,8 @@ describe('FormElement', function() {
   
   describe('Test extending a form element', function() {
     it('Should include attached properties', function() {
-      const element = new FormElement
-      const validators = [ 1, 2, 3] 
+      let element = new FormElement
+      let validators = [ 1, 2, 3] 
       element.more.validators = validators
 
       expect(element.more.validators).to.exist
@@ -535,5 +550,64 @@ describe('FormElement', function() {
     expect(form.find('formElement1')).to.be.not.undefined
     expect(form.find('field2')).to.be.not.undefined   
     expect(form.find('formElement2')).to.be.undefined
+  })
+
+  describe('drop', function() {
+    it('should drop an element including all of the parents with only one element', function() {
+      let child211 = new FormElement('child211')
+      let root = new FormElement('root').add(
+        new FormElement('child1'),
+        new FormElement('child2').add(
+          new FormElement('child21').add(
+            child211
+          )
+        )
+      )
+  
+      root.drop(child211)
+  
+      expect(root.find('child1')).to.not.be.undefined
+      expect(root.find('child2')).to.be.undefined
+      expect(root.find('child21')).to.be.undefined
+      expect(root.find('child211')).to.be.undefined
+    })
+  
+    it('should drop an element including all of the parents with only one element by path', function() {
+      let root = new FormElement('root').add(
+        new FormElement('child1'),
+        new FormElement('child2').add(
+          new FormElement('child21').add(
+            new FormElement('child211')
+          )
+        )
+      )
+  
+      root.drop('child211')
+  
+      expect(root.find('child1')).to.not.be.undefined
+      expect(root.find('child2')).to.be.undefined
+      expect(root.find('child21')).to.be.undefined
+      expect(root.find('child211')).to.be.undefined
+    })
+  
+    it('should drop itself', function() {
+      let child211 = new FormElement('child211')
+      
+      let root = new FormElement('root').add(
+        new FormElement('child1'),
+        new FormElement('child2').add(
+          new FormElement('child21').add(
+            child211
+          )
+        )
+      )
+  
+      child211.drop()
+  
+      expect(root.find('child1')).to.not.be.undefined
+      expect(root.find('child2')).to.be.undefined
+      expect(root.find('child21')).to.be.undefined
+      expect(root.find('child211')).to.be.undefined
+    })  
   })
 })

@@ -156,7 +156,12 @@ export class FormElement {
    * 
    * @param element May be a FormElement object or a name
    */
-  remove(element: FormElement|string): this {
+  remove(element?: FormElement|string): this {
+    // if element is undefined remove the element itself
+    if (element === undefined && this.parent) {
+      this.parent.remove(this)
+    }
+
     for (let i = 0; i < this.children.length; i++) {
       const child = this.children[i]
 
@@ -345,7 +350,7 @@ export class FormElement {
     }
   }
 
-  keep(...paths: string[]) {
+  keep(...paths: string[]): this {
     let keep = []
     for (let path of paths) {
       let element = this.find(path)
@@ -382,6 +387,38 @@ export class FormElement {
         }
       }
     }
+
+    return this
+  }
+
+  drop(...elements: (FormElement|string)[]): this {
+    if (elements.length == 0 && this.parent) {
+      this.parent.drop(this)
+    }
+
+    for (let elementOrPath of elements) {
+      let element
+      if (typeof elementOrPath === 'string') {
+        element = this.find(elementOrPath)
+      }
+      else {
+        element = elementOrPath
+      }
+
+      while (element) {
+        // check if there is a parent and if there is remove any parent which has
+        // only one child
+        if (element.parent && element.parent.children.length == 1) {
+          element = element.parent
+        }
+        else {
+          element.remove()
+          break
+        }
+      }
+    }
+
+    return this
   }
 
   visit<T>(visitor: FormVisitor<T>): T|undefined {
