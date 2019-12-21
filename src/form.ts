@@ -16,7 +16,7 @@ export class FormElement {
 
   name?: string
   prototype?: FormElement
-  widget?: any
+  widget?: any = new Widget()
   more: { [key: string]: any } = {}
 
   /**
@@ -654,15 +654,7 @@ export class Form extends Field {
   }
 }
 
-export class Button extends FormElement {
-  label?: string
-
-  clone(): this {
-    const clone = super.clone()
-    clone.label = this.label
-    return clone
-  }
-}
+export class Button extends FormElement { }
 
 export class Mapping extends FormElement {
 
@@ -747,7 +739,7 @@ export class Widget {
   title?: string
   required?: boolean
   error?: string
-  more: { [key: string]: any } = {}
+  [key: string]: any
 
   constructor(obj?: { [key: string]: any }) {
     if (obj) {
@@ -756,7 +748,6 @@ export class Widget {
       this.title = obj.title
       this.required = obj.required
       this.error = obj.error
-      this.more = obj.more  
     }
   }
 
@@ -778,10 +769,12 @@ export class FieldWidget extends Widget {
 
   password?: boolean
 
-  constructor(obj: { [key: string]: any }) {
+  constructor(obj?: { [key: string]: any }) {
     super(obj)
 
-    this.password = obj.password
+    if (obj) {
+      this.password = obj.password
+    }
   }
 }
 
