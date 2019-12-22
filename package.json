@@ -1,6 +1,6 @@
 {
   "name": "mega-nice-form",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "A mega nice data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
@@ -12,7 +12,7 @@
     "build": "rm -rf lib && tsc"
   },
   "dependencies": {
-    "mega-nice-json": "^1.1.2"
+    "mega-nice-json": "^2.0.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.5",

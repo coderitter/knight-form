@@ -379,7 +379,7 @@ describe('FormElement', function() {
   describe('Test extending a form element', function() {
     it('Should include attached properties', function() {
       let element = new FormElement
-      let validators = [ 1, 2, 3] 
+      let validators = [ 1, 2, 3]
       element.more.validators = validators
 
       expect(element.more.validators).to.exist
@@ -387,7 +387,7 @@ describe('FormElement', function() {
     })
   })
 
-  describe('json', () => {
+  describe('toObj', () => {
     it('should transfer all FormElement properties', () => {
       let formElement = new FormElement('testName')    
       let formElementObj = formElement.toObj()
@@ -429,37 +429,18 @@ describe('FormElement', function() {
         }
       })
     })
-  
-    it('should transfer all Field properties', () => {
-      let field = new Field()
-      field.valueType = 'string'
-      let fieldObj = field.toObj()
-      
-      expect(fieldObj).to.deep.equal({
-        '@class': 'Field',
-        'valueType': 'string'
-      })
-  
-      field.value = 'testValue'
-      fieldObj = field.toObj()
-  
-      expect(fieldObj).to.deep.equal({
-        '@class': 'Field',
-        valueType: 'string',
-        value: 'testValue'
-      })
-  
-      field.options = [ 1, 2, 3 ]
-      fieldObj = field.toObj()
-  
-      expect(fieldObj).to.deep.equal({
-        '@class': 'Field',
-        valueType: 'string',
-        value: 'testValue',
-        options: [ 1, 2, 3 ]
-      })    
+
+    it('should exclude given properties', function() {
+      let element = new FormElement()
+      element.widget = { a: 'a' }
+
+      let obj = element.toObj(['widget'])
+
+      expect(obj.widget).to.be.undefined
     })
-  
+  })
+
+  describe('fromObj', function() {
     it('should transfer all properties to FormElement', () => {
       let formElementObj = {
         '@class': 'FormElement',
@@ -490,66 +471,52 @@ describe('FormElement', function() {
       expect(formElement.more.attribute1).to.equal('attribute1')
       expect(formElement.more.attribute2).to.equal('attribute2')
     })
-  
-    it('should transfer all properties to Field', () => {
-      let fieldObj = {
-        '@class': 'Field',
-        valueType: 'string',
-        value: 'testValue',
-        options: [ 'testValue1', 'testValue2']
-      }
-  
-      let field = FormElement.fromObj(fieldObj)
-  
-      expect(field).to.be.instanceOf(Field)
-      expect(field.valueType).to.equal('string')
-      expect(field.value).to.equal('testValue')
-      expect(field.options).to.deep.equal([ 'testValue1', 'testValue2'])
-    })
   })
 
-  it('should keep the specified elements', function() {
-    let form = new Form().add(
-      new Field('string', 'field1'),
-      new Field('string', 'field2'),
-      new FormElement('formElement1')
-    )
-
-    form.keep('field1')
-
-    expect(form.find('field1')).to.be.not.undefined
-    expect(form.find('field2')).to.be.undefined
-    expect(form.find('formElement1')).to.be.undefined
-
-    form = new Form().add(
-      new Field('string', 'field1'),
-      new FormElement('formElement1').add(
-        new Field('string', 'field2')
-      ),
-      new FormElement('formElement2')
-    )
-
-    form.keep('field1')
-    
-    expect(form.find('field1')).to.be.not.undefined
-    expect(form.find('formElement1')).to.be.undefined
-    expect(form.find('field2')).to.be.undefined
-    expect(form.find('formElement2')).to.be.undefined
-
-    form = new Form().add(
-      new Field('string', 'field1'),
-      new FormElement('formElement1').add(
-        new Field('string', 'field2')
-      ),
-      new FormElement('formElement2')
-    )
-    
-    form.keep('field2')
-
-    expect(form.find('field1')).to.be.undefined
-    expect(form.find('formElement1')).to.be.not.undefined
-    expect(form.find('field2')).to.be.not.undefined   
-    expect(form.find('formElement2')).to.be.undefined
+  describe('keep', function() {
+    it('should keep the specified elements', function() {
+      let form = new Form().add(
+        new Field('string', 'field1'),
+        new Field('string', 'field2'),
+        new FormElement('formElement1')
+      )
+  
+      form.keep('field1')
+  
+      expect(form.find('field1')).to.be.not.undefined
+      expect(form.find('field2')).to.be.undefined
+      expect(form.find('formElement1')).to.be.undefined
+  
+      form = new Form().add(
+        new Field('string', 'field1'),
+        new FormElement('formElement1').add(
+          new Field('string', 'field2')
+        ),
+        new FormElement('formElement2')
+      )
+  
+      form.keep('field1')
+      
+      expect(form.find('field1')).to.be.not.undefined
+      expect(form.find('formElement1')).to.be.undefined
+      expect(form.find('field2')).to.be.undefined
+      expect(form.find('formElement2')).to.be.undefined
+  
+      form = new Form().add(
+        new Field('string', 'field1'),
+        new FormElement('formElement1').add(
+          new Field('string', 'field2')
+        ),
+        new FormElement('formElement2')
+      )
+      
+      form.keep('field2')
+  
+      expect(form.find('field1')).to.be.undefined
+      expect(form.find('formElement1')).to.be.not.undefined
+      expect(form.find('field2')).to.be.not.undefined   
+      expect(form.find('formElement2')).to.be.undefined
+    })  
   })
 
   describe('drop', function() {

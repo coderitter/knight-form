@@ -4,7 +4,7 @@ import 'mocha'
 import { FormElement, Field, Option, Form } from '../src/form'
 
 describe('Field', function() {
-  describe('Test constructor', function() {
+  describe('constructor', function() {
     it('should set the constructor parameters', function() {
       const options = [ new Option, new Option ]
       const field1 = new Field('boolean', 'field1', options)
@@ -49,7 +49,6 @@ describe('Field', function() {
   })
   
   describe('fieldPath', function() {
-  
     it('should create the correct field path', function() {
       const root = new Field('string', 'root')
       const childWithName = new Field('string', 'childWithName')
@@ -118,11 +117,9 @@ describe('Field', function() {
       expect(field1.fieldPath).to.equal('root.field1')
       expect(field2.fieldPath).to.equal('root.field1.field2')
     })
-  
   })
   
   describe('findField', function() {
-    
     it('should find a child by name', function() {
       const root = new Field('string', 'root')
       const child1 = new Field('string', 'child1')
@@ -194,7 +191,7 @@ describe('Field', function() {
     it('should find a child even when there is a gap in the path', function() {
       const root = new Field('string', 'root')
       const child1 = new Field // gap
-      const child11 = new Field('string', 'child11') // element after one gape
+      const child11 = new Field('string', 'child11') // element after one gap
       const child111 = new Field('string', 'child111') // sub element of element after one gap
       const child112 = new Field // gap -> no gap -> gap
       const child1121 = new Field('string', 'child1121') // element after two gaps
@@ -344,7 +341,6 @@ describe('Field', function() {
       expect(foundChild19).to.equal(undefined)
       expect(foundChild20).to.equal(undefined)
     })
-  
   })
   
   describe('set value', function() {
@@ -455,7 +451,7 @@ describe('Field', function() {
       expect((<Field> objectArrayField.children[1]).value).to.equal(objectArray[1])
     })
   
-    it('should propagate objects properties to sub fields', function() {
+    it('should propagate object properties to sub fields', function() {
       const now = new Date
   
       const object = {
@@ -572,7 +568,9 @@ describe('Field', function() {
         }
       })
     })
+  })
 
+  describe('clear', function() {
     it('should clear all field values', function() {
       let field1 = new Field()
       let field2 = new Field()
@@ -591,6 +589,82 @@ describe('Field', function() {
 
       expect(field1.value).to.be.undefined
       expect(field2.value).to.be.undefined
+    })
+  })
+
+  describe('toObj', function() {
+    it('should transfer all Field properties', () => {
+      let field = new Field()
+      field.valueType = 'string'
+      let fieldObj = field.toObj()
+      
+      expect(fieldObj).to.deep.equal({
+        '@class': 'Field',
+        'valueType': 'string'
+      })
+  
+      field.value = 'testValue'
+      fieldObj = field.toObj()
+  
+      expect(fieldObj).to.deep.equal({
+        '@class': 'Field',
+        valueType: 'string',
+        value: 'testValue'
+      })
+  
+      field.options = [ 1, 2, 3 ]
+      fieldObj = field.toObj()
+  
+      expect(fieldObj).to.deep.equal({
+        '@class': 'Field',
+        valueType: 'string',
+        value: 'testValue',
+        options: [ 1, 2, 3 ]
+      })    
+    })
+
+    it('should ignore object typed value', function() {
+      let form = new Form('root').add(
+        new Field('string', 'a'),
+        new Field('object', 'b').add(
+          new Field('number', 'c')
+        )
+      )
+
+      let value = {
+        a: 'a',
+        b: {
+          c: 1
+        }
+      }
+
+      form.value = value
+      let obj = form.toObj()
+
+      expect(obj.value).to.be.undefined
+      expect(obj.children.length).to.equal(2)
+      expect(obj.children[0].value).to.equal('a')
+      expect(obj.children[1].value).to.be.undefined
+      expect(obj.children[1].children.length).to.equal(1)
+      expect(obj.children[1].children[0].value).to.equal(1)
+    })
+  })
+
+  describe('fromObj', function() {
+    it('should transfer all properties to Field', () => {
+      let fieldObj = {
+        '@class': 'Field',
+        valueType: 'string',
+        value: 'testValue',
+        options: [ 'testValue1', 'testValue2']
+      }
+  
+      let field = FormElement.fromObj(fieldObj)
+  
+      expect(field).to.be.instanceOf(Field)
+      expect(field.valueType).to.equal('string')
+      expect(field.value).to.equal('testValue')
+      expect(field.options).to.deep.equal([ 'testValue1', 'testValue2'])
     })
   })
 })

@@ -437,15 +437,17 @@ export class FormElement {
   }
 
   toObj(excludeProps: string[] = []): any {
-    let standardExclude = [ 'parent' ]
+    let exclude = [ 'parent' ]
 
     if (excludeProps instanceof Array) {
-      standardExclude.concat(excludeProps)
+      exclude = exclude.concat(excludeProps)
     }
 
-    // set doNotUseConversionMethodOnObject to true to avoid recursion because toJsonObj will call
-    // toObj method if present and told not differently to do so
-    return toJsonObj(this, { exclude: standardExclude, doNotUseConversionMethodOnObject: true })
+    // set doNotUseCustomToJsonMethodOfFirstObject to true to avoid recursion because 
+    // toJsonObj will call toObj method if present and told not differently to do so
+    // if you are getting a problem with infinite recursion this will be the problem
+    // do not forget to call this method (super.toObj) if you override
+    return toJsonObj(this, { exclude: exclude, doNotUseCustomToJsonMethodOfFirstObject: true })
   }
 
   static fromObj(obj: any, instantiator = new FormInstantiator()): any {
@@ -603,6 +605,20 @@ export class Field extends FormElement {
     }
 
     return fieldPath
+  }
+
+  toObj(excludeProps: string[] = []): any {
+    let exclude: string[] = []
+
+    if (typeof this.value === 'object') {
+      exclude.push('value')
+    }
+    
+    if (excludeProps instanceof Array) {
+      exclude = exclude.concat(excludeProps)
+    }
+
+    return super.toObj(exclude)
   }
 
   clone(): this {
