@@ -12,7 +12,7 @@
     "build": "rm -rf lib && tsc"
   },
   "dependencies": {
-    "mega-nice-json": "^2.1.0"
+    "mega-nice-json": "^2.1.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.7",

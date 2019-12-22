@@ -1,4 +1,4 @@
-import { fillWithJsonObj, fromJsonObj, Instantiator, toJsonObj } from 'mega-nice-json'
+import { fillWithJsonObj, fromJsonObj, Instantiator, toJsonObj, FillWithJsonObjOptions } from 'mega-nice-json'
 
 export class FormElement {
 
@@ -664,8 +664,18 @@ export class Field extends FormElement {
     return super.toObj(exclude)
   }
 
-  fillWithObj(obj: any) {
-    fillWithJsonObj(this, obj, { doNotUseCustomToJsonMethodOfFirstObject: true })
+  fillWithObj(obj: any, options?: FillWithJsonObjOptions) {
+    if (options == undefined) {
+      options = {}
+    }
+
+    options.doNotUseCustomToJsonMethodOfFirstObject = true
+
+    if (options.instantiator == undefined) {
+      options.instantiator = new FormInstantiator()
+    }
+
+    fillWithJsonObj(this, obj, options)
     this.conserveOriginalValues(false)
   }
 

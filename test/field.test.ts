@@ -5,7 +5,7 @@ import { FormElement, Field, Option, Form } from '../src/form'
 
 describe('Field', function() {
   describe('constructor', function() {
-    it('should set the constructor parameters', function() {
+  it('should set the constructor parameters', function() {
       const options = [ new Option, new Option ]
       const field1 = new Field('boolean', 'field1', options)
       
@@ -683,6 +683,23 @@ describe('Field', function() {
       
       form.reset()
       expect(form.value).to.deep.equal({ a: 'a', b: 1 })  
+    })
+
+    it('should automatically conserve the original values when loading from object', function() {
+      let form = new Form().add(
+        new Field('string', 'a'),
+        new Field('number', 'b')
+      )
+
+      form.value = { a: 'a', b: 1 }
+
+      let obj = form.toObj()
+      form = FormElement.fromObj(obj)
+
+      form.value = { a: 'b', b: 2 }
+      expect(form.value).to.deep.equal({ a: 'b', b: 2 })
+      form.reset()
+      expect(form.value).to.deep.equal({ a: 'a', b: 1 })
     })
   })
 })
