@@ -667,4 +667,22 @@ describe('Field', function() {
       expect(field.options).to.deep.equal([ 'testValue1', 'testValue2'])
     })
   })
+
+  describe('reset', function() {
+    it('should reset properly', function() {
+      let form = new Form().add(
+        new Field('string', 'a'),
+        new Field('number', 'b')
+      )
+  
+      form.value = { a: 'a', b: 1 }
+      form.conserveOriginalValues()
+  
+      form.value = { a: 'b', b: 2 }
+      expect(form.value).to.deep.equal({ a: 'b', b: 2 })
+      
+      form.reset()
+      expect(form.value).to.deep.equal({ a: 'a', b: 1 })  
+    })
+  })
 })

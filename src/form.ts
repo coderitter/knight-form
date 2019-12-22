@@ -1,4 +1,4 @@
-import { fromJsonObj, Instantiator, toJsonObj } from 'mega-nice-json'
+import { fillWithJsonObj, fromJsonObj, Instantiator, toJsonObj } from 'mega-nice-json'
 
 export class FormElement {
 
@@ -340,13 +340,27 @@ export class FormElement {
     return field
   }
 
-  clear() {
-    if (this instanceof Field) {
-      this.value = undefined
+  clear(recursive: boolean = true) {
+    if (recursive) {
+      for (let child of this.children) {
+        child.clear()
+      }  
     }
+  }
 
-    for (let child of this.children) {
-      child.clear()
+  conserveOriginalValues(recursive: boolean = true) {
+    if (recursive) {
+      for (let child of this.children) {
+        child.conserveOriginalValues()
+      }      
+    }
+  }
+
+  reset(recursive: boolean = true) {
+    if (recursive) {
+      for (let child of this.children) {
+        child.reset()
+      }  
     }
   }
 
@@ -487,6 +501,7 @@ export class Field extends FormElement {
 
   valueType?: string
   protected _value?: any
+  protected _originalValue: any
 
   /**
    * Attach options to your field. The standard renderers use this property when dealing with
@@ -607,6 +622,34 @@ export class Field extends FormElement {
     return fieldPath
   }
 
+  clear(recursive: boolean = true) {
+    this.value = undefined
+
+    if (recursive) {
+      for(let child of this.children) {
+        child.clear()
+      }
+    }
+  }
+
+  conserveOriginalValues(recursive: boolean = true) {
+    this._originalValue = this.value
+
+    if (recursive) {
+      for (let child of this.children) {
+        child.conserveOriginalValues()
+      }  
+    }
+  }
+
+  reset() {
+    this.value = this._originalValue
+
+    for (let child of this.children) {
+      child.reset()
+    }
+  }
+
   toObj(excludeProps: string[] = []): any {
     let exclude: string[] = []
 
@@ -619,6 +662,11 @@ export class Field extends FormElement {
     }
 
     return super.toObj(exclude)
+  }
+
+  fillWithObj(obj: any) {
+    fillWithJsonObj(this, obj, { doNotUseCustomToJsonMethodOfFirstObject: true })
+    this.conserveOriginalValues(false)
   }
 
   clone(): this {

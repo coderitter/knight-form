@@ -12,16 +12,16 @@
     "build": "rm -rf lib && tsc"
   },
   "dependencies": {
-    "mega-nice-json": "^2.0.0"
+    "mega-nice-json": "^2.1.0"
   },
   "devDependencies": {
-    "@types/chai": "^4.2.5",
+    "@types/chai": "^4.2.7",
     "@types/mocha": "^5.2.7",
-    "@types/node": "^12.12.17",
+    "@types/node": "^12.12.21",
     "chai": "^4.2.0",
     "mocha": "^6.2.2",
-    "ts-node": "^8.5.2",
-    "typescript": "^3.7.2"
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
   },
   "repository": {
     "type": "git",
