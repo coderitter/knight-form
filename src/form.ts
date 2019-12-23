@@ -739,17 +739,10 @@ export class Option {
 }
 
 export class Form extends Field {
-
-  buttons: Button[] = []
-
-  constructor(name?: string) {
+  constructor(name?: string, objectName?: string) {
     super(ValueType.object)
     this.name = name
-  }
-
-  addButtons(...buttons: Button[]): this {
-    buttons.forEach(b => this.buttons.push(b))
-    return this
+    this.objectName = objectName
   }
 }
 
