@@ -55,13 +55,11 @@ describe('Field', function() {
       const childWithoutName = new Field('string')
       const childWithEmptyName = new Field('string', '')
   
-      root.add(childWithName)
-      root.add(childWithoutName)
-      root.add(childWithEmptyName)
+      root.add(childWithName, childWithoutName, childWithEmptyName)
   
       expect(childWithName.fieldPath).to.equal('root.childWithName')
-      expect(childWithoutName.fieldPath).to.equal('')
-      expect(childWithEmptyName.fieldPath).to.equal('')
+      expect(childWithoutName.fieldPath).to.equal('root.undefined')
+      expect(childWithEmptyName.fieldPath).to.equal('root.')
     })
     
     it('should create the correct field path in the third level', function() {
@@ -73,33 +71,24 @@ describe('Field', function() {
       const childWithoutName2 = new Field('string')
       const childWithEmptyName2 = new Field('string', '')
   
-      root.add(childWithName1)
-      root.add(childWithoutName1)
-      root.add(childWithEmptyName1)
-  
-      childWithName1.add(childWithName2)
-      childWithName1.add(childWithoutName2)
-      childWithName1.add(childWithEmptyName2)
+      root.add(childWithName1, childWithoutName1, childWithEmptyName1)
+      childWithName1.add(childWithName2, childWithoutName2, childWithEmptyName2)
   
       expect(childWithName2.fieldPath).to.equal('root.childWithName1.childWithName2')
-      expect(childWithoutName2.fieldPath).to.equal('')
-      expect(childWithEmptyName2.fieldPath).to.equal('')
+      expect(childWithoutName2.fieldPath).to.equal('root.childWithName1.undefined')
+      expect(childWithEmptyName2.fieldPath).to.equal('root.childWithName1.')
   
-      childWithoutName1.add(childWithName2)
-      childWithoutName1.add(childWithoutName2)
-      childWithoutName1.add(childWithEmptyName2)
+      childWithoutName1.add(childWithName2, childWithoutName2, childWithEmptyName2)
   
       expect(childWithName2.fieldPath).to.equal('root.childWithName2')
-      expect(childWithoutName2.fieldPath).to.equal('')
-      expect(childWithEmptyName2.fieldPath).to.equal('')
+      expect(childWithoutName2.fieldPath).to.equal('root.undefined')
+      expect(childWithEmptyName2.fieldPath).to.equal('root.')
   
-      childWithEmptyName1.add(childWithName2)
-      childWithEmptyName1.add(childWithoutName2)
-      childWithEmptyName1.add(childWithEmptyName2)
+      childWithEmptyName1.add(childWithName2, childWithoutName2, childWithEmptyName2)
   
       expect(childWithName2.fieldPath).to.equal('root.childWithName2')
-      expect(childWithoutName2.fieldPath).to.equal('')
-      expect(childWithEmptyName2.fieldPath).to.equal('')
+      expect(childWithoutName2.fieldPath).to.equal('root.undefined')
+      expect(childWithEmptyName2.fieldPath).to.equal('root.')
     })
   
     it('should ignore elemets apart from fields', function() {
@@ -116,6 +105,31 @@ describe('Field', function() {
   
       expect(field1.fieldPath).to.equal('root.field1')
       expect(field2.fieldPath).to.equal('root.field1.field2')
+    })
+
+    it('should consider and stop if objectName is set', function() {
+      let form = new Form('TestForm')
+      form.objectName = 'TestObject1'
+      let field1 = new Field('string', 'field1')
+      let field2 = new Field('string', 'field2')
+      field2.objectName = 'TestObject2'
+      let formElement3 = new FormElement('formElement3')
+      formElement3.objectName = 'TestObject3'
+      let field3 = new Field('string', 'field3')
+      form.add(field1, field2, formElement3.add(field3))
+
+      expect(field1.fieldPath).to.equal('TestObject1.field1')
+      expect(field2.fieldPath).to.equal('TestObject2.field2')
+      expect(field3.fieldPath).to.equal('TestObject3.field3')
+    })
+    
+    it('should return clusterfuck path if there is a non field with an object name and an empty field name', function() {
+      let formElement = new FormElement('FormElement')
+      formElement.objectName = 'TestObject'
+      let field = new Field('string')
+      formElement.add(field)
+
+      expect(field.fieldPath).to.equal('TestObject.undefined')
     })
   })
   

@@ -15,6 +15,12 @@ export class FormElement {
   protected _children: FormElement[] = []
 
   name?: string
+  /**
+   * Refer an object name which this field belongs to. This is used in conjuntion 
+   * with fieldPath which will use the first occuring object name instead of the 
+   * usual name.
+   */
+  objectName?: string
   prototype?: FormElement
   widget?: Widget = {}
   more: { [key: string]: any } = {}
@@ -519,7 +525,7 @@ export class Field extends FormElement {
       this.valueType = valueType
     }
 
-    if (nameOrOptionsOrPrototype) {
+    if (nameOrOptionsOrPrototype !== undefined) {
       if (typeof nameOrOptionsOrPrototype === 'string') {
         this.name = nameOrOptionsOrPrototype
       }
@@ -605,16 +611,34 @@ export class Field extends FormElement {
    * Get the field path. It only considers fields and sub classes but not other form elements.
    */
   get fieldPath(): string {
-    if (! this.name) {
-      return ''
-    }
-
     let fieldPath = ''
     let element: FormElement|undefined = this
     
     while (element != undefined) {
-      if (element instanceof Field && element.name) {
-        fieldPath = element.name + (fieldPath ? '.' + fieldPath : '')
+      if (! (element instanceof Field)) {
+        if (element.objectName) {
+          fieldPath = element.objectName + '.' + fieldPath
+          return fieldPath
+        }
+      }
+      else {
+        if (element.valueType === ValueType.object && element.objectName) {
+          fieldPath = element.objectName + '.' + fieldPath
+          return fieldPath
+        }
+        else {
+          if (element !== this && ! element.name) {
+            // leave out if there is an empty part in between
+          }
+          else {
+            fieldPath = element.name + (element !== this ? '.' + fieldPath : '')
+          }
+  
+          if (element.objectName) {
+            fieldPath = element.objectName + '.' + fieldPath
+            return fieldPath
+          }
+        }  
       }
 
       element = element.parent
