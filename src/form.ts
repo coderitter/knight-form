@@ -16,7 +16,7 @@ export class FormElement {
 
   name?: string
   prototype?: FormElement
-  widget?: any = new Widget()
+  widget?: Widget = {}
   more: { [key: string]: any } = {}
 
   /**
@@ -474,8 +474,8 @@ export class FormElement {
     clone.parent = this.parent
     clone.name = this.name
     clone.prototype = this.prototype ? this.prototype.clone() : undefined
-    clone.widget = this.widget ? this.widget.clone() : undefined // clone appropriately
-    clone.more = this.more
+    clone.widget = this.widget // TODO: clone appropriately
+    clone.more = this.more // TODO: clone appropriatley
 
     for (let child of this.children) {
       if (child) {
@@ -510,6 +510,7 @@ export class Field extends FormElement {
    * different class.
    */
   options: any[] = []
+  widget: FieldWidget = {}
 
   constructor(valueType?: string, nameOrOptionsOrPrototype?: string|any[]|FormElement, optionsOrPrototype?: any[]|FormElement) {
     super()
@@ -806,50 +807,16 @@ export class FieldValueMapping extends Mapping {
   }
 }
 
-export class Widget {
-
+export interface Widget {
+  title?: string
   invisible?: boolean
   disabled?: boolean
-  title?: string
   required?: boolean
-  error?: string
   [key: string]: any
-
-  constructor(obj?: { [key: string]: any }) {
-    if (obj) {
-      this.invisible = obj.invisible
-      this.disabled = obj.disabled
-      this.title = obj.title
-      this.required = obj.required
-      this.error = obj.error
-    }
-  }
-
-  clone(): this {
-    const clone = Object.create(this)
-
-    clone.invisible = this.invisible
-    clone.disabled = this.disabled
-    clone.title = this.title
-    clone.required = this.required
-    clone.error = this.error
-    clone.more = this.more // TODO: clone appropriately
-
-    return clone
-  }
 }
 
-export class FieldWidget extends Widget {
-
+export interface FieldWidget extends Widget {
   password?: boolean
-
-  constructor(obj?: { [key: string]: any }) {
-    super(obj)
-
-    if (obj) {
-      this.password = obj.password
-    }
-  }
 }
 
 function splitPath(path: String) {
