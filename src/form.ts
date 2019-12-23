@@ -110,7 +110,7 @@ export class FormElement {
     return fields
   }
 
-  setWidget(widget: any): this {
+  setWidget(widget: Widget): this {
     this.widget = widget
     return this
   }
@@ -605,6 +605,11 @@ export class Field extends FormElement {
         }
       }
     }
+  }
+
+  setWidget(widget: FieldWidget): this {
+    this.widget = widget
+    return this
   }
 
   /**
