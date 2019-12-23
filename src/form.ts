@@ -22,7 +22,7 @@ export class FormElement {
    */
   objectName?: string
   prototype?: FormElement
-  widget?: Widget = {}
+  widget: Widget = {}
   more: { [key: string]: any } = {}
 
   /**
