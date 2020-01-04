@@ -1,28 +1,59 @@
 # Quick start
 
-A mega nice data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently. Because it has implementations in many different programming languages you can serialize the data structure to JSON and continue using it somewhere else.
+A mega nice data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently.
 
-## Create a form
+## Elements
 
-Create a form in your app. There is support for multiple languages like TypeScript, Java, Go, C# and so on. A complete list can be found here.
+There are exactly to elements to describe your form.
+
+- `FormElement`: A general purpose form element that is not a field
+- `Field`: A field representing a property on your object
+
+We added two more classes which are basically empty sub classes from the upper two. They are there for better readability.
+
+- `Form`: An empty sub class of `Field` but with an adjusted constructor
+- `Button`: An empty sub class of `FormElement`
+
+Here is a short example.
 
 ```typescript
-var form = new Form()
-
-form.add(
+var form = new Form('CharacterEditForm', 'Character').add(
   new Field('string', 'name'),
   new Field('number', 'level')
+  new FormElement('buttons').add(
+    new Button('submit'),
+    new Button('reset')
+  )
 )
-
-form.title = 'My first form'
-form.buttons = [ new Button('submit') ]
 ```
 
-## Set values
+## Customize form elements
+
+All those elements are combined in a tree. To customize the elements of your form you can use one of the properties put in place to avoid subclassing.
+
+## Adjust a form
+
+There are some methods available to adjust a form.
+
+- `keep`: Keeps a list of elements
+- `drop`: Drops a list of elements
+
+Because a form is basically a field you can combine forms into one another. Also you can have your form handle not just an object as its value but also an array or a simple number.
+
+## Form values
 
 The fields in your form describe the structure of the object your form should be able to work with. You can use those objects to set the values of the fields. The field names determine the name of the property on the object.
 
 ```typescript
+var form = new Form('CharacterEditForm', 'Character').add(
+  new Field('string', 'name'),
+  new Field('number', 'level')
+  new FormElement('buttons').add(
+    new Button('submit'),
+    new Button('reset')
+  )
+)
+
 arne = {
   name: "Arne Steppat",
   level: 9001
@@ -31,50 +62,110 @@ arne = {
 form.value = arne
 ```
 
-While the user plays around with the form the object will reflect the changes immediately.
+## Reset
 
-## Get values
-
-If you did not provide any object the form will create one for you.
+The form comes with a reset feature.
 
 ```typescript
-var arne = form.value
+form.conserveOriginalValues()
+form.reset()
 ```
 
-## Render
+## Find elements
 
-Now that your form is there you can render it. The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
+You can convienently search for elements by their name.
+
+```typescript
+var form = new Form('CharacterEditForm', 'Character').add(
+  new Field('string', 'name'),
+  new Field('number', 'level')
+  new FormElement('buttons').add(
+    new Button('submit'),
+    new Button('reset')
+  )
+)
+
+form.find('name')
+form.find('buttons.submit')
+form.find('submit') // works
+```
+
+## Paths
+
+The form element names are used to create neat little paths.
+
+```typescript
+var form = new Form('CharacterEditForm', 'Character').add(
+  new Field('string', 'name'),
+  new Field('number', 'level')
+  new FormElement('buttons').add(
+    new Button('submit'),
+    new Button('reset')
+  )
+)
+
+form.find('name').path === 'CharacterEditForm.name'
+form.find('name').fieldPath === 'Character.name' // ignores FormElements
+
+form.find('submit').path === 'CharacterEditForm.buttons.submit'
+```
+
+You can use them for translation to generate a nice translation key.
+
+```
+Character.name=Name
+CharacterEditForm.buttons.submit=Submit
+```
+
+## Visitor
+
+There is a visitor which can be used to visit every element of a form tree. It can be used to implement custom functionality.
+
+```typescript
+class FormTranslationVisitor extends FormVisitor<void> {
+  visit(element: FormElement) {
+    let path = element instanceof Field ? element.fieldPath : element.path
+    element.widget.title = translate(path)
+    this.visitDeeper(element)
+  }
+}
+```
+
+## Rendering
+
+The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
 
 So basically you create a renderer for one project which is able to render your form exactly in that look of your application. So every time you render a form you will get the same result and if you want to change something about your forms you do it in exactly one place.
 
-There are numerous renderers for different plattforms available as a starting point and the list continues to grow. There already is support for Angular and React but also for Android and iOS. Even some desktop GUIs starting to be supported. An exhaustive list can be found here.
-
 ```html
 <!-- React -->
-<Form form=form />
+<Form form={form} />
 
 <!-- Angular -->
 <form [form]="form" />
 ```
 
-This is what it basically is. Describe a form, put data in, render it, get data out.
+## Widget
 
-# Overview
+You can use our Widget interface to get a minimal boiler plate for your own widgets.
 
-The data structure is a tree. Every element in the tree is an instance of class `FormElement` or one of its sub classes. Basically there is only one other sub class that is worth mentioning which is `Field`. A field represents user inputtable value.
+```typescript
+export interface Widget {
+  title?: string
+  invisible?: boolean
+  disabled?: boolean
+  required?: boolean
+  [key: string]: any
+}
 
-So what you can do is adding fields to represent user inputtable values. You can add visual elements like a fieldset or a row to align elements in a row. You can add buttons which have some instant dynamic behaviour on the form or buttons that submit the form. Also you can add more complex behavioural elements like a mapping which is able to replace parts of the form with other elements depending on a value of a field.
+export interface FieldWidget extends Widget {
+  password?: boolean
+}
+```
 
-There are the following elements available and you may add as many as you like.
+## JSON
 
-- Fields: `Field`, `Form`
-- Buttons: `Button`
-- Visuals elements: `Row`, `FieldSet`
-- Behavioural elements: `Mapping`, `FieldValueMapping`
-
-Buttons, visual elements and behavioural elements are in fact just sub classes of `FormElement`. We differentiate them here simply to have a nicer way of thinking about it.
-
-And yes, the form itself is a field. It is your root element and because it is a field you also can nest it inside other forms. So you will be able to define forms for your domain objects and then you can combine them. You will just want get rid of the form frame and its buttons when rendering. The good thing is that you do not need to think about it because our renderers will do that automatically.
+We are using [mega-nice-json](https://github.com/c0deritter/mega-nice-json) to create an object which is ready to be transformed into a JSON string and back into not just naked objects but into the real corresponding classes of this package.
 
 # FormElement
 
@@ -96,19 +187,6 @@ Setting values on the elements is always optional. Think of it like activating a
 
 For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing.
 
-## Extending the element by adding properties
-
-Because you are in TypeScript it is very easy to add further properties. You just need to do it.
-
-```typescript
-var field = new Field('string', 'name')
-field.validators = [ new Required() ]
-```
-
-Here we add an array of validators to the field. You do not need to subclass the field to do it.
-
-[Insert a hint on how to use it? Refer to the corresponding section]
-
 ## Paths
 
 Every element has a path. It is composed of every element's name up to the root element.
@@ -121,7 +199,7 @@ new Form('character').add( // character
 )
 ```
 
-If an element does not have a name it is ignorned.
+If an element does not have a name it is ignored.
 
 ## Retrieving elements
 
@@ -176,7 +254,7 @@ You can attach any property to any form element.
 
 ```typescript
 var element = new FormElement
-element.extension.validators = []
+element.more.validators = [ new Required() ]
 ```
 
 Use it to attach the data you need for further functionality like validation.
@@ -202,7 +280,7 @@ The pre-defined value types are defined in enum `ValueType`.
 - `object`
 - `string`
 
-The type of property `type` is a string which is on purpose. Add as many new types as you like. Remember it all depends on your renderer and what he makes of the given type.
+The type of property `type` is a string which is on purpose. Add as many new types as you like. Remember it all depends on your renderer and what it makes out of your given type.
 
 Also do not be afraid to inherit from `Field`.
 
