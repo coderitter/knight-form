@@ -35,21 +35,6 @@ var form = new Form('CharacterEditForm', 'Character').add(
 
 Because a form is basically a field you can combine forms into one another. Also you can have your form handle not just an object as its value but also an array or a primitive type.
 
-### Customize form elements
-
-All those elements are combined in a tree. To customize the elements of your form you can use one of the properties put in place to avoid subclassing.
-
-- `valueType`: There is a set of standard value types but you may also use your own
-- `more`: Append anything you need which is not related to the widget here
-- `widget`: Append anything you need which is related to the widget here
-
-### Adjust a form
-
-There are some methods available to adjust a form.
-
-- `keep`: Keeps a list of elements
-- `drop`: Drops a list of elements
-
 ### Form values
 
 The fields in your form describe the structure of the object your form should be able to work with.
@@ -172,6 +157,20 @@ export interface FieldWidget extends Widget {
   password?: boolean
 }
 ```
+### Customize form elements
+
+All those elements are combined in a tree. To customize the elements of your form you can use one of the properties put in place to avoid subclassing.
+
+- `valueType`: There is a set of standard value types but you may also use your own
+- `more`: Append anything you need which is not related to the widget here
+- `widget`: Append anything you need which is related to the widget here
+
+### Adjust a form
+
+There are some methods available to adjust a form.
+
+- `keep`: Keeps a list of elements
+- `drop`: Drops a list of elements
 
 ### JSON
 
