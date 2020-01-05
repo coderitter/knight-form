@@ -10,7 +10,7 @@ A mega nice data structure describing your forms. It is easily extensible and yo
 
 ### Elements
 
-There are exactly to elements to describe your form.
+There are exactly two elements to describe your form.
 
 - `FormElement`: A general purpose form element that is not a field
 - `Field`: A field representing a property on your object
