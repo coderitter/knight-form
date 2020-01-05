@@ -112,20 +112,6 @@ Character.name=Name
 CharacterEditForm.buttons.submit=Submit
 ```
 
-### Visitor
-
-There is a visitor which can be used to visit every element of a form tree. It can be used to implement custom functionality.
-
-```typescript
-class FormTranslationVisitor extends FormVisitor<void> {
-  visit(element: FormElement) {
-    let path = element instanceof Field ? element.fieldPath : element.path
-    element.widget.title = translate(path)
-    this.visitDeeper(element)
-  }
-}
-```
-
 ### Rendering
 
 The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
@@ -171,6 +157,20 @@ There are some methods available to adjust a form.
 
 - `keep`: Keeps a list of elements
 - `drop`: Drops a list of elements
+
+### Visitor
+
+There is a visitor which can be used to visit every element of a form tree. It can be used to implement custom functionality.
+
+```typescript
+class FormTranslationVisitor extends FormVisitor<void> {
+  visit(element: FormElement) {
+    let path = element instanceof Field ? element.fieldPath : element.path
+    element.widget.title = translate(path)
+    this.visitDeeper(element)
+  }
+}
+```
 
 ### JSON
 
