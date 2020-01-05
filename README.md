@@ -128,7 +128,7 @@ So basically you create a renderer for one project which is able to render your 
 
 ### Widget
 
-You can use our Widget interface to get a minimal boiler plate for your own widgets.
+You can use our Widget interfaces to get a minimal boiler plate for your own widgets.
 
 ```typescript
 export interface Widget {
