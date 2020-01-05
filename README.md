@@ -148,8 +148,8 @@ export interface FieldWidget extends Widget {
 All those elements are combined in a tree. To customize the elements of your form you can use one of the properties put in place to avoid subclassing.
 
 - `valueType`: There is a set of standard value types but you may also use your own
-- `more`: Append anything which is not related to the look of the widget here
-- `widget`: Append anything which is related to the look of the widget here
+- `more`: Append anything which _is not_ related to the look of the widget here
+- `widget`: Append anything which _is_ related to the look of the widget here
 
 ### Adjust a form
 
