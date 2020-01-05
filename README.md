@@ -1,8 +1,14 @@
-# Quick start
+# Mega Nice Form
 
 A mega nice data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently.
 
-## Elements
+## Install
+
+`npm install mega-nice-form`
+
+## Overview
+
+### Elements
 
 There are exactly to elements to describe your form.
 
@@ -29,7 +35,7 @@ var form = new Form('CharacterEditForm', 'Character').add(
 
 Because a form is basically a field you can combine forms into one another. Also you can have your form handle not just an object as its value but also an array or a primitive type.
 
-## Customize form elements
+### Customize form elements
 
 All those elements are combined in a tree. To customize the elements of your form you can use one of the properties put in place to avoid subclassing.
 
@@ -37,14 +43,14 @@ All those elements are combined in a tree. To customize the elements of your for
 - `more`: Append anything you need which is not related to the widget here
 - `widget`: Append anything you need which is related to the widget here
 
-## Adjust a form
+### Adjust a form
 
 There are some methods available to adjust a form.
 
 - `keep`: Keeps a list of elements
 - `drop`: Drops a list of elements
 
-## Form values
+### Form values
 
 The fields in your form describe the structure of the object your form should be able to work with.
 
@@ -66,7 +72,7 @@ arne = {
 form.value = arne
 ```
 
-## Reset
+### Reset
 
 The form comes with a reset feature.
 
@@ -75,7 +81,7 @@ form.conserveOriginalValues()
 form.reset()
 ```
 
-## Find elements
+### Find elements
 
 You can convienently search for elements by their name.
 
@@ -94,7 +100,7 @@ form.find('buttons.submit')
 form.find('submit') // works
 ```
 
-## Paths
+### Paths
 
 The form element names are used to create neat little paths.
 
@@ -121,7 +127,7 @@ Character.name=Name
 CharacterEditForm.buttons.submit=Submit
 ```
 
-## Visitor
+### Visitor
 
 There is a visitor which can be used to visit every element of a form tree. It can be used to implement custom functionality.
 
@@ -135,7 +141,7 @@ class FormTranslationVisitor extends FormVisitor<void> {
 }
 ```
 
-## Rendering
+### Rendering
 
 The special thing about our renderers is that we do not provide you some black box configuration magic. We give you the source code. This way you can look at it and understand for yourself. True to the motto when you can understand it you can extend it.
 
@@ -149,7 +155,7 @@ So basically you create a renderer for one project which is able to render your 
 <form [form]="form" />
 ```
 
-## Widget
+### Widget
 
 You can use our Widget interface to get a minimal boiler plate for your own widgets.
 
@@ -167,11 +173,12 @@ export interface FieldWidget extends Widget {
 }
 ```
 
-## JSON
+### JSON
 
 We are using [mega-nice-json](https://github.com/c0deritter/mega-nice-json) to create an object which is ready to be transformed into a JSON string and back into not just naked objects but into the real corresponding classes of this package.
 
-# FormElement
+## Detailed
+### FormElement
 
 The `FormElement` is the base class for every element in the tree. Here are its properties.
 
@@ -185,13 +192,13 @@ This element is the starting point if you do not have to deal with use inputtabl
 
 Do not be afraid to extend it.
 
-## FormElement properties act as features
+#### FormElement properties act as features
 
 Setting values on the elements is always optional. Think of it like activating a feature if you set a certain property. If you do not need a certain feature the library will not mind.
 
 For example if you leave out the name and you want to retreive that element by its name it will not find it. It will find nothing.
 
-## Paths
+#### Paths
 
 Every element has a path. It is composed of every element's name up to the root element.
 
@@ -205,7 +212,7 @@ new Form('character').add( // character
 
 If an element does not have a name it is ignored.
 
-## Retrieving elements
+#### Retrieving elements
 
 The `find()` method lets you retreive any element from any element. A dot notation is used to access fields down the chain.
 
@@ -241,7 +248,7 @@ At first the form tries to resolve the path gapless not considering container el
 
 We use a very tolerant approach here in order to meet you. Even if you are being more loose in your specifications the form will still try to make the best out of it.
 
-## Parent
+#### Parent
 
 Because every element knows its parent there is some functionality available.
 
@@ -252,7 +259,7 @@ element.form // the next parent form up in the chain
 element.path // the complete path of the element up the the root
 ```
 
-## Extending with additional properties
+#### Extending with additional properties
 
 You can attach any property to any form element.
 
@@ -263,11 +270,11 @@ element.more.validators = [ new Required() ]
 
 Use it to attach the data you need for further functionality like validation.
 
-# Field
+### Field
 
 The field is your building block to describe the structure of the object your form should be able to cope with. Every field represents a property on your object. The field itself does not determine a specific widget. That makes this form library platform independent.
 
-## Field properties
+#### Field properties
 
 The properties of the field.
 
@@ -288,7 +295,7 @@ The type of property `type` is a string which is on purpose. Add as many new typ
 
 Also do not be afraid to inherit from `Field`.
 
-## The field path
+#### The field path
 
 Fields additionally have a special path `fieldPath` which only takes fields into consideration. This is good for translation because that way the ids are stable. Imagine adding or removing a `FieldSet` and suddenly all translation ids are changing.
 
@@ -300,7 +307,7 @@ new Form('character').add(
 )
 ```
 
-## Primitive fields
+#### Primitive fields
 
 You determine the type of a field by setting its value type property. Here are the primitive ones.
 
@@ -319,7 +326,7 @@ Just exchange the value type `boolean` with anything from the list above.
 
 In the field the name additionally represents the name of an attribute on an object. It is key for mapping your form fields to actual object attributes.
 
-## Object fields
+#### Object fields
 
 An object field has an object as its value. Add sub elements which will determine the properties of your sub object.
 
@@ -344,7 +351,7 @@ friendsField.addOptions(
 
 This scenario of referencing ids could also be solved differently through a field of type `number`. It all depends on what you need.
 
-## Array fields
+#### Array fields
 
 If you initialize a field as an array you will need to give it a prototypical element. Is is used to create elements for the existing array items and when adding new ones. The prototype can be any form element.
 
@@ -357,7 +364,7 @@ new Field('array', 'favouriteFood', new Field('object').add(
 
 The prototypical element does not need to have a name otherwise every form element in the array field will have the same name. Also it can be any form element of course.
 
-## Setting values
+#### Setting values
 
 Setting a value is just like this.
 
@@ -417,7 +424,7 @@ var charactersField = new Field('array', characterPrototype)
 charactersField.value = characters
 ```
 
-## Options
+#### Options
 
 An option is basically a value and a label. 
 
@@ -439,7 +446,7 @@ var options = [
 var field = new Field("int64", "level", options)
 ```
 
-# Form
+### Form
 
 The form is just a field. Thus it can have different values types.
 
@@ -459,7 +466,7 @@ Also they are easily combinable.
 objectForm.add(arrayForm, numberForm)
 ```
 
-## Visual properties
+#### Visual properties
 
 The form has two properties to describe a frame for the form.
 
@@ -473,7 +480,7 @@ form.addButtons(
 )
 ```
 
-## Form creation from different sources
+#### Form creation from different sources
 
 You can create forms from a form definitions in JSON and in general from objects that have the same properties as the form elements including form elements itself.
 
@@ -491,11 +498,11 @@ Form.load({ // from a form alike object
 
 In the latter case the `@type` property is important. Without it the correct form element class cannot be chosen.
 
-# Buttons
+### Buttons
 
 work in progress...
 
-## Register for events
+#### Register for events
 
 You can also register for button events.
 
@@ -511,9 +518,9 @@ form.find('submit').listen(button => {
 })
 ```
 
-# Visual elements
+### Visual elements
 
-## Row
+#### Row
 
 A visual element to define that the contained elements should be in a row.
 
@@ -523,7 +530,7 @@ var row = new Row('rowName').add(
 )
 ```
 
-## FieldSet
+#### FieldSet
 
 A visual element to define that the contained elements should be framed.
 
@@ -533,7 +540,7 @@ var fieldSet = new FieldSet('fieldSetName').add(
 )
 ```
 
-## Create your own
+#### Create your own
 
 Just extend `FormElement` and do whatever you need to do.
 
@@ -542,9 +549,9 @@ class Separator extends FormElement {
 }
 ```
 
-# Behavioural elements
+### Behavioural elements
 
-## Mapping
+#### Mapping
 
 The mapping element maps a key to a form element. The key can be really anything. Use it to your liking to create new behavioural elements tailored to your needs. It is just a data structure which can be used for any behaviour.
 
@@ -556,7 +563,7 @@ var mapping = new Mapping().add(
 )
 ```
 
-## FieldValueMapping
+#### FieldValueMapping
 
 This element maps the value of a field to a form element. If the field has the specified value the corresponding element will shown as if they were part of the parent element.
 
@@ -572,11 +579,11 @@ var form = new Form().add(
 )
 ```
 
-# Rendering
+### Rendering
 
 If you do not have any renderer code as a boilerplate for your new project you will want to write it on your own. Create an infrastructure consisting of widgets and their mapping to concrete components of your platform dependent UI framework.
 
-## Widgets
+#### Widgets
 
 The widget that we ship has the following basic properties.
 
@@ -595,7 +602,7 @@ class NumberInput extends Widget {
 }
 ```
 
-## Templates
+#### Templates
 
 The way you render your form is different in every famework you use. Similar is the way we want you to work with renderers. In our universe renderers are not some black box components that you choose and which you can only extend in a mystical way. In our universe you download the source of one of our provided renderers and include it into your project. Most of the time this is one file. The renderer serves as a starting point from which on you extend it. Programmatically. Not through mystic configuration.
 
@@ -651,7 +658,7 @@ This is the way we do it. But you do not necessarily do it the same way. You can
 
 The next thing that you want to do is to react to a form submission. Exactly the way you need it to be. There is the `onSubmit()` method which is already implemented but if you do not like it then replace it. Or just extend it. It is up to you.
 
-# Visitor
+### Visitor
 
 We have built a visitor which visits every element of the form tree.
 
@@ -672,7 +679,7 @@ Run it like this.
 form.visit(new YourVisitor())
 ```
 
-## Translation
+#### Translation
 
 To use your favourite translation mechanism create a visitor.
 
@@ -697,7 +704,7 @@ And run it.
 form.visit(new TranslationVisitor())
 ```
 
-## Validation
+#### Validation
 
 Attach your validation objects or whatever it is directly on the form elements.
 
