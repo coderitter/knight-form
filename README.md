@@ -27,7 +27,7 @@ var form = new Form('CharacterEditForm', 'Character').add(
 )
 ```
 
-Because a form is basically a field you can combine forms into one another. Also you can have your form handle not just an object as its value but also an array or a simple number.
+Because a form is basically a field you can combine forms into one another. Also you can have your form handle not just an object as its value but also an array or a primitive type.
 
 ## Customize form elements
 
