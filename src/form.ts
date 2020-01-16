@@ -23,7 +23,7 @@ export class FormElement {
   objectName?: string
   prototype?: FormElement
   widget: Widget = {}
-  more: { [key: string]: any } = {}
+  more: {[key: string]: any} = {}
 
   /**
    * @param flavor The name (optional)
@@ -108,6 +108,11 @@ export class FormElement {
     }
 
     return fields
+  }
+
+  setMore(more: {[key: string]: any}): this {
+    this.more = more
+    return this
   }
 
   setWidget(widget: Widget): this {
@@ -605,6 +610,11 @@ export class Field extends FormElement {
         }
       }
     }
+  }
+
+  setValue(value: any): this {
+    this.value = value
+    return this
   }
 
   setWidget(widget: FieldWidget): this {
