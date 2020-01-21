@@ -1,4 +1,4 @@
-import { fillWithJsonObj, fromJsonObj, Instantiator, toJsonObj, FillWithJsonObjOptions } from 'mega-nice-json'
+import { fillWithJsonObj, FillWithJsonObjOptions, fromJsonObj, Instantiator, toJsonObj } from 'mega-nice-json'
 
 export class FormElement {
 
@@ -569,10 +569,14 @@ export class Field extends FormElement {
         return this._value
       }
 
-      for (let field of this.fields) {
-        if (field.name) {
-          obj[field.name] = field.value
-        }
+      let subFields = this.visit(new FindAllSubFieldsVisitor)
+
+      if (subFields) {
+        for (let field of subFields) {
+          if (field.name) {
+            obj[field.name] = field.value
+          }
+        }  
       }
 
       return obj
@@ -585,7 +589,7 @@ export class Field extends FormElement {
     this._value = value
 
     if (this.valueType === ValueType.object && typeof value === 'object') {
-      const subFields = this.visit(new FindDirectSubFieldsVisitor)
+      let subFields = this.visit(new FindAllSubFieldsVisitor)
 
       if (subFields) {
         for (let field of subFields) {
@@ -875,7 +879,7 @@ export abstract class FormVisitor<T = any> {
   }
 }
 
-export class FindDirectSubFieldsVisitor extends FormVisitor<Field[]> {
+export class FindAllSubFieldsVisitor extends FormVisitor<Field[]> {
 
   result: Field[] = []
   

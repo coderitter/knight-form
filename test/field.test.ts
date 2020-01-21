@@ -582,6 +582,18 @@ describe('Field', function() {
         }
       })
     })
+
+    it.only('should not stop at form elements', function() {
+      let form = new Form().add(
+        new FormElement().add(
+          new Field('string', 'a').setValue('a1')
+        )
+      )
+
+      let value = form.value
+
+      expect(value).to.deep.equal({ a: 'a1' })
+    })
   })
 
   describe('clear', function() {
