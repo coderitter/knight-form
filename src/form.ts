@@ -96,18 +96,10 @@ export class FormElement {
   }
 
   /**
-   * Get every direct child which is a field.
+   * Get every field down the form tree.
    */
-  get fields(): Field[] {
-    let fields: Field[] = []
-
-    for (let child of this.children) {
-      if (child instanceof Field) {
-        fields.push(child)
-      }
-    }
-
-    return fields
+  getAllFields(): Field[] {
+    return this.visit(new FindAllFieldsVisitor())
   }
 
   setMore(more: {[key: string]: any}): this {
@@ -446,7 +438,7 @@ export class FormElement {
     return this
   }
 
-  visit<T>(visitor: FormVisitor<T>): T|undefined {
+  visit<T>(visitor: FormVisitor<T>): T {
     if (! visitor.doNotVisitStartElement) {
       visitor.visit(this)
     }
@@ -569,7 +561,7 @@ export class Field extends FormElement {
         return this._value
       }
 
-      let subFields = this.visit(new FindAllSubFieldsVisitor)
+      let subFields = this.visit(new FindAllFieldsVisitor)
 
       if (subFields) {
         for (let field of subFields) {
@@ -589,7 +581,7 @@ export class Field extends FormElement {
     this._value = value
 
     if (this.valueType === ValueType.object && typeof value === 'object') {
-      let subFields = this.visit(new FindAllSubFieldsVisitor)
+      let subFields = this.visit(new FindAllFieldsVisitor)
 
       if (subFields) {
         for (let field of subFields) {
@@ -865,7 +857,7 @@ function joinPath(path: Array<String>) {
 
 export abstract class FormVisitor<T = any> {
 
-  result?: T
+  result!: T
   doNotVisitStartElement: boolean = false
 
   abstract visit(element: FormElement): void
@@ -879,7 +871,7 @@ export abstract class FormVisitor<T = any> {
   }
 }
 
-export class FindAllSubFieldsVisitor extends FormVisitor<Field[]> {
+export class FindAllFieldsVisitor extends FormVisitor<Field[]> {
 
   result: Field[] = []
   
