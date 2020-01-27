@@ -22,6 +22,7 @@ export class FormElement {
    */
   objectName?: string
   prototype?: FormElement
+  error: any
   widget: Widget = {}
   more: {[key: string]: any} = {}
 
@@ -343,11 +344,17 @@ export class FormElement {
     return field
   }
 
-  clear(recursive: boolean = true) {
-    if (recursive) {
-      for (let child of this.children) {
-        child.clear()
-      }  
+  clear() {
+    for (let child of this.children) {
+      child.clear()
+    }
+  }
+
+  clearErrors() {
+    this.error = undefined
+
+    for (let child of this.children) {
+      child.clearErrors()
     }
   }
 
@@ -658,13 +665,11 @@ export class Field extends FormElement {
     return fieldPath
   }
 
-  clear(recursive: boolean = true) {
+  clear() {
     this.value = undefined
 
-    if (recursive) {
-      for(let child of this.children) {
-        child.clear()
-      }
+    for(let child of this.children) {
+      child.clear()
     }
   }
 
