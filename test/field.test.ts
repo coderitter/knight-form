@@ -583,7 +583,7 @@ describe('Field', function() {
       })
     })
 
-    it.only('should not stop at form elements', function() {
+    it('should not stop at form elements', function() {
       let form = new Form().add(
         new FormElement().add(
           new Field('string', 'a').setValue('a1')

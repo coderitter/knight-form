@@ -149,19 +149,6 @@ describe('FormElement', function() {
       expect(child3.parent).to.equal(root)
       expect(child4.parent).to.equal(root)
     })
-    
-    it('should retreive all fields', function() {
-      let root = new FormElement('root').add(
-        new FormElement(),
-        new Field(),
-        new FormElement(),
-        new Field()
-      )
-
-      let fields = root.fields
-
-      expect(fields.length).to.equal(2)
-    })
   })
   
   describe('path', function() {
@@ -388,7 +375,7 @@ describe('FormElement', function() {
   })
 
   describe('toObj', () => {
-    it('should transfer all FormElement properties', () => {
+    it('should transfer all FormElement properties', function() {
       let formElement = new FormElement('testName')    
       let formElementObj = formElement.toObj()
   

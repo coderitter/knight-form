@@ -471,7 +471,13 @@ export class FormElement {
     // toJsonObj will call toObj method if present and told not differently to do so
     // if you are getting a problem with infinite recursion this will be the problem
     // do not forget to call this method (super.toObj) if you override
-    return toJsonObj(this, { exclude: exclude, doNotUseCustomToJsonMethodOfFirstObject: true })
+    return toJsonObj(this, {
+      exclude: exclude,
+      omitPrivatePropertiesAndUseGetMethodsInstead: true,
+      omitEmptyArrays: true,
+      omitEmptyObjects: true,
+      doNotUseCustomToJsonMethodOfFirstObject: true
+    })
   }
 
   static fromObj(obj: any, instantiator = new FormInstantiator()): any {
