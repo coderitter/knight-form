@@ -1,10 +1,10 @@
-# Mega Nice Form
+# Knight Form by Coderitter
 
 A mega nice data structure describing your forms. It is easily extensible and you can use your domain objects to fill it conveniently.
 
 ## Install
 
-`npm install mega-nice-form`
+`npm install knight-form`
 
 ## Overview
 
@@ -174,7 +174,7 @@ class FormTranslationVisitor extends FormVisitor<void> {
 
 ### JSON
 
-We are using [mega-nice-json](https://github.com/c0deritter/mega-nice-json) to create an object which is ready to be transformed into a JSON string and back into not just naked objects but into the real corresponding classes of this package.
+We are using [knight-json](https://github.com/c0deritter/knight-json) to create an object which is ready to be transformed into a JSON string and back into not just naked objects but into the real corresponding classes of this package.
 
 ## Detailed
 ### FormElement
