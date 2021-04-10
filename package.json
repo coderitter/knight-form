@@ -1,18 +1,15 @@
 {
-  "name": "mega-nice-form",
-  "version": "0.13.2",
-  "description": "A mega nice data structure to work with forms",
+  "name": "knight-form",
+  "version": "0.1.0",
+  "description": "A data structure to work with forms",
   "main": "lib/form.js",
   "types": "lib/form.d.ts",
   "files": [
     "lib/**/*"
   ],
   "scripts": {
-    "test": "mocha -r ts-node/register test/**/*.test.ts",
+    "test": "mocha -r ts-node/register \"test/**/*.test.ts\"",
     "build": "rm -rf lib && tsc"
-  },
-  "dependencies": {
-    "mega-nice-json": "^4.0.1"
   },
   "devDependencies": {
     "@types/chai": "^4.2.9",
@@ -25,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/c0deritter/mega-form.git"
+    "url": "git+https://github.com/c0deritter/knight-form.git"
   },
   "keywords": [
     "form"
@@ -33,7 +30,10 @@
   "author": "Coderitter GmbH",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/c0deritter/form/issues"
+    "url": "https://github.com/c0deritter/knight-form/issues"
   },
-  "homepage": "https://github.com/c0deritter/form#readme"
+  "homepage": "https://github.com/c0deritter/knight-form#readme",
+  "dependencies": {
+    "knight-json": "^1.0.1"
+  }
 }

@@ -1,4 +1,4 @@
-import { fillWithJsonObj, FillWithJsonObjOptions, fromJsonObj, Instantiator, toJsonObj } from 'mega-nice-json'
+import { fillJsonObj, FillJsonObjOptions, fromJsonObj, toJsonObj } from 'knight-json'
 
 export class FormElement {
 
@@ -480,7 +480,7 @@ export class FormElement {
     })
   }
 
-  static fromObj(obj: any, instantiator = new FormInstantiator()): any {
+  static fromObj(obj: any, instantiator = formInstantiator): any {
     return fromJsonObj(obj, instantiator)
   }
 
@@ -711,7 +711,7 @@ export class Field extends FormElement {
     return super.toObj(exclude)
   }
 
-  fillWithObj(obj: any, options?: FillWithJsonObjOptions) {
+  fillJsonObj(obj: any, options?: FillJsonObjOptions) {
     if (options == undefined) {
       options = {}
     }
@@ -719,10 +719,10 @@ export class Field extends FormElement {
     options.doNotUseCustomToJsonMethodOfFirstObject = true
 
     if (options.instantiator == undefined) {
-      options.instantiator = new FormInstantiator()
+      options.instantiator = formInstantiator
     }
 
-    fillWithJsonObj(this, obj, options)
+    fillJsonObj(this, obj, options)
     this.conserveOriginalValues(false)
   }
 
@@ -901,11 +901,11 @@ export class FindAllFieldsVisitor extends FormVisitor<Field[]> {
   }
 }
 
-export class FormInstantiator extends Instantiator {
-  'FormElement' = () => new FormElement()
-  'Field' = () => new Field()
-  'Form' = () => new Form()
-  'Button' = () => new Button()
-  'Mapping' = () => new Mapping()
-  'FieldValueMapping' = () => new FieldValueMapping()
+export const formInstantiator: { [className: string]: () => any } = {
+  'FormElement': () => new FormElement(),
+  'Field': () => new Field(),
+  'Form': () => new Form(),
+  'Button': () => new Button(),
+  'Mapping': () => new Mapping(),
+  'FieldValueMapping': () => new FieldValueMapping()
 }
